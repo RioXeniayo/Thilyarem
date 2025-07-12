@@ -3,11 +3,25 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Updated Layout Template</title>
+    <!-- Tailwind CSS for styling -->
     <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts: Inter -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&display=swap" rel="stylesheet">
-    <script src="js/Carousel.js" defer></script>
+    <script>
+        // Configure Tailwind to use the "Inter" font as the default sans-serif font
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    },
+                },
+            },
+        }
+    </script>
 </head>
 <body class="bg-gray-300 text-slate-800 font-sans">
 
@@ -134,7 +148,47 @@
                 </div>
             </div>
         </section>
+<script>
+        document.addEventListener('DOMContentLoaded', function () {
+            // --- Reusable Image Slider Logic ---
+            /**
+             * Finds all sliders with the class '.slider-container' and initializes them.
+             * @param {HTMLElement} sliderElement - The container element for a single slider.
+             */
+            function initializeSlider(sliderElement) {
+                const sliderTrack = sliderElement.querySelector('.slider-track');
+                const prevButton = sliderElement.querySelector('.prev-slide');
+                const nextButton = sliderElement.querySelector('.next-slide');
+                
+                if (!sliderTrack || !prevButton || !nextButton) {
+                    console.error("A slider is missing required elements (track or buttons).");
+                    return;
+                }
 
+                const slides = sliderTrack.children;
+                const slideCount = slides.length;
+                let currentIndex = 0;
+
+                function updateSliderPosition() {
+                    const offset = -currentIndex * 100;
+                    sliderTrack.style.transform = `translateX(${offset}%)`;
+                }
+
+                nextButton.addEventListener('click', function () {
+                    currentIndex = (currentIndex + 1) % slideCount;
+                    updateSliderPosition();
+                });
+
+                prevButton.addEventListener('click', function () {
+                    currentIndex = (currentIndex - 1 + slideCount) % slideCount;
+                    updateSliderPosition();
+                });
+            }
+
+            // Initialize all sliders on the page.
+            document.querySelectorAll('.slider-container').forEach(initializeSlider);
+        });
+    </script>
     </div>
 </body>
 </html>
