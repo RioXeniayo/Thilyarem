@@ -1,41 +1,50 @@
-    <script>
-        document.addEventListener('DOMContentLoaded', function () {
-            // --- Reusable Image Slider Logic ---
-            /**
-             * Finds all sliders with the class '.slider-container' and initializes them.
-             * @param {HTMLElement} sliderElement - The container element for a single slider.
-             */
-            function initializeSlider(sliderElement) {
-                const sliderTrack = sliderElement.querySelector('.slider-track');
-                const prevButton = sliderElement.querySelector('.prev-slide');
-                const nextButton = sliderElement.querySelector('.next-slide');
-                
-                if (!sliderTrack || !prevButton || !nextButton) {
-                    console.error("A slider is missing required elements (track or buttons).");
-                    return;
-                }
+// Configure Tailwind to use the "Inter" font as the default sans-serif font
+tailwind.config = {
+    theme: {
+        extend: {
+            fontFamily: {
+                sans: ['Inter', 'sans-serif'],
+            },
+        },
+    },
+}
 
-                const slides = sliderTrack.children;
-                const slideCount = slides.length;
-                let currentIndex = 0;
+document.addEventListener('DOMContentLoaded', function () {
+    // --- Reusable Image Slider Logic ---
+    /**
+     * Finds all sliders with the class '.slider-container' and initializes them.
+     * @param {HTMLElement} sliderElement - The container element for a single slider.
+     */
+    function initializeSlider(sliderElement) {
+        const sliderTrack = sliderElement.querySelector('.slider-track');
+        const prevButton = sliderElement.querySelector('.prev-slide');
+        const nextButton = sliderElement.querySelector('.next-slide');
+        
+        if (!sliderTrack || !prevButton || !nextButton) {
+            console.error("A slider is missing required elements (track or buttons).");
+            return;
+        }
 
-                function updateSliderPosition() {
-                    const offset = -currentIndex * 100;
-                    sliderTrack.style.transform = `translateX(${offset}%)`;
-                }
+        const slides = sliderTrack.children;
+        const slideCount = slides.length;
+        let currentIndex = 0;
 
-                nextButton.addEventListener('click', function () {
-                    currentIndex = (currentIndex + 1) % slideCount;
-                    updateSliderPosition();
-                });
+        function updateSliderPosition() {
+            const offset = -currentIndex * 100;
+            sliderTrack.style.transform = `translateX(${offset}%)`;
+        }
 
-                prevButton.addEventListener('click', function () {
-                    currentIndex = (currentIndex - 1 + slideCount) % slideCount;
-                    updateSliderPosition();
-                });
-            }
-
-            // Initialize all sliders on the page.
-            document.querySelectorAll('.slider-container').forEach(initializeSlider);
+        nextButton.addEventListener('click', function () {
+            currentIndex = (currentIndex + 1) % slideCount;
+            updateSliderPosition();
         });
-    </script>
+
+        prevButton.addEventListener('click', function () {
+            currentIndex = (currentIndex - 1 + slideCount) % slideCount;
+            updateSliderPosition();
+        });
+    }
+
+    // Initialize all sliders on the page.
+    document.querySelectorAll('.slider-container').forEach(initializeSlider);
+});
