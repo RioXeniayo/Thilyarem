@@ -8,12 +8,11 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&display=swap" rel="stylesheet">
-    <!-- Link for Animate On Scroll (AOS) library -->
-    <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <style>
         body {
             font-family: 'Inter', sans-serif;
-            background-color: #111; /* Darker background */
+            background-color: #111;
             color: #e0e0e0;
         }
         .main-bg {
@@ -30,27 +29,26 @@
             backdrop-filter: blur(16px);
             border: 1px solid rgba(255, 255, 255, 0.1);
             border-radius: 0.75rem;
-            height: 100%; 
         }
-        
-        /* --- Updated Sleek Shiny Buttons (Violet/Purple Theme) --- */
         .shiny-btn {
-            background: linear-gradient(to bottom, #6d28d9 0%, #4c1d95 100%); /* violet-700 to violet-900 */
-            border: 1px solid #a78bfa; /* violet-400 */
+            background: linear-gradient(to bottom, #6d28d9 0%, #4c1d95 100%);
+            border: 1px solid #a78bfa;
             box-shadow: 0 1px 2px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.15);
             transition: all 0.3s ease;
         }
         .shiny-btn:hover {
-            background: linear-gradient(to bottom, #7c3aed 0%, #6d28d9 100%); /* violet-600 to violet-700 */
+            background: linear-gradient(to bottom, #7c3aed 0%, #6d28d9 100%);
             box-shadow: 0 2px 4px rgba(0,0,0,0.7), inset 0 1px 0 rgba(255,255,255,0.25);
             transform: translateY(-2px);
         }
         .shiny-btn.active {
-             background: linear-gradient(to bottom, #a78bfa 0%, #8b5cf6 100%); /* violet-400 to violet-500 */
-             border-color: #c4b5fd; /* violet-300 */
+             background: linear-gradient(to bottom, #a78bfa 0%, #8b5cf6 100%);
+             border-color: #c4b5fd;
         }
-
-        /* --- Styles for Smoother Dropdowns --- */
+        .sidebar {
+            background-color: rgba(10, 10, 12, 0.8);
+            backdrop-filter: blur(10px);
+        }
         .dropdown-menu {
             opacity: 0;
             visibility: hidden;
@@ -67,154 +65,230 @@
         }
     </style>
 </head>
-<body class="bg-[#111]">
+<body class="main-bg">
 
-    <div class="max-w-7xl mx-auto shadow-2xl">
-
-        <!-- Header and Navigation -->
-        <header class="bg-black bg-opacity-60 backdrop-filter backdrop-blur-sm border-b border-gray-800 px-4 sm:px-6 lg:px-8 sticky top-0 z-30">
-            <div class="flex items-center justify-between h-20">
-                <!-- Logo -->
-                <div class="flex-shrink-0">
-                    <h1 class="text-4xl font-bold text-shadow" style="color: #a78bfa;">Thilyarem</h1>
+    <div class="flex h-screen">
+        <!-- Sidebar -->
+        <aside id="sidebar" class="sidebar w-64 flex-shrink-0 p-4 transition-all duration-300 ease-in-out overflow-y-auto">
+            <h1 class="text-2xl font-bold text-violet-400 mb-6">Thilyarem</h1>
+            <nav class="space-y-4">
+                <div>
+                    <h2 class="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">Core</h2>
+                    <a href="#" class="flex items-center p-2 text-gray-300 hover:bg-violet-800 hover:bg-opacity-50 rounded-md">
+                        <i class="fas fa-home w-6"></i>
+                        <span>Home</span>
+                    </a>
+                    <a href="#" class="flex items-center p-2 text-gray-300 hover:bg-violet-800 hover:bg-opacity-50 rounded-md">
+                        <i class="fab fa-discord w-6"></i>
+                        <span>Official Discord</span>
+                    </a>
                 </div>
-
-                <!-- Desktop Navigation Links -->
-                <nav class="hidden md:flex items-center space-x-2">
-                    <a href="#" class="shiny-btn active text-white px-4 py-2 rounded-md text-sm font-medium">Home</a>
-                    
-                    <!-- Genetics Dropdown -->
-                    <div class="relative dropdown">
-                        <button class="shiny-btn text-gray-200 hover:text-white px-4 py-2 rounded-md text-sm font-medium flex items-center">
-                            <span>Genetics</span>
-                            <svg class="w-4 h-4 ml-1" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd"></path></svg>
+                <div>
+                    <h2 class="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">Resources</h2>
+                     <!-- Collapsible Menu Item -->
+                    <div>
+                        <button onclick="toggleMenu('community-menu')" class="w-full flex items-center justify-between p-2 text-gray-300 hover:bg-violet-800 hover:bg-opacity-50 rounded-md">
+                            <div class="flex items-center">
+                                <i class="fas fa-comment w-6"></i>
+                                <span>Community</span>
+                            </div>
+                            <i id="community-menu-arrow" class="fas fa-angle-down"></i>
                         </button>
-                        <div class="dropdown-menu absolute left-0 mt-2 w-48 rounded-md shadow-lg py-1 z-20">
-                            <a href="#" class="block px-4 py-2 text-sm text-gray-300 hover:bg-violet-600 hover:bg-opacity-40">Free Marks</a>
-                            <a href="#" class="block px-4 py-2 text-sm text-gray-300 hover:bg-violet-600 hover:bg-opacity-40">Markings</a>
-                            <a href="#" class="block px-4 py-2 text-sm text-gray-300 hover:bg-violet-600 hover:bg-opacity-40">Mutations</a>
-                            <a href="#" class="block px-4 py-2 text-sm text-gray-300 hover:bg-violet-600 hover:bg-opacity-40">Manetypes</a>
-                            <a href="#" class="block px-4 py-2 text-sm text-gray-300 hover:bg-violet-600 hover:bg-opacity-40">Physical Traits</a>
+                        <div id="community-menu" class="hidden pl-6 mt-1 space-y-1">
+                            <a href="#" class="block p-2 text-sm text-gray-400 hover:text-white">Getting Started</a>
+                            <a href="#" class="block p-2 text-sm text-gray-400 hover:text-white">Pricing Guide</a>
+                            <a href="#" class="block p-2 text-sm text-gray-400 hover:text-white">FAQ</a>
                         </div>
                     </div>
-
-                    <!-- Species Dropdown -->
-                    <div class="relative dropdown">
-                        <button class="shiny-btn text-gray-200 hover:text-white px-4 py-2 rounded-md text-sm font-medium flex items-center">
-                            <span>Species</span>
-                            <svg class="w-4 h-4 ml-1" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd"></path></svg>
+                    <!-- Another Collapsible Menu -->
+                     <div>
+                        <button onclick="toggleMenu('design-menu')" class="w-full flex items-center justify-between p-2 text-gray-300 hover:bg-violet-800 hover:bg-opacity-50 rounded-md">
+                            <div class="flex items-center">
+                                <i class="fas fa-palette w-6"></i>
+                                <span>Design</span>
+                            </div>
+                            <i id="design-menu-arrow" class="fas fa-angle-down"></i>
                         </button>
-                        <div class="dropdown-menu absolute left-0 mt-2 w-48 rounded-md shadow-lg py-1 z-20">
-                            <a href="#" class="block px-4 py-2 text-sm text-gray-300 hover:bg-violet-600 hover:bg-opacity-40">Thilyarem</a>
-                            <a href="#" class="block px-4 py-2 text-sm text-gray-300 hover:bg-violet-600 hover:bg-opacity-40">Destrier</a>
-                            <a href="#" class="block px-4 py-2 text-sm text-gray-300 hover:bg-violet-600 hover:bg-opacity-40">Cyroas</a>
+                        <div id="design-menu" class="hidden pl-6 mt-1 space-y-1">
+                            <a href="#" class="block p-2 text-sm text-gray-400 hover:text-white">Genetics Guide</a>
+                            <a href="#" class="block p-2 text-sm text-gray-400 hover:text-white">Design Guides</a>
                         </div>
                     </div>
-
-                    <!-- Extra Dropdown -->
-                    <div class="relative dropdown">
-                        <button class="shiny-btn text-gray-200 hover:text-white px-4 py-2 rounded-md text-sm font-medium flex items-center">
-                            <span>Extra</span>
-                            <svg class="w-4 h-4 ml-1" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd"></path></svg>
-                        </button>
-                        <div class="dropdown-menu absolute right-0 mt-2 w-48 rounded-md shadow-lg py-1 z-20">
-                            <a href="#" class="block px-4 py-2 text-sm text-gray-300 hover:bg-violet-600 hover:bg-opacity-40">Flesh and Teeth</a>
-                            <a href="#" class="block px-4 py-2 text-sm text-gray-300 hover:bg-violet-600 hover:bg-opacity-40">Eye Colours</a>
-                            <a href="#" class="block px-4 py-2 text-sm text-gray-300 hover:bg-violet-600 hover:bg-opacity-40">Shading</a>
-                        </div>
-                    </div>
-                </nav>
-
-                 <!-- Mobile Menu Button -->
-                <div class="md:hidden">
-                    <button id="mobile-menu-button" type="button" class="inline-flex items-center justify-center p-2 rounded-md text-gray-400 hover:text-white hover:bg-gray-700 focus:outline-none"><span class="sr-only">Open main menu</span><svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7"></path></svg></button>
                 </div>
-            </div>
-        </header>
+                 <div>
+                    <h2 class="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">Utilities</h2>
+                    <a href="#" class="flex items-center p-2 text-gray-300 hover:bg-violet-800 hover:bg-opacity-50 rounded-md">
+                        <i class="fas fa-calculator w-6"></i>
+                        <span>Placeholder Calculator</span>
+                    </a>
+                    <a href="#" class="flex items-center p-2 text-gray-300 hover:bg-violet-800 hover:bg-opacity-50 rounded-md">
+                        <i class="fas fa-dna w-6"></i>
+                        <span>Placeholder Roller</span>
+                    </a>
+                </div>
+            </nav>
+        </aside>
 
         <!-- Main Content -->
-        <main class="main-bg" id="main-bg">
-            <div class="min-h-[400px] p-4 sm:p-6 lg:p-8 flex justify-center items-center text-center bg-black bg-opacity-40">
-                <div data-aos="zoom-in" data-aos-duration="1000">
-                    <h2 class="text-5xl md:text-6xl font-bold text-white text-shadow">Thilyarem Design Hub</h2>
-                    <p class="mt-4 text-lg text-gray-300 text-shadow max-w-3xl mx-auto">Blitz welcomes you to our temporary design hub!<br>Here you will find all the information you will need to get started designing your very own dog noodle!<br>If you don't have one of your own yet, please look below on the variety of ways you can obtain a noodle of your very own.</p>
-                </div>
-            </div>
-        </main>
-        
-        <!-- Acquiring Section -->
-        <div class="bg-transparent py-16">
-            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                <div class="text-center mb-12" data-aos="fade-up">
-                    <h3 class="text-4xl font-bold text-violet-300">Acquiring a Thilyarem</h3>
-                    <p class="text-lg text-gray-400 mt-2">Your official guide to obtaining a Thilyarem.</p>
-                </div>
-                 <div class="grid grid-cols-1 md:grid-cols-2 gap-8" data-aos="fade-up" data-aos-delay="200">
-                    <!-- The Hatchery -->
-                    <div class="box p-6 flex flex-col">
-                        <h4 class="text-2xl font-bold text-violet-300 mb-3">The Hatchery: Your First Thilyarem</h4>
-                        <p class="text-sm text-gray-400 mb-4 flex-grow">The primary and recommended method for new participants. As a new member, you are allowed to hatch one common egg to begin your adventure!</p>
-                        <a href="#" class="shiny-btn text-white text-center px-4 py-2 rounded-md text-sm font-medium mt-auto">Visit the Hatchery</a>
+        <div class="flex-1 flex flex-col overflow-hidden">
+            <!-- Top Bar -->
+            <header class="bg-black bg-opacity-60 backdrop-filter backdrop-blur-sm border-b border-gray-800 px-4 sm:px-6 lg:px-8 sticky top-0 z-10">
+                <div class="flex items-center justify-between h-20">
+                    <!-- Left Part -->
+                    <div class="flex items-center">
+                        <button id="sidebar-toggle" class="text-gray-300 hover:text-white focus:outline-none">
+                            <i class="fas fa-bars text-xl"></i>
+                        </button>
                     </div>
-                     <!-- The Adoption Center -->
-                    <div class="box p-6 flex flex-col">
-                        <h4 class="text-2xl font-bold text-violet-300 mb-3">The Adoption Center</h4>
-                        <p class="text-sm text-gray-400 mb-4 flex-grow">A secondary avenue for acquiring a Thilyarem. All members may adopt up to two Thilyarem from the center. This policy may be adjusted to reflect supply and demand at a later date.</p>
-                        <a href="#" class="shiny-btn text-white text-center px-4 py-2 rounded-md text-sm font-medium mt-auto">Go to the Adoption Center</a>
-                    </div>
-                     <!-- Player Trading & Sales -->
-                    <div class="box p-6 flex flex-col">
-                        <h4 class="text-2xl font-bold text-violet-300 mb-3">Player Trading & Sales</h4>
-                        <p class="text-sm text-gray-400 mb-4 flex-grow">Obtaining genos and breeding slots directly from other players. Trades often involve art, USD, or in-game items. Sale advertisements are most frequent on our official Discord.</p>
-                        <a href="#" class="shiny-btn text-white text-center px-4 py-2 rounded-md text-sm font-medium mt-auto">Join the Discord</a>
-                    </div>
-                     <!-- Breeding -->
-                    <div class="box p-6 flex flex-col">
-                        <h4 class="text-2xl font-bold text-violet-300 mb-3">Breeding</h4>
-                        <p class="text-sm text-gray-400 mb-4 flex-grow">For those seeking custom or non-standard genos. Acquire breeding slots via player exchanges or by purchasing starter slots during official sales events.</p>
-                        <a href="#" class="shiny-btn text-white text-center px-4 py-2 rounded-md text-sm font-medium mt-auto">Learn About Breeding</a>
-                    </div>
-                </div>
-                 <div class="text-center mt-12" data-aos="fade-up">
-                    <h4 class="text-2xl font-bold text-violet-300">Future Developments</h4>
-                    <p class="text-md text-gray-400 mt-2">These are the current methods, but we are always developing new features and opportunities. Stay tuned for exciting updates!</p>
-                </div>
-            </div>
-        </div>
 
-        <!-- Footer -->
-        <footer class="bg-[#0A0A0A] text-gray-500 text-xs p-4 border-t border-gray-800">
-            <div class="text-center">
-                <p>Copyright © 2025 BlueLionCreations LLC. All rights reserved.</p>
-                <p>Web Design By <span class="text-gray-400">Rio Xeniayo</span></p>
-            </div>
-        </footer>
+                    <!-- Right Part: Desktop Navigation -->
+                    <nav class="hidden md:flex items-center space-x-2">
+                        <a href="#" class="shiny-btn active text-white px-4 py-2 rounded-md text-sm font-medium">Home</a>
+                        <!-- Genetics Dropdown -->
+                        <div class="relative dropdown">
+                            <button class="shiny-btn text-gray-200 hover:text-white px-4 py-2 rounded-md text-sm font-medium flex items-center">
+                                <span>Genetics</span>
+                                <svg class="w-4 h-4 ml-1" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd"></path></svg>
+                            </button>
+                            <div class="dropdown-menu absolute right-0 mt-2 w-48 rounded-md shadow-lg py-1 z-20">
+                                <a href="#" class="block px-4 py-2 text-sm text-gray-300 hover:bg-violet-600 hover:bg-opacity-40">Free Marks</a>
+                                <a href="#" class="block px-4 py-2 text-sm text-gray-300 hover:bg-violet-600 hover:bg-opacity-40">Markings</a>
+                                <a href="#" class="block px-4 py-2 text-sm text-gray-300 hover:bg-violet-600 hover:bg-opacity-40">Mutations</a>
+                                <a href="#" class="block px-4 py-2 text-sm text-gray-300 hover:bg-violet-600 hover:bg-opacity-40">Manetypes</a>
+                                <a href="#" class="block px-4 py-2 text-sm text-gray-300 hover:bg-violet-600 hover:bg-opacity-40">Physical Traits</a>
+                            </div>
+                        </div>
+                        <!-- Species Dropdown -->
+                        <div class="relative dropdown">
+                            <button class="shiny-btn text-gray-200 hover:text-white px-4 py-2 rounded-md text-sm font-medium flex items-center">
+                                <span>Species</span>
+                                <svg class="w-4 h-4 ml-1" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd"></path></svg>
+                            </button>
+                            <div class="dropdown-menu absolute right-0 mt-2 w-48 rounded-md shadow-lg py-1 z-20">
+                                <a href="#" class="block px-4 py-2 text-sm text-gray-300 hover:bg-violet-600 hover:bg-opacity-40">Thilyarem</a>
+                                <a href="#" class="block px-4 py-2 text-sm text-gray-300 hover:bg-violet-600 hover:bg-opacity-40">Destrier</a>
+                                <a href="#" class="block px-4 py-2 text-sm text-gray-300 hover:bg-violet-600 hover:bg-opacity-40">Cyroas</a>
+                            </div>
+                        </div>
+                        <!-- Extra Dropdown -->
+                        <div class="relative dropdown">
+                            <button class="shiny-btn text-gray-200 hover:text-white px-4 py-2 rounded-md text-sm font-medium flex items-center">
+                                <span>Extra</span>
+                                <svg class="w-4 h-4 ml-1" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd"></path></svg>
+                            </button>
+                            <div class="dropdown-menu absolute right-0 mt-2 w-48 rounded-md shadow-lg py-1 z-20">
+                                <a href="#" class="block px-4 py-2 text-sm text-gray-300 hover:bg-violet-600 hover:bg-opacity-40">Flesh and Teeth</a>
+                                <a href="#" class="block px-4 py-2 text-sm text-gray-300 hover:bg-violet-600 hover:bg-opacity-40">Eye Colours</a>
+                                <a href="#" class="block px-4 py-2 text-sm text-gray-300 hover:bg-violet-600 hover:bg-opacity-40">Shading</a>
+                            </div>
+                        </div>
+                    </nav>
+
+                    <!-- Mobile Menu Toggle for Top Nav -->
+                    <div class="md:hidden">
+                        <button id="topnav-toggle" class="text-gray-300 hover:text-white focus:outline-none">
+                            <i class="fas fa-ellipsis-v text-xl"></i>
+                        </button>
+                    </div>
+                </div>
+                 <!-- Mobile Dropdown for Top Nav -->
+                <div id="topnav-mobile-menu" class="hidden md:hidden bg-black bg-opacity-40 backdrop-filter backdrop-blur-sm">
+                    <a href="#" class="block text-white text-center p-3 hover:bg-violet-800 hover:bg-opacity-50">Home</a>
+                    <a href="#" class="block text-white text-center p-3 hover:bg-violet-800 hover:bg-opacity-50">Genetics</a>
+                    <a href="#" class="block text-white text-center p-3 hover:bg-violet-800 hover:bg-opacity-50">Species</a>
+                    <a href="#" class="block text-white text-center p-3 hover:bg-violet-800 hover:bg-opacity-50">Extra</a>
+                </div>
+            </header>
+
+            <!-- Content Area -->
+            <main class="flex-1 overflow-y-auto p-6">
+                <!-- Banner -->
+                <div class="h-64 rounded-lg bg-cover bg-center flex flex-col justify-center items-center text-center p-6 mb-6" style="background-image: url('https://googleusercontent.com/file_content/2')">
+                    <h1 class="text-5xl font-bold text-white text-shadow">Thilyarem Design Hub</h1>
+                    <p class="mt-4 text-lg text-gray-200 text-shadow max-w-3xl">Blitz welcomes you to our temporary design hub!<br>Here you will find all the information you will need to get started designing your very own dog noodle!<br>If you don't have one of your own yet, please look below on the variety of ways you can obtain a noodle of your very own.</p>
+                </div>
+
+                <!-- Breadcrumbs -->
+                 <nav class="text-sm mb-6" aria-label="Breadcrumb">
+                    <ol class="list-none p-0 inline-flex">
+                        <li class="flex items-center">
+                            <a href="#" class="text-gray-400 hover:text-violet-300">Home</a>
+                        </li>
+                    </ol>
+                </nav>
+
+                <!-- Acquiring Section -->
+                <div class="box p-6 mb-6">
+                    <div class="text-center mb-8">
+                        <h3 class="text-4xl font-bold text-violet-300">Acquiring a Thilyarem</h3>
+                        <p class="text-lg text-gray-400 mt-2">Your official guide to obtaining a Thilyarem.</p>
+                    </div>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                        <!-- The Hatchery -->
+                        <div class="box border-violet-900 p-6 flex flex-col">
+                            <h4 class="text-2xl font-bold text-violet-300 mb-3">The Hatchery: Your First Thilyarem</h4>
+                            <p class="text-sm text-gray-400 mb-4 flex-grow">The primary and recommended method for new participants. As a new member, you are allowed to hatch one common egg to begin your adventure!</p>
+                            <a href="#" class="shiny-btn text-white text-center px-4 py-2 rounded-md text-sm font-medium mt-auto">Visit the Hatchery</a>
+                        </div>
+                         <!-- The Adoption Center -->
+                        <div class="box border-violet-900 p-6 flex flex-col">
+                            <h4 class="text-2xl font-bold text-violet-300 mb-3">The Adoption Center</h4>
+                            <p class="text-sm text-gray-400 mb-4 flex-grow">A secondary avenue for acquiring a Thilyarem. All members may adopt up to two Thilyarem from the center. This policy may be adjusted to reflect supply and demand at a later date.</p>
+                            <a href="#" class="shiny-btn text-white text-center px-4 py-2 rounded-md text-sm font-medium mt-auto">Go to the Adoption Center</a>
+                        </div>
+                         <!-- Player Trading & Sales -->
+                        <div class="box border-violet-900 p-6 flex flex-col">
+                            <h4 class="text-2xl font-bold text-violet-300 mb-3">Player Trading & Sales</h4>
+                            <p class="text-sm text-gray-400 mb-4 flex-grow">Obtaining genos and breeding slots directly from other players. Trades often involve art, USD, or in-game items. Sale advertisements are most frequent on our official Discord.</p>
+                            <a href="#" class="shiny-btn text-white text-center px-4 py-2 rounded-md text-sm font-medium mt-auto">Join the Discord</a>
+                        </div>
+                         <!-- Breeding -->
+                        <div class="box border-violet-900 p-6 flex flex-col">
+                            <h4 class="text-2xl font-bold text-violet-300 mb-3">Breeding</h4>
+                            <p class="text-sm text-gray-400 mb-4 flex-grow">For those seeking custom or non-standard genos. Acquire breeding slots via player exchanges or by purchasing starter slots during official sales events.</p>
+                            <a href="#" class="shiny-btn text-white text-center px-4 py-2 rounded-md text-sm font-medium mt-auto">Learn About Breeding</a>
+                        </div>
+                    </div>
+                     <div class="text-center mt-12">
+                        <h4 class="text-2xl font-bold text-violet-300">Future Developments</h4>
+                        <p class="text-md text-gray-400 mt-2">These are the current methods, but we are always developing new features and opportunities. Stay tuned for exciting updates!</p>
+                    </div>
+                </div>
+
+                 <footer class="text-center text-gray-500 text-xs mt-8 py-4">
+                    <p>Copyright © 2025 BlueLionCreations LLC. All rights reserved.</p>
+                    <p>Web Design By <span class="text-gray-400">Rio Xeniayo</span></p>
+                </footer>
+            </main>
+        </div>
     </div>
 
-    <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
     <script>
-        AOS.init({ once: true, disable: 'mobile' });
-        const mobileMenuButton = document.getElementById('mobile-menu-button');
-        const mobileMenu = document.querySelector('.md\\:hidden.hidden');
-        if(mobileMenuButton && mobileMenu) {
-            mobileMenuButton.addEventListener('click', () => {
-                const isHidden = mobileMenu.classList.contains('hidden');
-                if (isHidden) {
-                    mobileMenu.classList.remove('hidden');
-                } else {
-                    mobileMenu.classList.add('hidden');
-                }
-            });
+        // --- Sidenav collapsible menus ---
+        function toggleMenu(menuId) {
+            const menu = document.getElementById(menuId);
+            const arrow = document.getElementById(menuId + '-arrow');
+            menu.classList.toggle('hidden');
+            arrow.classList.toggle('fa-angle-down');
+            arrow.classList.toggle('fa-angle-up');
         }
-        const mainBg = document.getElementById('main-bg');
-        if(mainBg) {
-            window.addEventListener('scroll', () => {
-                if (window.innerWidth > 768) { 
-                    const scrollPosition = window.pageYOffset;
-                    mainBg.style.backgroundPosition = `center ${scrollPosition * 0.5}px`;
-                }
-            });
-        }
+
+        // --- Sidebar toggle ---
+        const sidebar = document.getElementById('sidebar');
+        const sidebarToggle = document.getElementById('sidebar-toggle');
+        sidebarToggle.addEventListener('click', () => {
+            sidebar.classList.toggle('w-64');
+            sidebar.classList.toggle('w-0');
+            sidebar.classList.toggle('p-4');
+            sidebar.classList.toggle('p-0');
+        });
+
+        // --- Topnav mobile menu toggle ---
+        const topnavToggle = document.getElementById('topnav-toggle');
+        const topnavMobileMenu = document.getElementById('topnav-mobile-menu');
+        topnavToggle.addEventListener('click', () => {
+            topnavMobileMenu.classList.toggle('hidden');
+        });
     </script>
 </body>
 </html>
