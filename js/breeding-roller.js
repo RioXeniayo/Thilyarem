@@ -1,12 +1,12 @@
 /* eslint-disable */
 // --- IMPORTS ---
-import GeneticsService from './js/genetics-service.js';
-import PunnettHelper from './js/punnett-helper.js';
-import GenotypeHelper from './js/genotype-helper.js';
-import PhenotypeHelper from './js/phenotype-helper.js';
-import { Sex, Breed, Age, Fertility, Trait, Element, Deformities, Hatchling } from './js/breeding.js';
-import { CrescentHerb, MoonlitHerb } from './js/items.js';
-import { BreedChartColor, BaseChartColor } from './js/chart_colors.js';
+import { GeneticsService } from './genetics-service.js';
+import { PunnettHelper } from './punnett-helper.js';
+import { GenotypeHelper } from './genotype-helper.js';
+import { PhenotypeHelper } from './phenotype-helper.js';
+import { Sex, Breed, Age, Fertility, Trait, Element, Deformities } from './breeding.js';
+import { CrescentHerb, MoonlitHerb } from './items.js';
+import { BreedChartColor, BaseChartColor } from './chart_colors.js';
 import { Chart, ArcElement, Tooltip, Legend, Title, PieController } from 'chart.js';
 
 export default function breedingRoller() {
@@ -15,23 +15,22 @@ export default function breedingRoller() {
         data: {
             sex: Sex,
             breeds: Breed,
-            age: Hatchling,
+            age: Age,
             fertility: Fertility,
             traits: Trait,
             elements: Element,
             deformities: Deformities,
             items: {
-                gender: CrescentHerb,
-                stacking: MoonlitHerb
+                gender: [CrescentHerb, MoonlitHerb],
             }
         },
         p_a: {
             species: Breed.THIL,
             genotype: 'B+/B+ M+/M+ K+/K+',
             phenotype: 'Tan',
-            rank: Age.YOUNG_ADULT,
+            age: Age.YOUNG_ADULT,
             fertility: Fertility.GOOD,
-            trait: null, // Changed from 'ability'
+            trait: null,
             element: null,
             deformities: null
         },
@@ -39,9 +38,9 @@ export default function breedingRoller() {
             species: Breed.THIL,
             genotype: 'B+/B+ M+/M+ K+/K+',
             phenotype: 'Tan',
-            rank: Age.YOUNG_ADULT,
+            age: Age.YOUNG_ADULT, 
             fertility: Fertility.GOOD,
-            trait: null, // Changed from 'ability'
+            trait: null,
             element: null,
             deformities: null
         },
@@ -60,7 +59,7 @@ export default function breedingRoller() {
             breeds: {},
             bases: {},
             markings: {},
-            traits: {}, // Changed from 'abilities'
+            traits: {},
             elements: {},
         },
         charts: {
@@ -69,6 +68,9 @@ export default function breedingRoller() {
         },
 
         // --- METHODS ---
+        init() {
+            this.load();
+        },
         load() {
             Chart.register(ArcElement, Tooltip, Legend, Title, PieController);
             GeneticsService.load()
@@ -101,13 +103,10 @@ export default function breedingRoller() {
                 },
                 options: {
                     responsive: true,
-                    plugins: {
-                        legend: { position: 'top' }
-                    }
+                    plugins: { legend: { position: 'top' } }
                 }
             });
 
-            // Base Chart
             if (this.charts.bases) {
                 this.charts.bases.destroy();
             }
@@ -123,9 +122,7 @@ export default function breedingRoller() {
                 },
                 options: {
                     responsive: true,
-                    plugins: {
-                        legend: { position: 'top' }
-                    }
+                    plugins: { legend: { position: 'top' } }
                 }
             });
         },
@@ -135,8 +132,7 @@ export default function breedingRoller() {
             phenotypes = PhenotypeHelper.filterHiddenPhenotypes(phenotypes, GeneticsService.phenotypes);
             let carries = PhenotypeHelper.getCarried(genes, GeneticsService.phenotypes);
             carries = PhenotypeHelper.filterHiddenPhenotypes(carries, GeneticsService.phenotypes);
-            const phenotypeStr = PhenotypeHelper.getPhenotypeString(phenotypes, carries, GeneticsService.phenotypes);
-            return phenotypeStr;
+            return PhenotypeHelper.getPhenotypeString(phenotypes, carries, GeneticsService.phenotypes);
         },
         validatePotionAllowance(event) {
             const total = this.items.minor_fert + this.items.major_fert + this.items.unstable_elixir;
@@ -149,61 +145,44 @@ export default function breedingRoller() {
         calculatePossibilities() {
             console.log('calculating...');
 
-            // Parent A
-            const p__a = {};
-            p__a.genes = GenotypeHelper.sliceGenotype(this.p_a.genotype);
-            p__a.base_alleles = GenotypeHelper.getAlleles(GenotypeHelper.sliceBaseGenes(p__a.genes), GeneticsService.loci, true);
-            p__a.marking_alleles = GenotypeHelper.getAlleles(GenotypeHelper.sliceMarkingGenes(p__a.genes), GeneticsService.loci);
+            const parentAGenes = GenotypeHelper.sliceGenotype(this.p_a.genotype);
+            const parentA_base_alleles = GenotypeHelper.getAlleles(GenotypeHelper.sliceBaseGenes(parentAGenes), GeneticsService.loci, true);
+            const parentA_marking_alleles = GenotypeHelper.getAlleles(GenotypeHelper.sliceMarkingGenes(parentAGenes), GeneticsService.loci);
 
-            // Parent B
-            const p__b = {};
-            p__b.genes = GenotypeHelper.sliceGenotype(this.p_b.genotype);
-            p__b.base_alleles = GenotypeHelper.getAlleles(GenotypeHelper.sliceBaseGenes(p__b.genes), GeneticsService.loci, true);
-            p__b.marking_alleles = GenotypeHelper.getAlleles(GenotypeHelper.sliceMarkingGenes(p__b.genes), GeneticsService.loci);
+            const parentBGenes = GenotypeHelper.sliceGenotype(this.p_b.genotype);
+            const parentB_base_alleles = GenotypeHelper.getAlleles(GenotypeHelper.sliceBaseGenes(parentBGenes), GeneticsService.loci, true);
+            const parentB_marking_alleles = GenotypeHelper.getAlleles(GenotypeHelper.sliceMarkingGenes(parentBGenes), GeneticsService.loci);
 
             this.stats.clutch = PunnettHelper.getPossibleClutchSize(this.p_a, this.p_b, this.items.minor_fert, this.items.major_fert);
             this.stats.sex = PunnettHelper.getSexOdds(this.items.gender_pot);
             this.stats.breeds = PunnettHelper.getBreedOdds(this.p_a.species, this.p_b.species);
-            // Changed from 'abilities' and 'getAbilityOdds'
-            this.stats.traits = PunnettHelper.getTraitOdds(this.p_a.trait, this.p_b.trait); 
+            this.stats.traits = PunnettHelper.getTraitOdds(this.p_a.trait, this.p_b.trait);
             this.stats.elements = PunnettHelper.getElementOdds(this.p_a.element, this.p_b.element);
 
-            const base_odds = PunnettHelper.getPunnettOdds(p__a.base_alleles, p__b.base_alleles);
+            const base_odds = PunnettHelper.getPunnettOdds(parentA_base_alleles, parentB_base_alleles);
             this.stats.bases = PunnettHelper.getBaseOdds(base_odds, GeneticsService.phenotypes);
 
-            const marking_odds = PunnettHelper.getPunnettOdds(p__a.marking_alleles, p__b.marking_alleles);
+            const marking_odds = PunnettHelper.getPunnettOdds(parentA_marking_alleles, parentB_marking_alleles);
             this.stats.markings = PunnettHelper.getPhenotypeOdds(marking_odds, GeneticsService.phenotypes);
 
             this.initChart();
         },
         reset() {
             this.p_a = {
-                species: Breed.THIL,
-                genotype: 'B+/B+ M+/M+ K+/K+',
-                phenotype: 'Tan',
-                rank: Age.YOUNG_ADULT,
+                species: Breed.THIL, genotype: 'B+/B+ M+/M+ K+/K+', phenotype: 'Tan',
+                age: Age.YOUNG_ADULT, 
                 fertility: Fertility.GOOD,
-                trait: null, // Changed from 'ability'
-                element: null,
-                deformities: null
+                trait: null, element: null, deformities: null
             };
             this.p_b = {
-                species: Breed.THIL,
-                genotype: 'B+/B+ M+/M+ K+/K+',
-                phenotype: 'Tan',
-                rank: Age.YOUNG_ADULT,
+                species: Breed.THIL, genotype: 'B+/B+ M+/M+ K+/K+', phenotype: 'Tan',
+                age: Age.YOUNG_ADULT,
                 fertility: Fertility.GOOD,
-                trait: null, // Changed from 'ability'
-                element: null,
-                deformities: null
+                trait: null, element: null, deformities: null
             };
             this.items = {
-                cresc_herb: null,
-                moon_herb: 0,
-                minor_fert: 0,
-                major_fert: 0,
-                unstable_elixir: 0,
-                gender_pot: null
+                cresc_herb: null, moon_herb: 0, minor_fert: 0,
+                major_fert: 0, unstable_elixir: 0, gender_pot: null
             };
             this.coi = 0;
         }
