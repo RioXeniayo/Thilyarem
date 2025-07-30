@@ -1,38 +1,74 @@
-import { Sex, Rank } from '../constants/breeding';
-import { ClutchMin, ClutchMax } from '../constants/clutch_size';
-import { GetBreedMix } from '../constants/breed_mix';
+import { Sex, Rank } from './breeding';
+import { ClutchMin, ClutchMax } from './clutch_size';
+import { GetBreedMix } from './breed_mix';
 import { Utils } from './utils';
 import { GenotypeHelper } from './genotype-helper';
 
 export class PunnettHelper {
 
-    /**
-     * Determines the base coat phenotype from a set of B, K, and M genotypes.
-     * This is a private helper method for getBaseCoatOdds.
-     * @param {string[]} genes - An array of genotypes [b_geno, k_geno, m_geno].
-     * @returns {string} The resulting phenotype name.
-     */
+    static BASE_COAT_LOOKUP = {
+        'B+/B+ M+/M+ K+/K+': 'Tan', 'B+/B+ M+/MB K+/K+': 'Tan', 'B+/B+ M+/M0 K+/K+': 'Tan', 'B+/B+ MB/MB K+/K+': 'Tan',
+        'B+/B+ MB/M0 K+/K+': 'Tan', 'B+/B+ M0/M0 K+/K+': 'Cream', 'B+/B+ M+/M+ K+/KB': 'Tan', 'B+/B+ M+/MB K+/KB': 'Tan',
+        'B+/B+ M+/M0 K+/KB': 'Tan', 'B+/B+ MB/MB K+/KB': 'Tan', 'B+/B+ MB/M0 K+/KB': 'Tan', 'B+/B+ M0/M0 K+/KB': 'Cream',
+        'B+/B+ M+/M+ KB/KB': 'Black', 'B+/B+ M+/MB KB/KB': 'Tan', 'B+/B+ M+/M0 KB/KB': 'Tan', 'B+/B+ MB/MB KB/KB': 'Tan',
+        'B+/B+ MB/M0 KB/KB': 'Tan', 'B+/B+ M0/M0 KB/KB': 'Cream', 'B+/BA M+/M+ K+/K+': 'Tan', 'B+/BA M+/MB K+/K+': 'Tan',
+        'B+/BA M+/M0 K+/K+': 'Tan', 'B+/BA MB/MB K+/K+': 'Tan', 'B+/BA MB/M0 K+/K+': 'Tan', 'B+/BA M0/M0 K+/K+': 'Cream',
+        'B+/BA M+/M+ K+/KB': 'Tan', 'B+/BA M+/MB K+/KB': 'Tan', 'B+/BA M+/M0 K+/KB': 'Tan', 'B+/BA MB/MB K+/KB': 'Tan',
+        'B+/BA MB/M0 K+/KB': 'Tan', 'B+/BA M0/M0 K+/KB': 'Cream', 'B+/BA M+/M+ KB/KB': 'Black', 'B+/BA M+/MB KB/KB': 'Tan',
+        'B+/BA M+/M0 KB/KB': 'Tan', 'B+/BA MB/MB KB/KB': 'Tan', 'B+/BA MB/M0 KB/KB': 'Tan', 'B+/BA M0/M0 KB/KB': 'Cream',
+        'B+/BG M+/M+ K+/K+': 'Tan', 'B+/BG M+/MB K+/K+': 'Tan', 'B+/BG M+/M0 K+/K+': 'Tan', 'B+/BG MB/MB K+/K+': 'Tan',
+        'B+/BG MB/M0 K+/K+': 'Tan', 'B+/BG M0/M0 K+/K+': 'Cream', 'B+/BG M+/M+ K+/KB': 'Tan', 'B+/BG M+/MB K+/KB': 'Tan',
+        'B+/BG M+/M0 K+/KB': 'Tan', 'B+/BG MB/MB K+/KB': 'Tan', 'B+/BG MB/M0 K+/KB': 'Tan', 'B+/BG M0/M0 K+/KB': 'Cream',
+        'B+/BG M+/M+ KB/KB': 'Black', 'B+/BG M+/MB KB/KB': 'Tan', 'B+/BG M+/M0 KB/KB': 'Tan', 'B+/BG MB/MB KB/KB': 'Tan',
+        'B+/BG MB/M0 KB/KB': 'Tan', 'B+/BG M0/M0 KB/KB': 'Cream', 'B+/BW M+/M+ K+/K+': 'Tan', 'B+/BW M+/MB K+/K+': 'Tan',
+        'B+/BW M+/M0 K+/K+': 'Tan', 'B+/BW MB/MB K+/K+': 'Tan', 'B+/BW MB/M0 K+/K+': 'Tan', 'B+/BW M0/M0 K+/K+': 'Cream',
+        'B+/BW M+/M+ K+/KB': 'Tan', 'B+/BW M+/MB K+/KB': 'Tan', 'B+/BW M+/M0 K+/KB': 'Tan', 'B+/BW MB/MB K+/KB': 'Tan',
+        'B+/BW MB/M0 K+/KB': 'Tan', 'B+/BW M0/M0 K+/KB': 'Cream', 'B+/BW M+/M+ KB/KB': 'Black', 'B+/BW M+/MB KB/KB': 'Tan',
+        'B+/BW M+/M0 KB/KB': 'Tan', 'B+/BW MB/MB KB/KB': 'Tan', 'B+/BW MB/M0 KB/KB': 'Tan', 'B+/BW M0/M0 KB/KB': 'Cream',
+        'BA/BA M+/M+ K+/K+': 'Brown', 'BA/BA M+/MB K+/K+': 'Brown', 'BA/BA M+/M0 K+/K+': 'Brown', 'BA/BA MB/MB K+/K+': 'Brown',
+        'BA/BA MB/M0 K+/K+': 'Brown', 'BA/BA M0/M0 K+/K+': 'Lilac', 'BA/BA M+/M+ K+/KB': 'Brown', 'BA/BA M+/MB K+/KB': 'Brown',
+        'BA/BA M+/M0 K+/KB': 'Brown', 'BA/BA MB/MB K+/KB': 'Brown', 'BA/BA MB/M0 K+/KB': 'Brown', 'BA/BA M0/M0 K+/KB': 'Lilac',
+        'BA/BA M+/M+ KB/KB': 'Black', 'BA/BA M+/MB KB/KB': 'Brown', 'BA/BA M+/M0 KB/KB': 'Brown', 'BA/BA MB/MB KB/KB': 'Brown',
+        'BA/BA MB/M0 KB/KB': 'Brown', 'BA/BA M0/M0 KB/KB': 'Lilac', 'BA/BG M+/M+ K+/K+': 'Brown', 'BA/BG M+/MB K+/K+': 'Brown',
+        'BA/BG M+/M0 K+/K+': 'Brown', 'BA/BG MB/MB K+/K+': 'Brown', 'BA/BG MB/M0 K+/K+': 'Brown', 'BA/BG M0/M0 K+/K+': 'Lilac',
+        'BA/BG M+/M+ K+/KB': 'Brown', 'BA/BG M+/MB K+/KB': 'Brown', 'BA/BG M+/M0 K+/KB': 'Brown', 'BA/BG MB/MB K+/KB': 'Brown',
+        'BA/BG MB/M0 K+/KB': 'Brown', 'BA/BG M0/M0 K+/KB': 'Lilac', 'BA/BG M+/M+ KB/KB': 'Black', 'BA/BG M+/MB KB/KB': 'Brown',
+        'BA/BG M+/M0 KB/KB': 'Brown', 'BA/BG MB/MB KB/KB': 'Brown', 'BA/BG MB/M0 KB/KB': 'Brown', 'BA/BG M0/M0 KB/KB': 'Lilac',
+        'BA/BW M+/M+ K+/K+': 'Brown', 'BA/BW M+/MB K+/K+': 'Brown', 'BA/BW M+/M0 K+/K+': 'Brown', 'BA/BW MB/MB K+/K+': 'Brown',
+        'BA/BW MB/M0 K+/K+': 'Brown', 'BA/BW M0/M0 K+/K+': 'Lilac', 'BA/BW M+/M+ K+/KB': 'Brown', 'BA/BW M+/MB K+/KB': 'Brown',
+        'BA/BW M+/M0 K+/KB': 'Brown', 'BA/BW MB/MB K+/KB': 'Brown', 'BA/BW MB/M0 K+/KB': 'Brown', 'BA/BW M0/M0 K+/KB': 'Lilac',
+        'BA/BW M+/M+ KB/KB': 'Black', 'BA/BW M+/MB KB/KB': 'Brown', 'BA/BW M+/M0 KB/KB': 'Brown', 'BA/BW MB/MB KB/KB': 'Brown',
+        'BA/BW MB/M0 KB/KB': 'Brown', 'BA/BW M0/M0 KB/KB': 'Lilac', 'BG/BG M+/M+ K+/K+': 'Green', 'BG/BG M+/MB K+/K+': 'Green',
+        'BG/BG M+/M0 K+/K+': 'Green', 'BG/BG MB/MB K+/K+': 'Seagreen', 'BG/BG MB/M0 K+/K+': 'Green', 'BG/BG M0/M0 K+/K+': 'Seafoam',
+        'BG/BG M+/M+ K+/KB': 'Green', 'BG/BG M+/MB K+/KB': 'Green', 'BG/BG M+/M0 K+/KB': 'Green', 'BG/BG MB/MB K+/KB': 'Seagreen',
+        'BG/BG MB/M0 K+/KB': 'Green', 'BG/BG M0/M0 K+/KB': 'Seafoam', 'BG/BG M+/M+ KB/KB': 'Black', 'BG/BG M+/MB KB/KB': 'Green',
+        'BG/BG M+/M0 KB/KB': 'Green', 'BG/BG MB/MB KB/KB': 'Seagreen', 'BG/BG MB/M0 KB/KB': 'Green', 'BG/BG M0/M0 KB/KB': 'Seafoam',
+        'BG/BW M+/M+ K+/K+': 'Green', 'BG/BW M+/MB K+/K+': 'Green', 'BG/BW M+/M0 K+/K+': 'Green', 'BG/BW MB/MB K+/K+': 'Seagreen',
+        'BG/BW MB/M0 K+/K+': 'Green', 'BG/BW M0/M0 K+/K+': 'Seafoam', 'BG/BW M+/M+ K+/KB': 'Green', 'BG/BW M+/MB K+/KB': 'Green',
+        'BG/BW M+/M0 K+/KB': 'Green', 'BG/BW MB/MB K+/KB': 'Seagreen', 'BG/BW MB/M0 K+/KB': 'Green', 'BG/BW M0/M0 K+/KB': 'Seafoam',
+        'BG/BW M+/M+ KB/KB': 'Black', 'BG/BW M+/MB KB/KB': 'Green', 'BG/BW M+/M0 KB/KB': 'Green', 'BG/BW MB/MB KB/KB': 'Seagreen',
+        'BG/BW MB/M0 KB/KB': 'Green', 'BG/BW M0/M0 KB/KB': 'Seafoam', 'BW/BW M+/M+ K+/K+': 'Slate', 'BW/BW M+/MB K+/K+': 'Slate',
+        'BW/BW M+/M0 K+/K+': 'Slate', 'BW/BW MB/MB K+/K+': 'Blue', 'BW/BW MB/M0 K+/K+': 'Slate', 'BW/BW M0/M0 K+/K+': 'White',
+        'BW/BW M+/M+ K+/KB': 'Slate', 'BW/BW M+/MB K+/KB': 'Slate', 'BW/BW M+/M0 K+/KB': 'Slate', 'BW/BW MB/MB K+/KB': 'Blue',
+        'BW/BW MB/M0 K+/KB': 'Slate', 'BW/BW M0/M0 K+/KB': 'White', 'BW/BW M+/M+ KB/KB': 'Black', 'BW/BW M+/MB KB/KB': 'Slate',
+        'BW/BW M+/M0 KB/KB': 'Slate', 'BW/BW MB/MB KB/KB': 'Blue', 'BW/BW MB/M0 KB/KB': 'Slate', 'BW/BW M0/M0 KB/KB': 'White',
+    };
+
+
     static _getPhenotype(genes) {
-        const [b_geno, k_geno, m_geno] = genes;
+        const sortAlleles = (geno) => {
+            if (!geno.includes('/')) return geno;
+            return geno.split('/').sort().join('/');
+        };
         
-        if (m_geno === 'M0M0') return 'Albino';
-        const hasNormalMelanin = m_geno.includes('M+');
-        const hasDilutedMelanin = m_geno.includes('MB') && !hasNormalMelanin;
-        if (k_geno === 'KBKB' && hasNormalMelanin) return 'Black';
-        const isHomozygousWhite = b_geno === 'BWBW';
-        if (isHomozygousWhite && hasDilutedMelanin) return 'Blue';
-        if (b_geno.includes('B+')) return 'Tan';
-        if (b_geno.includes('BA')) return 'Brown';
-        if (b_geno.includes('BG')) return 'Green';
-        if (isHomozygousWhite) return 'White';
-        return 'Unknown';
+        const b_geno = sortAlleles(genes[0]);
+        const m_geno = sortAlleles(genes[1]);
+        const k_geno = sortAlleles(genes[2]);
+
+        const key = `${b_geno} ${m_geno} ${k_geno}`;
+        return this.BASE_COAT_LOOKUP[key] || 'Unknown';
     }
 
-    /**
-     * Calculates base coat phenotype odds using the specific B, K, M gene logic.
-     * @param {object} base_genotype_odds - Odds for B, K, and M loci.
-     * @returns {object} An object with each phenotype and its percentage chance.
-     */
     static getBaseCoatOdds(base_genotype_odds) {
         const b = base_genotype_odds['B'];
         const k = base_genotype_odds['K'];
@@ -42,7 +78,7 @@ export class PunnettHelper {
         b.forEach(([b_base,]) => {
             k.forEach(([k_base,]) => {
                 m.forEach(([m_base,]) => {
-                    const genes = [b_base, k_base, m_base];
+                    const genes = [b_base, m_base, k_base]; // Note: order is B, M, K for the lookup
                     const phenotype = this._getPhenotype(genes);
                     options.push(phenotype);
                 });
@@ -83,11 +119,7 @@ export class PunnettHelper {
             return `${clutchMin} - ${clutchMax} eggs`;
         }
     }
-
-    /**
-     * MODIFIED: Removed potion logic and intersex option.
-     * Returns a 50/50 chance for Male or Female.
-     */
+    
     static getSexOdds() {
         return [
             [Sex.MALE, 50],
