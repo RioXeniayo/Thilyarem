@@ -1,0 +1,508 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Thilyarem Design Hub - Breeding Roller</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <!-- Chart.js for result visualization -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #111;
+            color: #e0e0e0;
+        }
+        .main-bg {
+            background-image: url('https://f2.toyhou.se/file/f2-toyhou-se/images/104581042_wDyLxXnQY3jvWgU.jpg');
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+        }
+        .text-shadow {
+            text-shadow: 1px 1px 3px rgba(0,0,0,0.8);
+        }
+        .box {
+            background-color: rgba(17, 24, 39, 0.6); 
+            backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 0.75rem;
+        }
+        .shiny-btn {
+            background: linear-gradient(to bottom, #6d28d9 0%, #4c1d95 100%);
+            border: 1px solid #a78bfa;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.15);
+            transition: all 0.3s ease;
+        }
+        .shiny-btn:hover {
+            background: linear-gradient(to bottom, #7c3aed 0%, #6d28d9 100%);
+            box-shadow: 0 2px 4px rgba(0,0,0,0.7), inset 0 1px 0 rgba(255,255,255,0.25);
+            transform: translateY(-2px);
+        }
+        .shiny-btn.active {
+             background: linear-gradient(to bottom, #a78bfa 0%, #8b5cf6 100%);
+             border-color: #c4b5fd;
+        }
+        .sidebar {
+            background-color: rgba(10, 10, 12, 0.8);
+            backdrop-filter: blur(10px);
+        }
+        .dropdown-menu {
+            opacity: 0;
+            visibility: hidden;
+            transform: translateY(-10px);
+            transition: opacity 0.3s ease, transform 0.3s ease, visibility 0.3s;
+            background-color: rgba(30, 30, 32, 0.75);
+            backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        .dropdown:hover .dropdown-menu {
+            opacity: 1;
+            visibility: visible;
+            transform: translateY(0);
+        }
+        /* Custom form styles */
+        .form-input, .form-select {
+            background-color: rgba(30, 41, 59, 0.7);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            transition: all 0.3s ease;
+        }
+        .form-input:focus, .form-select:focus {
+            background-color: rgba(55, 65, 81, 0.8);
+            border-color: #a78bfa;
+            outline: none;
+            box-shadow: 0 0 0 2px rgba(167, 139, 250, 0.4);
+        }
+        /* Custom tab styles */
+        .tab-btn {
+            background-color: transparent;
+            border-bottom: 2px solid transparent;
+            transition: all 0.3s ease;
+        }
+        .tab-btn.active, .tab-btn:hover {
+            color: #c4b5fd;
+            border-bottom-color: #a78bfa;
+        }
+        [x-cloak] { display: none !important; }
+    </style>
+</head>
+<body class="main-bg">
+
+    <div class="flex h-screen">
+        <!-- Sidebar -->
+        <aside id="sidebar" class="sidebar w-64 flex-shrink-0 p-4 transition-all duration-300 ease-in-out overflow-y-auto">
+            <h1 class="text-2xl font-bold text-violet-400 mb-6">Thilyarem</h1>
+            <nav class="space-y-4">
+                <div>
+                    <h2 class="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">Core</h2>
+                    <a href="#" class="flex items-center p-2 text-gray-300 hover:bg-violet-800 hover:bg-opacity-50 rounded-md">
+                        <i class="fas fa-home w-6"></i>
+                        <span>Website</span>
+                    </a>
+                    <a href="#" class="flex items-center p-2 text-gray-300 hover:bg-violet-800 hover:bg-opacity-50 rounded-md">
+                        <i class="fab fa-discord w-6"></i>
+                        <span>Official Discord</span>
+                    </a>
+                </div>
+                <div>
+                    <h2 class="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">Resources</h2>
+                     <div>
+                        <button onclick="toggleMenu('community-menu')" class="w-full flex items-center justify-between p-2 text-gray-300 hover:bg-violet-800 hover:bg-opacity-50 rounded-md">
+                            <div class="flex items-center">
+                                <i class="fas fa-comment w-6"></i>
+                                <span>Community</span>
+                            </div>
+                            <i id="community-menu-arrow" class="fas fa-angle-down"></i>
+                        </button>
+                        <div id="community-menu" class="hidden pl-6 mt-1 space-y-1">
+                            <a href="#" class="block p-2 text-sm text-gray-400 hover:text-white">Getting Started</a>
+                            <a href="#" class="block p-2 text-sm text-gray-400 hover:text-white">Pricing Guide</a>
+                            <a href="#" class="block p-2 text-sm text-gray-400 hover:text-white">FAQ</a>
+                        </div>
+                    </div>
+                     <div>
+                        <button onclick="toggleMenu('design-menu')" class="w-full flex items-center justify-between p-2 text-gray-300 hover:bg-violet-800 hover:bg-opacity-50 rounded-md">
+                            <div class="flex items-center">
+                                <i class="fas fa-palette w-6"></i>
+                                <span>Breeding</span>
+                            </div>
+                            <i id="design-menu-arrow" class="fas fa-angle-up"></i>
+                        </button>
+                        <div id="design-menu" class="pl-6 mt-1 space-y-1">
+                            <a href="#" class="block p-2 text-sm text-white bg-violet-800/60 rounded-md">Breeding Roller</a>
+                            <a href="#" class="block p-2 text-sm text-gray-400 hover:text-white">Genetics Roller</a>
+                            <a href="#" class="block p-2 text-sm text-gray-400 hover:text-white">Hatchling Roller</a>
+                            <a href="#" class="block p-2 text-sm text-gray-400 hover:text-white">Inborn Element Roller</a>
+                        </div>
+                    </div>
+                </div>
+                 <div>
+                    <h2 class="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">Utilities</h2>
+                    <a href="#" class="flex items-center p-2 text-gray-300 hover:bg-violet-800 hover:bg-opacity-50 rounded-md">
+                        <i class="fas fa-calculator w-6"></i>
+                        <span>EXP Calc</span>
+                    </a>
+                </div>
+            </nav>
+        </aside>
+
+        <!-- Main Content -->
+        <div class="flex-1 flex flex-col overflow-hidden">
+            <!-- Top Bar -->
+            <header class="bg-black bg-opacity-60 backdrop-filter backdrop-blur-sm border-b border-gray-800 px-4 sm:px-6 lg:px-8 sticky top-0 z-10">
+                <div class="flex items-center justify-between h-20">
+                    <div class="flex items-center">
+                        <button id="sidebar-toggle" class="text-gray-300 hover:text-white focus:outline-none">
+                            <i class="fas fa-bars text-xl"></i>
+                        </button>
+                    </div>
+                    <nav class="hidden md:flex items-center space-x-2">
+                        <a href="#" class="shiny-btn text-white px-4 py-2 rounded-md text-sm font-medium">Home</a>
+                        <div class="relative dropdown">
+                            <button class="shiny-btn active text-gray-200 hover:text-white px-4 py-2 rounded-md text-sm font-medium flex items-center">
+                                <span>Genetics</span>
+                                <svg class="w-4 h-4 ml-1" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd"></path></svg>
+                            </button>
+                            <div class="dropdown-menu absolute right-0 mt-2 w-48 rounded-md shadow-lg py-1 z-20">
+                                <a href="#" class="block px-4 py-2 text-sm text-gray-300 hover:bg-violet-600 hover:bg-opacity-40">Free Marks</a>
+                                <a href="#" class="block px-4 py-2 text-sm text-gray-300 hover:bg-violet-600 hover:bg-opacity-40">Markings</a>
+                                <a href="#" class="block px-4 py-2 text-sm text-gray-300 hover:bg-violet-600 hover:bg-opacity-40">Mutations</a>
+                                <a href="#" class="block px-4 py-2 text-sm text-gray-300 hover:bg-violet-600 hover:bg-opacity-40">Manetypes</a>
+                                <a href="#" class="block px-4 py-2 text-sm text-gray-300 hover:bg-violet-600 hover:bg-opacity-40">Physical Traits</a>
+                            </div>
+                        </div>
+                        <div class="relative dropdown">
+                            <button class="shiny-btn text-gray-200 hover:text-white px-4 py-2 rounded-md text-sm font-medium flex items-center">
+                                <span>Species</span>
+                                <svg class="w-4 h-4 ml-1" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd"></path></svg>
+                            </button>
+                            <div class="dropdown-menu absolute right-0 mt-2 w-48 rounded-md shadow-lg py-1 z-20">
+                                <a href="#" class="block px-4 py-2 text-sm text-gray-300 hover:bg-violet-600 hover:bg-opacity-40">Thilyarem</a>
+                                <a href="#" class="block px-4 py-2 text-sm text-gray-300 hover:bg-violet-600 hover:bg-opacity-40">Destrier</a>
+                                <a href="#" class="block px-4 py-2 text-sm text-gray-300 hover:bg-violet-600 hover:bg-opacity-40">Cyroas</a>
+                            </div>
+                        </div>
+                        <div class="relative dropdown">
+                            <button class="shiny-btn text-gray-200 hover:text-white px-4 py-2 rounded-md text-sm font-medium flex items-center">
+                                <span>Extra</span>
+                                <svg class="w-4 h-4 ml-1" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd"></path></svg>
+                            </button>
+                            <div class="dropdown-menu absolute right-0 mt-2 w-48 rounded-md shadow-lg py-1 z-20">
+                                <a href="#" class="block px-4 py-2 text-sm text-gray-300 hover:bg-violet-600 hover:bg-opacity-40">Flesh and Teeth</a>
+                                <a href="#" class="block px-4 py-2 text-sm text-gray-300 hover:bg-violet-600 hover:bg-opacity-40">Eye Colours</a>
+                                <a href="#" class="block px-4 py-2 text-sm text-gray-300 hover:bg-violet-600 hover:bg-opacity-40">Shading</a>
+                            </div>
+                        </div>
+                    </nav>
+                    <div class="md:hidden">
+                        <button id="topnav-toggle" class="text-gray-300 hover:text-white focus:outline-none">
+                            <i class="fas fa-ellipsis-v text-xl"></i>
+                        </button>
+                    </div>
+                </div>
+                <div id="topnav-mobile-menu" class="hidden md:hidden bg-black bg-opacity-40 backdrop-filter backdrop-blur-sm">
+                    <a href="#" class="block text-white text-center p-3 hover:bg-violet-800 hover:bg-opacity-50">Home</a>
+                    <a href="#" class="block text-white text-center p-3 hover:bg-violet-800 hover:bg-opacity-50">Genetics</a>
+                    <a href="#" class="block text-white text-center p-3 hover:bg-violet-800 hover:bg-opacity-50">Species</a>
+                    <a href="#" class="block text-white text-center p-3 hover:bg-violet-800 hover:bg-opacity-50">Extra</a>
+                </div>
+            </header>
+
+            <!-- Content Area -->
+            <main class="flex-1 overflow-y-auto p-6">
+                <!-- Banner -->
+                <div class="rounded-lg bg-cover bg-center h-60 mb-6 flex items-end p-8" style="background-image: url('https://googleusercontent.com/file_content/2')">
+                     <h1 class="text-5xl font-bold text-white text-shadow">Breeding Roller</h1>
+                </div>
+
+                <!-- Breadcrumbs -->
+                 <nav class="text-sm mb-6 max-w-7xl mx-auto" aria-label="Breadcrumb">
+                    <ol class="list-none p-0 inline-flex">
+                        <li class="flex items-center"><a href="#" class="text-gray-400 hover:text-violet-300">Home</a></li>
+                        <li class="flex items-center"><span class="mx-2 text-gray-500">/</span><a href="#" class="text-gray-400 hover:text-violet-300">Breeding</a></li>
+                        <li class="flex items-center"><span class="mx-2 text-gray-500">/</span><span class="text-white">Breeding Roller</span></li>
+                    </ol>
+                </nav>
+
+                <!-- Centered Content Wrapper -->
+                <div class="w-full max-w-7xl mx-auto" x-data="breedingRoller()">
+                    <div class="box p-6 mb-8">
+                        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                            <!-- Parent A -->
+                            <div class="space-y-4">
+                                <h4 class="text-2xl font-bold text-violet-300">Parent A</h4>
+                                <div>
+                                    <label for="sire_breed" class="block mb-2 text-sm font-medium text-gray-300">Species</label>
+                                    <select id="sire_breed" x-model="p_a.species" class="form-select w-full rounded-lg p-2.5">
+                                        <template x-for="breed in data.breeds" :key="breed"><option :value="breed" x-text="breed"></option></template>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label for="sire_geno" class="block mb-2 text-sm font-medium text-gray-300">Genotype</label>
+                                    <input type="text" id="sire_geno" x-model="p_a.genotype" @change="p_a.phenotype = getPhenotype(p_a.genotype)" class="form-input w-full rounded-lg p-2.5">
+                                </div>
+                                <div>
+                                    <label for="sire_pheno" class="block mb-2 text-sm font-medium text-gray-300">Phenotype</label>
+                                    <input type="text" id="sire_pheno" x-model="p_a.phenotype" class="form-input w-full rounded-lg p-2.5 bg-gray-800/50" readonly>
+                                </div>
+                                <!-- Other inputs -->
+                            </div>
+
+                            <!-- Parent B -->
+                            <div class="space-y-4">
+                                <h4 class="text-2xl font-bold text-violet-300">Parent B</h4>
+                                <div>
+                                    <label for="dam_breed" class="block mb-2 text-sm font-medium text-gray-300">Species</label>
+                                    <select id="dam_breed" x-model="p_b.species" class="form-select w-full rounded-lg p-2.5">
+                                        <template x-for="breed in data.breeds" :key="breed"><option :value="breed" x-text="breed"></option></template>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label for="dam_geno" class="block mb-2 text-sm font-medium text-gray-300">Genotype</label>
+                                    <input type="text" id="dam_geno" x-model="p_b.genotype" @change="p_b.phenotype = getPhenotype(p_b.genotype)" class="form-input w-full rounded-lg p-2.5">
+                                </div>
+                                <div>
+                                    <label for="dam_pheno" class="block mb-2 text-sm font-medium text-gray-300">Phenotype</label>
+                                    <input type="text" id="dam_pheno" x-model="p_b.phenotype" class="form-input w-full rounded-lg p-2.5 bg-gray-800/50" readonly>
+                                </div>
+                                <!-- Other inputs -->
+                            </div>
+
+                            <!-- Items & Actions -->
+                            <div class="space-y-4">
+                                <h4 class="text-2xl font-bold text-violet-300">Herbs & Potions</h4>
+                                <!-- Item inputs -->
+                                <div>
+                                    <label for="cresc_herb" class="block mb-2 text-sm font-medium text-gray-300">Crescebt Herb</label>
+                                    <select id="cresc_herb" x-model="items.cresc_herb" class="form-select w-full rounded-lg p-2.5">
+                                        <option value="">None</option>
+                                        <template x-for="herb in data.herb" :key="herb"><option :value="herb" x-text="potion"></option></template>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label for="moon_herb" class="block mb-2 text-sm font-medium text-gray-300">Moonlit Herb</label>
+                                    <select id="moon_herb" x-model="items.moon_herb" class="form-select w-full rounded-lg p-2.5">
+                                        <option value="">None</option>
+                                        <template x-for="herb in data.herb" :key="herb"><option :value="herb" x-text="potion"></option></template>
+                                    </select>
+                                </div>
+                                 <div>
+                                    <h4 class="text-lg font-bold text-violet-400 mt-4 mb-2">Inbreeding</h4>
+                                    <label for="coi" class="block mb-2 text-sm font-medium text-gray-300">Inbreeding</label>
+                                    <div class="flex">
+                                        <input type="number" id="coi" x-model.number="coi" class="form-input rounded-l-lg w-full p-2.5" min=0 max=100 step=.01>
+                                        <span class="inline-flex items-center px-3 text-sm text-gray-300 bg-gray-800/50 border border-l-0 border-gray-600 rounded-r-lg">%</span>
+                                    </div>
+                                    <small class="text-gray-400 mt-1 block">Check with the <a href="#" class="text-violet-400 hover:underline">Relation Calc</a>.</small>
+                                </div>
+                                <div class="flex justify-end space-x-4 pt-6">
+                                    <button @click="reset" class="shiny-btn bg-gray-600 border-gray-500 hover:bg-gray-500 px-5 py-2.5 rounded-lg">Reset</button>
+                                    <button @click="rollBreeding" class="shiny-btn px-5 py-2.5 rounded-lg">Roll Breeding</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Results / Possibilities Tabs -->
+                    <div class="box p-6 mb-8" x-data="{ activeTab: 'results' }">
+                        <div class="border-b border-gray-700 mb-4">
+                            <nav class="flex space-x-4" aria-label="Tabs">
+                                <button @click="activeTab = 'results'" :class="{ 'active': activeTab === 'results' }" class="tab-btn px-3 py-2 font-medium text-sm rounded-t-lg">Results</button>
+                                <button @click="activeTab = 'possibilities'" :class="{ 'active': activeTab === 'possibilities' }" class="tab-btn px-3 py-2 font-medium text-sm rounded-t-lg">Possibilities</button>
+                            </nav>
+                        </div>
+                        <div x-show="activeTab === 'results'" class="p-4 bg-black/20 rounded-lg">
+                            <p x-show="!results.rolled">Click "Roll Breeding" to see the results here.</p>
+                            <div x-show="results.rolled" x-cloak>
+                                <h4 class="text-xl font-bold text-violet-300 mb-4" x-text="`Clutch of ${results.offspring.length}`"></h4>
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    <template x-for="(child, index) in results.offspring" :key="index">
+                                        <div class="box border-violet-900/50 p-4">
+                                            <h5 class="font-bold text-lg text-violet-400" x-text="`Offspring ${index + 1}`"></h5>
+                                            <p><strong class="text-gray-400">Sex:</strong> <span x-text="child.sex"></span></p>
+                                            <p><strong class="text-gray-400">Species:</strong> <span x-text="child.species"></span></p>
+                                            <p><strong class="text-gray-400">Genotype:</strong> <span x-text="child.genotype"></span></p>
+                                            <p><strong class="text-gray-400">Phenotype:</strong> <span x-text="child.phenotype"></span></p>
+                                        </div>
+                                    </template>
+                                </div>
+                            </div>
+                        </div>
+                        <div x-show="activeTab === 'possibilities'" class="p-4 bg-black/20 rounded-lg" x-cloak>
+                            <p x-show="!results.rolled">Possibility statistics will be displayed here after rolling.</p>
+                             <div x-show="results.rolled" x-cloak class="grid grid-cols-1 md:grid-cols-2 gap-8 mt-4">
+                                <div>
+                                    <h5 class="font-bold text-lg text-violet-400 mb-2">Breed Possibilities</h5>
+                                    <canvas id="breedChart"></canvas>
+                                </div>
+                                <div>
+                                    <h5 class="font-bold text-lg text-violet-400 mb-2">Base Color Possibilities</h5>
+                                    <canvas id="baseChart"></canvas>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                 <footer class="text-center text-gray-500 text-xs mt-8 py-4">
+                    <p>Copyright © 2025 BlueLionCreations LLC. All rights reserved.</p>
+                    <p>Web Design By <span class="text-gray-400">Rio Xeniayo</span></p>
+                </footer>
+            </main>
+        </div>
+    </div>
+
+    <script>
+        // --- Sidenav collapsible menus & UI toggles ---
+        function toggleMenu(menuId) {
+            const menu = document.getElementById(menuId);
+            const arrow = document.getElementById(menuId + '-arrow');
+            menu.classList.toggle('hidden');
+            arrow.classList.toggle('fa-angle-down');
+            arrow.classList.toggle('fa-angle-up');
+        }
+
+        document.getElementById('sidebar-toggle').addEventListener('click', () => {
+            const sidebar = document.getElementById('sidebar');
+            sidebar.classList.toggle('w-64');
+            sidebar.classList.toggle('w-0');
+            sidebar.classList.toggle('p-4');
+            sidebar.classList.toggle('p-0');
+        });
+
+        document.getElementById('topnav-toggle').addEventListener('click', () => {
+            document.getElementById('topnav-mobile-menu').classList.toggle('hidden');
+        });
+    </script>
+    
+    <!-- Alpine.js for interactivity -->
+    <script src="https://unpkg.com/alpinejs@3.13.10/dist/cdn.min.js"></script>
+    
+    <script>
+        // --- Contents of ./js/breeding-data.js ---
+        const breedingData = {
+            breeds: ['Thilyarem', 'Destrier', 'Cyroas'],
+            ranks: ['Omega', 'Gamma', 'Beta', 'Alpha', 'Delta'],
+            fertility: ['Infertile', 'Low', 'Average', 'High'],
+            abilities: ['Swift', 'Strong', 'Stealthy', 'Resilient'],
+            elements: ['Fire', 'Water', 'Earth', 'Air', 'Lightning'],
+            aberrations: ['None', 'Maned', 'Spiked', 'Paradise'],
+            potions: {
+                gender: ['Potion of Male Sex', 'Potion of Female Sex'],
+            },
+            markings: { 'L': 'Lined', 'So': 'Spotted', 'St': 'Stripes', 'T': 'Ticking', 'Tr': 'Trim' }
+        };
+
+        // --- Contents of ./js/breeding-roller.js ---
+        function breedingRoller() {
+            return {
+                // Use data from the breedingData object
+                data: breedingData,
+                // Parent A Data
+                p_a: { species: 'Thilyarem', genotype: 'L/So/St', phenotype: 'Lined, Spotted, Stripes' },
+                // Parent B Data
+                p_b: { species: 'Thilyarem', genotype: 'T/Tr/St', phenotype: 'Ticking, Trim, Stripes' },
+                // Items Data
+                items: { gender_pot: '' },
+                coi: 0,
+                results: { rolled: false, offspring: [] },
+                breedChart: null,
+                baseChart: null,
+
+                // Converts genotype string to phenotype string
+                getPhenotype(geno) {
+                    if (!geno) return '';
+                    const alleles = geno.split('/').filter(Boolean);
+                    return alleles.map(allele => this.data.markings[allele.trim()] || allele.trim()).join(', ');
+                },
+
+                // Resets the form to default values
+                reset() {
+                    this.p_a = { species: 'Thilyarem', genotype: '', phenotype: '' };
+                    this.p_b = { species: 'Thilyarem', genotype: '', phenotype: '' };
+                    this.items = { gender_pot: '' };
+                    this.coi = 0;
+                    this.results = { rolled: false, offspring: [] };
+                },
+
+                // Main logic for rolling the breeding
+                rollBreeding() {
+                    this.results.offspring = [];
+                    const clutchSize = Math.floor(Math.random() * 3) + 1; // 1-3 offspring
+
+                    for (let i = 0; i < clutchSize; i++) {
+                        const child = {};
+                        if (this.items.gender_pot === 'Potion of Male Sex') {
+                            child.sex = 'Male';
+                        } else if (this.items.gender_pot === 'Potion of Female Sex') {
+                            child.sex = 'Female';
+                        } else {
+                            child.sex = Math.random() > 0.5 ? 'Male' : 'Female';
+                        }
+                        
+                        child.species = Math.random() > 0.5 ? this.p_a.species : this.p_b.species;
+                        
+                        const p1_genes = this.p_a.genotype.split('/').filter(g => g);
+                        const p2_genes = this.p_b.genotype.split('/').filter(g => g);
+                        const all_genes = [...new Set([...p1_genes, ...p2_genes])];
+                        let child_geno = [];
+                        all_genes.forEach(gene => {
+                            if(Math.random() > 0.5) {
+                                child_geno.push(gene);
+                            }
+                        });
+                        child.genotype = child_geno.join('/');
+                        child.phenotype = this.getPhenotype(child.genotype);
+
+                        this.results.offspring.push(child);
+                    }
+                    this.results.rolled = true;
+                    this.$nextTick(() => {
+                        this.updateCharts();
+                    });
+                },
+
+                // Updates the possibility charts
+                updateCharts() {
+                    const breedCtx = document.getElementById('breedChart')?.getContext('2d');
+                    const baseCtx = document.getElementById('baseChart')?.getContext('2d');
+
+                    if (!breedCtx || !baseCtx) return;
+
+                    if (this.breedChart) this.breedChart.destroy();
+                    this.breedChart = new Chart(breedCtx, {
+                        type: 'pie',
+                        data: {
+                            labels: [this.p_a.species, this.p_b.species, 'Hybrid'],
+                            datasets: [{
+                                data: [45, 45, 10], // Mock data
+                                backgroundColor: ['#8b5cf6', '#a78bfa', '#c4b5fd'],
+                                borderColor: '#111827',
+                            }]
+                        },
+                        options: { responsive: true, plugins: { legend: { position: 'top', labels: { color: '#e0e0e0' } } } }
+                    });
+
+                    if (this.baseChart) this.baseChart.destroy();
+                    this.baseChart = new Chart(baseCtx, {
+                        type: 'pie',
+                        data: {
+                            labels: ['Black', 'Brown', 'Fawn', 'Cream'],
+                            datasets: [{
+                                data: [25, 40, 20, 15], // Mock data
+                                backgroundColor: ['#374151', '#92400e', '#fde68a', '#fef3c7'],
+                                borderColor: '#111827',
+                            }]
+                        },
+                         options: { responsive: true, plugins: { legend: { position: 'top', labels: { color: '#e0e0e0' } } } }
+                    });
+                }
+            };
+        }
+    </script>
+</body>
+</html>
