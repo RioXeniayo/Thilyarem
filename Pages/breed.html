@@ -215,141 +215,279 @@
             </header>
 
             <!-- Content Area -->
-            <main class="flex-1 overflow-y-auto p-6">
-                <!-- Banner -->
-                <div class="rounded-lg bg-cover bg-center h-60 mb-6 flex items-end p-8" style="background-image: url('https://googleusercontent.com/file_content/2')">
-                     <h1 class="text-5xl font-bold text-white text-shadow">Breeding Roller</h1>
+                    <div>
+                        
+<div class="breeding" x-data="breedingroller" x-init="load()">
+    <div class="row mb-3">
+        <div class="col-12 col-md-4">
+            <h4>Parent A</h4>
+            <div class="mb-3">
+                <label for="sire_breed" class="form-label">Breed</label>
+                <select type="text" id="sire_breed" x-model="p_a.species" class="form-control">
+                    <template x-for="(value, key) in data.breeds">
+                        <option :value="value" x-text="value"></option>
+                    </template>
+                </select>
+            </div>
+            <div class="mb-3">
+                <label for="sire_geno" class="form-label">Genotype</label>
+                <input type="text" id="sire_geno" x-model="p_a.genotype" x-on:change="p_a.phenotype = getPhenotype(p_a.genotype)" class="form-control mb-2">
+            </div>
+            <div>
+                <label for="sire_pheno" class="form-label">Phenotype</label>
+                <input type="text" id="sire_pheno" x-model="p_a.phenotype" class="form-control mb-2" readonly>
+            </div>
+            <div class="row">
+                <div class="col-12 col-md-8 mb-3">
+                    <label for="sire_rank" class="form-label">Rank</label>
+                    <select type="text" id="sire_rank" x-model="p_a.rank" class="form-control">
+                        <template x-for="(value, key) in data.ranks">
+                            <option :value="value" x-text="value"></option>
+                        </template>
+                    </select>
                 </div>
-
-                <!-- Breadcrumbs -->
-                 <nav class="text-sm mb-6 max-w-7xl mx-auto" aria-label="Breadcrumb">
-                    <ol class="list-none p-0 inline-flex">
-                        <li class="flex items-center"><a href="#" class="text-gray-400 hover:text-violet-300">Home</a></li>
-                        <li class="flex items-center"><span class="mx-2 text-gray-500">/</span><a href="#" class="text-gray-400 hover:text-violet-300">Breeding</a></li>
-                        <li class="flex items-center"><span class="mx-2 text-gray-500">/</span><span class="text-white">Breeding Roller</span></li>
-                    </ol>
-                </nav>
-
-                <!-- Centered Content Wrapper -->
-                <div class="w-full max-w-7xl mx-auto" x-data="breedingRoller()">
-                    <div class="box p-6 mb-8">
-                        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
-                            <!-- Parent A -->
-                            <div class="space-y-4">
-                                <h4 class="text-2xl font-bold text-violet-300">Parent A</h4>
-                                <div>
-                                    <label for="sire_breed" class="block mb-2 text-sm font-medium text-gray-300">Species</label>
-                                    <select id="sire_breed" x-model="p_a.species" class="form-select w-full rounded-lg p-2.5">
-                                        <template x-for="breed in data.breeds" :key="breed"><option :value="breed" x-text="breed"></option></template>
-                                    </select>
-                                </div>
-                                <div>
-                                    <label for="sire_geno" class="block mb-2 text-sm font-medium text-gray-300">Genotype</label>
-                                    <input type="text" id="sire_geno" x-model="p_a.genotype" @change="p_a.phenotype = getPhenotype(p_a.genotype)" class="form-input w-full rounded-lg p-2.5">
-                                </div>
-                                <div>
-                                    <label for="sire_pheno" class="block mb-2 text-sm font-medium text-gray-300">Phenotype</label>
-                                    <input type="text" id="sire_pheno" x-model="p_a.phenotype" class="form-input w-full rounded-lg p-2.5 bg-gray-800/50" readonly>
-                                </div>
-                                <!-- Other inputs -->
-                            </div>
-
-                            <!-- Parent B -->
-                            <div class="space-y-4">
-                                <h4 class="text-2xl font-bold text-violet-300">Parent B</h4>
-                                <div>
-                                    <label for="dam_breed" class="block mb-2 text-sm font-medium text-gray-300">Species</label>
-                                    <select id="dam_breed" x-model="p_b.species" class="form-select w-full rounded-lg p-2.5">
-                                        <template x-for="breed in data.breeds" :key="breed"><option :value="breed" x-text="breed"></option></template>
-                                    </select>
-                                </div>
-                                <div>
-                                    <label for="dam_geno" class="block mb-2 text-sm font-medium text-gray-300">Genotype</label>
-                                    <input type="text" id="dam_geno" x-model="p_b.genotype" @change="p_b.phenotype = getPhenotype(p_b.genotype)" class="form-input w-full rounded-lg p-2.5">
-                                </div>
-                                <div>
-                                    <label for="dam_pheno" class="block mb-2 text-sm font-medium text-gray-300">Phenotype</label>
-                                    <input type="text" id="dam_pheno" x-model="p_b.phenotype" class="form-input w-full rounded-lg p-2.5 bg-gray-800/50" readonly>
-                                </div>
-                                <!-- Other inputs -->
-                            </div>
-
-                            <!-- Items & Actions -->
-                            <div class="space-y-4">
-                                <h4 class="text-2xl font-bold text-violet-300">Items & Modifiers</h4>
-                                <!-- Item inputs -->
-                                <div>
-                                    <label for="gender_pot" class="block mb-2 text-sm font-medium text-gray-300">Sex-Determination Potion</label>
-                                    <select id="gender_pot" x-model="items.gender_pot" class="form-select w-full rounded-lg p-2.5">
-                                        <option value="">None</option>
-                                        <template x-for="potion in data.potions.gender" :key="potion"><option :value="potion" x-text="potion"></option></template>
-                                    </select>
-                                </div>
-                                 <div>
-                                    <h4 class="text-lg font-bold text-violet-400 mt-4 mb-2">Inbreeding</h4>
-                                    <label for="coi" class="block mb-2 text-sm font-medium text-gray-300">Coefficient of Inbreeding (COI)</label>
-                                    <div class="flex">
-                                        <input type="number" id="coi" x-model.number="coi" class="form-input rounded-l-lg w-full p-2.5" min=0 max=100 step=.01>
-                                        <span class="inline-flex items-center px-3 text-sm text-gray-300 bg-gray-800/50 border border-l-0 border-gray-600 rounded-r-lg">%</span>
-                                    </div>
-                                    <small class="text-gray-400 mt-1 block">Calculate with the <a href="#" class="text-violet-400 hover:underline">COI calculator</a>.</small>
-                                </div>
-                                <div class="flex justify-end space-x-4 pt-6">
-                                    <button @click="reset" class="shiny-btn bg-gray-600 border-gray-500 hover:bg-gray-500 px-5 py-2.5 rounded-lg">Reset</button>
-                                    <button @click="rollBreeding" class="shiny-btn px-5 py-2.5 rounded-lg">Roll Breeding</button>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Results / Possibilities Tabs -->
-                    <div class="box p-6 mb-8" x-data="{ activeTab: 'results' }">
-                        <div class="border-b border-gray-700 mb-4">
-                            <nav class="flex space-x-4" aria-label="Tabs">
-                                <button @click="activeTab = 'results'" :class="{ 'active': activeTab === 'results' }" class="tab-btn px-3 py-2 font-medium text-sm rounded-t-lg">Results</button>
-                                <button @click="activeTab = 'possibilities'" :class="{ 'active': activeTab === 'possibilities' }" class="tab-btn px-3 py-2 font-medium text-sm rounded-t-lg">Possibilities</button>
-                            </nav>
-                        </div>
-                        <div x-show="activeTab === 'results'" class="p-4 bg-black/20 rounded-lg">
-                            <p x-show="!results.rolled">Click "Roll Breeding" to see the results here.</p>
-                            <div x-show="results.rolled" x-cloak>
-                                <h4 class="text-xl font-bold text-violet-300 mb-4" x-text="`Clutch of ${results.offspring.length}`"></h4>
-                                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                    <template x-for="(child, index) in results.offspring" :key="index">
-                                        <div class="box border-violet-900/50 p-4">
-                                            <h5 class="font-bold text-lg text-violet-400" x-text="`Offspring ${index + 1}`"></h5>
-                                            <p><strong class="text-gray-400">Sex:</strong> <span x-text="child.sex"></span></p>
-                                            <p><strong class="text-gray-400">Species:</strong> <span x-text="child.species"></span></p>
-                                            <p><strong class="text-gray-400">Genotype:</strong> <span x-text="child.genotype"></span></p>
-                                            <p><strong class="text-gray-400">Phenotype:</strong> <span x-text="child.phenotype"></span></p>
-                                        </div>
-                                    </template>
-                                </div>
-                            </div>
-                        </div>
-                        <div x-show="activeTab === 'possibilities'" class="p-4 bg-black/20 rounded-lg" x-cloak>
-                            <p x-show="!results.rolled">Possibility statistics will be displayed here after rolling.</p>
-                             <div x-show="results.rolled" x-cloak class="grid grid-cols-1 md:grid-cols-2 gap-8 mt-4">
-                                <div>
-                                    <h5 class="font-bold text-lg text-violet-400 mb-2">Breed Possibilities</h5>
-                                    <canvas id="breedChart"></canvas>
-                                </div>
-                                <div>
-                                    <h5 class="font-bold text-lg text-violet-400 mb-2">Base Color Possibilities</h5>
-                                    <canvas id="baseChart"></canvas>
-                                </div>
-                            </div>
-                        </div>
+                <div class="col-12 col-md-4 mb-3">
+                    <label for="sire_fertility" class="form-label">Fertility</label>
+                    <select type="text" id="sire_fertility" x-model="p_a.fertility" class="form-control">
+                        <template x-for="(value, key) in data.fertility">
+                            <option :value="value" x-text="value"></option>
+                        </template>
+                    </select>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-12 col-md-4 mb-3">
+                    <label for="sire_ability" class="form-label">Ability</label>
+                    <select type="text" id="sire_ability" x-model="p_a.ability" class="form-control">
+                        <option selected></option>
+                        <template x-for="(value, key) in data.abilities">
+                            <option :value="value" x-text="value"></option>
+                        </template>
+                    </select>
+                </div>
+                <div class="col-12 col-md-4 mb-3">
+                    <label for="sire_element" class="form-label">Element</label>
+                    <select type="text" id="sire_element" x-model="p_a.element" class="form-control">
+                        <option selected></option>
+                        <template x-for="(value, key) in data.elements">
+                            <option :value="value" x-text="value"></option>
+                        </template>
+                    </select>
+                </div>
+                <div class="col-12 col-md-4 mb-3">
+                    <label for="sire_aberrant" class="form-label">Aberration</label>
+                    <select type="text" id="sire_aberrant" x-model="p_a.aberrant" class="form-control">
+                        <option selected></option>
+                        <template x-for="(value, key) in data.aberrations">
+                            <option :value="value" x-text="value"></option>
+                        </template>
+                    </select>
+                </div>
+            </div>
+        </div>
+        <div class="col-12 col-md-4">
+            <h4>Parent B</h4>
+            <div class="mb-3">
+                <label for="dam_breed" class="form-label">Breed</label>
+                <select type="text" id="dam_breed" x-model="p_b.species" class="form-control">
+                    <template x-for="(value, key) in data.breeds">
+                        <option :value="value" x-text="value"></option>
+                    </template>
+                </select>
+            </div>
+            <div class="mb-3">
+                <label for="dam_geno" class="form-label">Genotype</label>
+                <input type="text" id="dam_geno" x-model="p_b.genotype" x-on:change="p_b.phenotype = getPhenotype(p_b.genotype)" class="form-control">
+            </div>
+            <div>
+                <label for="dam_pheno" class="form-label">Phenotype</label>
+                <input type="text" id="dam_pheno" x-model="p_b.phenotype" class="form-control mb-2" readonly>
+            </div>
+            <div class="row">
+                <div class="col-12 col-md-8 mb-3">
+                    <label for="dam_rank" class="form-label">Rank</label>
+                    <select type="text" id="dam_rank" x-model="p_b.rank" class="form-control">
+                        <template x-for="(value, key) in data.ranks">
+                            <option :value="value" x-text="value"></option>
+                        </template>
+                    </select>
+                </div>
+                <div class="col-12 col-md-4 mb-3">
+                    <label for="dam_fertility" class="form-label">Fertility</label>
+                    <select type="text" id="dam_fertility" x-model="p_b.fertility" class="form-control">
+                        <template x-for="(value, key) in data.fertility">
+                            <option :value="value" x-text="value"></option>
+                        </template>
+                    </select>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-12 col-md-4 mb-3">
+                    <label for="dam_ability" class="form-label">Ability</label>
+                    <select type="text" id="dam_ability" x-model="p_b.ability" class="form-control">
+                        <option selected></option>
+                        <template x-for="(value, key) in data.abilities">
+                            <option :value="value" x-text="value"></option>
+                        </template>
+                    </select>
+                </div>
+                <div class="col-12 col-md-4 mb-3">
+                    <label for="dam_element" class="form-label">Element</label>
+                    <select type="text" id="dam_element" x-model="p_b.element" class="form-control">
+                        <option selected></option>
+                        <template x-for="(value, key) in data.elements">
+                            <option :value="value" x-text="value"></option>
+                        </template>
+                    </select>
+                </div>
+                <div class="col-12 col-md-4 mb-3">
+                    <label for="dam_aberrant" class="form-label">Aberration</label>
+                    <select type="text" id="dam_aberrant" x-model="p_b.aberrant" class="form-control">
+                        <option selected></option>
+                        <template x-for="(value, key) in data.aberrations">
+                            <option :value="value" x-text="value"></option>
+                        </template>
+                    </select>
+                </div>
+            </div>
+        </div>
+        <div class="col-12 col-md-4">
+            <h4>Items</h4>
+            <div class="mb-3">
+                <label for="gender_pot" class="form-label">Sex-Determination Potion</label>
+                <select id="gender_pot" x-model="items.gender_pot" class="form-select">
+                    <option selected></option>
+                    <template x-for="(value, key) in data.potions.gender">
+                        <option :value="value" x-text="value"></option>
+                    </template>
+                </select>
+            </div>
+            <div class="row mb-3">
+                <div class="col-6">
+                    <label for="minor_fert" class="col-form-label form-label" x-text="data.potions.stacking.MINOR_FERT"></label>
+                </div>
+                <div class="col-6">
+                    <input type="number" id="minor_fert" x-model.number="items.minor_fert" @change="validatePotionAllowance" class="form-control" min=0 max=2>
+                </div>
+            </div>
+            <div class="row mb-3">
+                <div class="col-6">
+                    <label for="major_fert" class="col-form-label form-label" x-text="data.potions.stacking.MAJOR_FERT"></label>
+                </div>
+                <div class="col-6">
+                    <input type="number" id="major_fert" x-model.number="items.major_fert" @change="validatePotionAllowance" class="form-control" min=0 max=2>
+                </div>
+            </div>
+            <div class="row mb-3">
+                <div class="col-6">
+                    <label for="unstable_elixir" class="col-form-label form-label" x-text="data.potions.stacking.UNSTABLE_ELIXIR"></label>
+                </div>
+                <div class="col-6">
+                    <input type="number" id="unstable_elixir" x-model.number="items.unstable_elixir" @change="validatePotionAllowance" class="form-control" min=0 max=3>
+                </div>
+            </div>
+            <div class="mb-4">
+                <small>A maximum of 3 stacking potions can be used on a breeding.</small>
+            </div>
+            <h4>Inbreeding</h4>
+            <div class="row mb-4">
+                <div class="col-6">
+                    <label for="coi" class="col-form-label form-label">
+                        <abbr title="Coefficient of Inbreeding">COI</abbr>
+                    </label>
+                </div>
+                <div class="col-6">
+                    <div class="input-group">
+                        <input type="number" id="coi" x-model.number="coi" class="form-control" min=0 max=100 step=.01>
+                        <span class="input-group-text">%</span>
                     </div>
                 </div>
-
-                 <footer class="text-center text-gray-500 text-xs mt-8 py-4">
-                    <p>Copyright © 2025 BlueLionCreations LLC. All rights reserved.</p>
-                    <p>Web Design By <span class="text-gray-400">Rio Xeniayo</span></p>
-                </footer>
-            </main>
+                <div class="col-12">
+                    <small>You can calculate your breeding pair's COI with the <a href="https://wiki.beasts-of-inallo.com/calculator/coi" target="_blank">COI calculator</a>.</small>
+                </div>
+            </div>
+            <div class="d-flex justify-content-end">
+                <button @click="reset" class="btn btn-primary me-2">Reset Form</button>
+                <button id="rollBreeding" class="btn btn-primary">Roll Breeding</button>
+            </div>
         </div>
     </div>
+    <div class="mb-4">
+        <ul class="nav nav-tabs" id="roller-tabs" role="tablist">
+            <li class="nav-item" role="presentation">
+                <button class="nav-link active" id="results-tab" data-bs-toggle="tab" data-bs-target="#results" type="button" role="tab" aria-controls="results" aria-selected="true">Results</button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="possibilities-tab" data-bs-toggle="tab" data-bs-target="#possibilities" type="button" role="tab" aria-controls="possibilities" aria-selected="false">Possibilities</button>
+            </li>
+        </ul>
+        <div class="tab-content bg-light rounded-bottom p-4" id="roller-tab-content">
+            <div class="tab-pane fade show active" id="results" role="tabpanel" aria-labelledby="results-tab">...</div>
+            <div class="tab-pane fade" id="possibilities" role="tabpanel" aria-labelledby="possibilities-tab">
+                <div>
+                    <label class="fw-bold">Clutch Size</label>
+                    <p x-text="stats.clutch"></p>
+                </div>
+                <div>
+                    <label class="fw-bold">Sex</label>
+                    <ul>
+                        <template x-for="sx in stats.sex" :key="'s' + sx[0]">
+                            <li>
+                                <span x-text="sx[0]"></span> - <span x-text="sx[1]"></span>%
+                            </li>
+                        </template>
+                    </ul>
+                </div>
+                <div class="row">
+                    <div class="col-12 col-sm-3">
+                        <label class="fw-bold">Breed</label>
+                        <canvas x-ref="breedChart">
+                    </div>
+                    <div class="col-12 col-sm-3">
+                        <label class="fw-bold">Bases</label>
+                        <canvas x-ref="baseChart">
+                    </div>
+                </div>
+                <template x-if="stats?.markings">
+                    <div>
+                        <label class="fw-bold">Possible Markings</label>
+                        <ul>
+                            <template x-for="marking in stats.markings" :key="'m' + marking[0]">
+                                <li>
+                                    <span x-text="marking[0]"></span> - <span x-text="marking[1]"></span>%
+                                </li>
+                            </template>
+                        </ul>
+                    </div>
+                </template>
+                <template x-if="stats?.abilities">
+                    <div>
+                        <label class="fw-bold">Possible Abilities</label>
+                        <ul>
+                            <template x-for="ability in stats.abilities" :key="'ab' + ability[0]">
+                                <li>
+                                    <span x-text="ability[0]"></span> - <span x-text="ability[1]"></span>%
+                                </li>
+                            </template>
+                        </ul>
+                    </div>
+                </template>
+                <template x-if="stats?.elements">
+                    <div>
+                        <label class="fw-bold">Possible Elements</label>
+                        <ul>
+                            <template x-for="element in stats.elements" :key="'el' + element[0]">
+                                <li>
+                                    <span x-text="element[0]"></span> - <span x-text="element[1]"></span>%
+                                </li>
+                            </template>
+                        </ul>
+                    </div>
+                </template>
+            </div>
+        </div>
+    </div>
+</div>
 
     <script>
         // --- Sidenav collapsible menus & UI toggles ---
