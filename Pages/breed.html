@@ -11,6 +11,8 @@
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <!-- Chart.js for result visualization -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- Alpine.js for interactivity -->
+    <script src="https://unpkg.com/alpinejs@3.13.10/dist/cdn.min.js"></script>
     <style>
         body {
             font-family: 'Inter', sans-serif;
@@ -274,30 +276,23 @@
 
                             <!-- Items & Actions -->
                             <div class="space-y-4">
-                                <h4 class="text-2xl font-bold text-violet-300">Herbs & Potions</h4>
+                                <h4 class="text-2xl font-bold text-violet-300">Items & Modifiers</h4>
                                 <!-- Item inputs -->
                                 <div>
-                                    <label for="cresc_herb" class="block mb-2 text-sm font-medium text-gray-300">Crescebt Herb</label>
-                                    <select id="cresc_herb" x-model="items.cresc_herb" class="form-select w-full rounded-lg p-2.5">
+                                    <label for="gender_pot" class="block mb-2 text-sm font-medium text-gray-300">Sex-Determination Potion</label>
+                                    <select id="gender_pot" x-model="items.gender_pot" class="form-select w-full rounded-lg p-2.5">
                                         <option value="">None</option>
-                                        <template x-for="herb in data.herb" :key="herb"><option :value="herb" x-text="potion"></option></template>
-                                    </select>
-                                </div>
-                                <div>
-                                    <label for="moon_herb" class="block mb-2 text-sm font-medium text-gray-300">Moonlit Herb</label>
-                                    <select id="moon_herb" x-model="items.moon_herb" class="form-select w-full rounded-lg p-2.5">
-                                        <option value="">None</option>
-                                        <template x-for="herb in data.herb" :key="herb"><option :value="herb" x-text="potion"></option></template>
+                                        <template x-for="potion in data.potions.gender" :key="potion"><option :value="potion" x-text="potion"></option></template>
                                     </select>
                                 </div>
                                  <div>
                                     <h4 class="text-lg font-bold text-violet-400 mt-4 mb-2">Inbreeding</h4>
-                                    <label for="coi" class="block mb-2 text-sm font-medium text-gray-300">Inbreeding</label>
+                                    <label for="coi" class="block mb-2 text-sm font-medium text-gray-300">Coefficient of Inbreeding (COI)</label>
                                     <div class="flex">
                                         <input type="number" id="coi" x-model.number="coi" class="form-input rounded-l-lg w-full p-2.5" min=0 max=100 step=.01>
                                         <span class="inline-flex items-center px-3 text-sm text-gray-300 bg-gray-800/50 border border-l-0 border-gray-600 rounded-r-lg">%</span>
                                     </div>
-                                    <small class="text-gray-400 mt-1 block">Check with the <a href="#" class="text-violet-400 hover:underline">Relation Calc</a>.</small>
+                                    <small class="text-gray-400 mt-1 block">Calculate with the <a href="#" class="text-violet-400 hover:underline">COI calculator</a>.</small>
                                 </div>
                                 <div class="flex justify-end space-x-4 pt-6">
                                     <button @click="reset" class="shiny-btn bg-gray-600 border-gray-500 hover:bg-gray-500 px-5 py-2.5 rounded-lg">Reset</button>
@@ -379,130 +374,22 @@
         });
     </script>
     
-    <!-- Alpine.js for interactivity -->
-    <script src="https://unpkg.com/alpinejs@3.13.10/dist/cdn.min.js"></script>
+    <!-- External Javascript sources -->
+    <script src="./js/breed_mix.js" defer></script>
+    <script src="./js/breeding.js" defer></script>
+    <script src="./js/chart_colors.js" defer></script>
+    <script src="./js/clutch_size.js" defer></script>
+    <script src="./js/gene_maps.js" defer></script>
+    <script src="./js/genetics-services.js" defer></script>
+    <script src="./js/genotype-helper.js" defer></script>
+    <script src="./js/item-list.js" defer></script>
+    <script src="./js/items.js" defer></script>
+    <script src="./js/old_genes.js" defer></script>
+    <script src="./js/phenotype-helper.js" defer></script>
+    <script src="./js/punnett-helper.js" defer></script>
     
-    <script>
-        // --- Contents of ./js/breeding-data.js ---
-        const breedingData = {
-            breeds: ['Thilyarem', 'Destrier', 'Cyroas'],
-            ranks: ['Omega', 'Gamma', 'Beta', 'Alpha', 'Delta'],
-            fertility: ['Infertile', 'Low', 'Average', 'High'],
-            abilities: ['Swift', 'Strong', 'Stealthy', 'Resilient'],
-            elements: ['Fire', 'Water', 'Earth', 'Air', 'Lightning'],
-            aberrations: ['None', 'Maned', 'Spiked', 'Paradise'],
-            potions: {
-                gender: ['Potion of Male Sex', 'Potion of Female Sex'],
-            },
-            markings: { 'L': 'Lined', 'So': 'Spotted', 'St': 'Stripes', 'T': 'Ticking', 'Tr': 'Trim' }
-        };
+    <!-- This file should contain the main Alpine.js component definition -->
+    <script src="./js/breeding-roller.js" defer></script>
 
-        // --- Contents of ./js/breeding-roller.js ---
-        function breedingRoller() {
-            return {
-                // Use data from the breedingData object
-                data: breedingData,
-                // Parent A Data
-                p_a: { species: 'Thilyarem', genotype: 'L/So/St', phenotype: 'Lined, Spotted, Stripes' },
-                // Parent B Data
-                p_b: { species: 'Thilyarem', genotype: 'T/Tr/St', phenotype: 'Ticking, Trim, Stripes' },
-                // Items Data
-                items: { gender_pot: '' },
-                coi: 0,
-                results: { rolled: false, offspring: [] },
-                breedChart: null,
-                baseChart: null,
-
-                // Converts genotype string to phenotype string
-                getPhenotype(geno) {
-                    if (!geno) return '';
-                    const alleles = geno.split('/').filter(Boolean);
-                    return alleles.map(allele => this.data.markings[allele.trim()] || allele.trim()).join(', ');
-                },
-
-                // Resets the form to default values
-                reset() {
-                    this.p_a = { species: 'Thilyarem', genotype: '', phenotype: '' };
-                    this.p_b = { species: 'Thilyarem', genotype: '', phenotype: '' };
-                    this.items = { gender_pot: '' };
-                    this.coi = 0;
-                    this.results = { rolled: false, offspring: [] };
-                },
-
-                // Main logic for rolling the breeding
-                rollBreeding() {
-                    this.results.offspring = [];
-                    const clutchSize = Math.floor(Math.random() * 3) + 1; // 1-3 offspring
-
-                    for (let i = 0; i < clutchSize; i++) {
-                        const child = {};
-                        if (this.items.gender_pot === 'Potion of Male Sex') {
-                            child.sex = 'Male';
-                        } else if (this.items.gender_pot === 'Potion of Female Sex') {
-                            child.sex = 'Female';
-                        } else {
-                            child.sex = Math.random() > 0.5 ? 'Male' : 'Female';
-                        }
-                        
-                        child.species = Math.random() > 0.5 ? this.p_a.species : this.p_b.species;
-                        
-                        const p1_genes = this.p_a.genotype.split('/').filter(g => g);
-                        const p2_genes = this.p_b.genotype.split('/').filter(g => g);
-                        const all_genes = [...new Set([...p1_genes, ...p2_genes])];
-                        let child_geno = [];
-                        all_genes.forEach(gene => {
-                            if(Math.random() > 0.5) {
-                                child_geno.push(gene);
-                            }
-                        });
-                        child.genotype = child_geno.join('/');
-                        child.phenotype = this.getPhenotype(child.genotype);
-
-                        this.results.offspring.push(child);
-                    }
-                    this.results.rolled = true;
-                    this.$nextTick(() => {
-                        this.updateCharts();
-                    });
-                },
-
-                // Updates the possibility charts
-                updateCharts() {
-                    const breedCtx = document.getElementById('breedChart')?.getContext('2d');
-                    const baseCtx = document.getElementById('baseChart')?.getContext('2d');
-
-                    if (!breedCtx || !baseCtx) return;
-
-                    if (this.breedChart) this.breedChart.destroy();
-                    this.breedChart = new Chart(breedCtx, {
-                        type: 'pie',
-                        data: {
-                            labels: [this.p_a.species, this.p_b.species, 'Hybrid'],
-                            datasets: [{
-                                data: [45, 45, 10], // Mock data
-                                backgroundColor: ['#8b5cf6', '#a78bfa', '#c4b5fd'],
-                                borderColor: '#111827',
-                            }]
-                        },
-                        options: { responsive: true, plugins: { legend: { position: 'top', labels: { color: '#e0e0e0' } } } }
-                    });
-
-                    if (this.baseChart) this.baseChart.destroy();
-                    this.baseChart = new Chart(baseCtx, {
-                        type: 'pie',
-                        data: {
-                            labels: ['Black', 'Brown', 'Fawn', 'Cream'],
-                            datasets: [{
-                                data: [25, 40, 20, 15], // Mock data
-                                backgroundColor: ['#374151', '#92400e', '#fde68a', '#fef3c7'],
-                                borderColor: '#111827',
-                            }]
-                        },
-                         options: { responsive: true, plugins: { legend: { position: 'top', labels: { color: '#e0e0e0' } } } }
-                    });
-                }
-            };
-        }
-    </script>
 </body>
 </html>
