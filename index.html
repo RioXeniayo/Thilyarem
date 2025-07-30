@@ -100,15 +100,28 @@
                         </div>
                     </div>
                     <!-- Another Collapsible Menu -->
+                                    <button onclick="toggleMenu('community-menu')" class="w-full flex items-center justify-between p-2 text-gray-300 hover:bg-violet-800 hover:bg-opacity-50 rounded-md">
+                            <div class="flex items-center">
+                                <i class="fas fa-comment w-6"></i>
+                                <span>Breeding</span>
+                            </div>
+                            <i id="community-menu-arrow" class="fas fa-angle-down"></i>
+                        </button>
+                        <div id="community-menu" class="hidden pl-6 mt-1 space-y-1">
+                            <a href="#" class="block p-2 text-sm text-gray-400 hover:text-white">Breeding Roller</a>
+                            <a href="#" class="block p-2 text-sm text-gray-400 hover:text-white">Genetics Converter</a>
+                            <a href="#" class="block p-2 text-sm text-gray-400 hover:text-white">Inborn Element Roller</a>
+                        </div>
+                    </div>
                  <div>
                     <h2 class="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">Utilities</h2>
                     <a href="#" class="flex items-center p-2 text-gray-300 hover:bg-violet-800 hover:bg-opacity-50 rounded-md">
                         <i class="fas fa-calculator w-6"></i>
-                        <span>Placeholder</span>
+                        <span>EXP Calc</span>
                     </a>
                     <a href="#" class="flex items-center p-2 text-gray-300 hover:bg-violet-800 hover:bg-opacity-50 rounded-md">
                         <i class="fas fa-dna w-6"></i>
-                        <span>Placeholder</span>
+                        <span>Inbreeding Calc</span>
                     </a>
                 </div>
             </nav>
