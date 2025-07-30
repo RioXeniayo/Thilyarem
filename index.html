@@ -17,8 +17,7 @@
             color: #e0e0e0;
         }
         .main-bg {
-            /* --- New background image --- */
-            background-image: url('https://f2.toyhou.se/file/f2-toyhou-se/images/54766088_2eLuKUFHTP5IBjs.png');
+            background-image: url('https://f2.toyhou.se/file/f2-toyhou-se/images/104581042_wDyLxXnQY3jvWgU.jpg');
             background-size: cover;
             background-position: center;
             background-attachment: fixed;
@@ -26,30 +25,29 @@
         .text-shadow {
             text-shadow: 1px 1px 3px rgba(0,0,0,0.8);
         }
-        /* --- Updated "glassy blurred" look for cards --- */
         .box {
-            background-color: url('https://f2.toyhou.se/file/f2-toyhou-se/images/104581042_wDyLxXnQY3jvWgU.jpg');
-            backdrop-filter: blur(16px); /* Increased blur for a glassier effect */
-            border: 1px solid rgba(255, 255, 255, 0.1); /* Subtle white border to define the edge */
-            border-radius: 0.75rem; /* Slightly more rounded corners */
+            background-color: rgba(17, 24, 39, 0.6); 
+            backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 0.75rem;
             height: 100%; 
         }
         
-        /* --- Styles for Sleek Shiny Buttons (Blue/Purple Theme) --- */
+        /* --- Updated Sleek Shiny Buttons (Violet/Purple Theme) --- */
         .shiny-btn {
-            background: linear-gradient(to bottom, #4f46e5 0%, #3730a3 100%); /* indigo-600 to indigo-800 */
-            border: 1px solid #818cf8; /* indigo-400 */
-            box-shadow: 0 1px 2px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.2);
+            background: linear-gradient(to bottom, #6d28d9 0%, #4c1d95 100%); /* violet-700 to violet-900 */
+            border: 1px solid #a78bfa; /* violet-400 */
+            box-shadow: 0 1px 2px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.15);
             transition: all 0.3s ease;
         }
         .shiny-btn:hover {
-            background: linear-gradient(to bottom, #6366f1 0%, #4f46e5 100%); /* indigo-500 to indigo-600 */
-            box-shadow: 0 2px 4px rgba(0,0,0,0.7), inset 0 1px 0 rgba(255,255,255,0.3);
+            background: linear-gradient(to bottom, #7c3aed 0%, #6d28d9 100%); /* violet-600 to violet-700 */
+            box-shadow: 0 2px 4px rgba(0,0,0,0.7), inset 0 1px 0 rgba(255,255,255,0.25);
             transform: translateY(-2px);
         }
         .shiny-btn.active {
-             background: linear-gradient(to bottom, #60a5fa 0%, #3b82f6 100%); /* blue-400 to blue-500 */
-             border-color: #93c5fd; /* blue-300 */
+             background: linear-gradient(to bottom, #a78bfa 0%, #8b5cf6 100%); /* violet-400 to violet-500 */
+             border-color: #c4b5fd; /* violet-300 */
         }
 
         /* --- Styles for Smoother Dropdowns --- */
@@ -71,14 +69,14 @@
 </head>
 <body class="bg-[#111]">
 
-    <div class="max-w-7xl mx-auto bg-black bg-opacity-20 shadow-2xl">
+    <div class="max-w-7xl mx-auto shadow-2xl">
 
         <!-- Header and Navigation -->
         <header class="bg-black bg-opacity-60 backdrop-filter backdrop-blur-sm border-b border-gray-800 px-4 sm:px-6 lg:px-8 sticky top-0 z-30">
             <div class="flex items-center justify-between h-20">
                 <!-- Logo -->
                 <div class="flex-shrink-0">
-                    <h1 class="text-4xl font-bold text-shadow" style="color: #93c5fd;">Thilyarem</h1>
+                    <h1 class="text-4xl font-bold text-shadow" style="color: #a78bfa;">Thilyarem</h1>
                 </div>
 
                 <!-- Desktop Navigation Links -->
@@ -92,11 +90,11 @@
                             <svg class="w-4 h-4 ml-1" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd"></path></svg>
                         </button>
                         <div class="dropdown-menu absolute left-0 mt-2 w-48 rounded-md shadow-lg py-1 z-20">
-                            <a href="#" class="block px-4 py-2 text-sm text-gray-300 hover:bg-blue-500 hover:bg-opacity-30">Free Marks</a>
-                            <a href="#" class="block px-4 py-2 text-sm text-gray-300 hover:bg-blue-500 hover:bg-opacity-30">Markings</a>
-                            <a href="#" class="block px-4 py-2 text-sm text-gray-300 hover:bg-blue-500 hover:bg-opacity-30">Mutations</a>
-                            <a href="#" class="block px-4 py-2 text-sm text-gray-300 hover:bg-blue-500 hover:bg-opacity-30">Manetypes</a>
-                            <a href="#" class="block px-4 py-2 text-sm text-gray-300 hover:bg-blue-500 hover:bg-opacity-30">Physical Traits</a>
+                            <a href="#" class="block px-4 py-2 text-sm text-gray-300 hover:bg-violet-600 hover:bg-opacity-40">Free Marks</a>
+                            <a href="#" class="block px-4 py-2 text-sm text-gray-300 hover:bg-violet-600 hover:bg-opacity-40">Markings</a>
+                            <a href="#" class="block px-4 py-2 text-sm text-gray-300 hover:bg-violet-600 hover:bg-opacity-40">Mutations</a>
+                            <a href="#" class="block px-4 py-2 text-sm text-gray-300 hover:bg-violet-600 hover:bg-opacity-40">Manetypes</a>
+                            <a href="#" class="block px-4 py-2 text-sm text-gray-300 hover:bg-violet-600 hover:bg-opacity-40">Physical Traits</a>
                         </div>
                     </div>
 
@@ -107,9 +105,9 @@
                             <svg class="w-4 h-4 ml-1" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd"></path></svg>
                         </button>
                         <div class="dropdown-menu absolute left-0 mt-2 w-48 rounded-md shadow-lg py-1 z-20">
-                            <a href="#" class="block px-4 py-2 text-sm text-gray-300 hover:bg-blue-500 hover:bg-opacity-30">Thilyarem</a>
-                            <a href="#" class="block px-4 py-2 text-sm text-gray-300 hover:bg-blue-500 hover:bg-opacity-30">Destrier</a>
-                            <a href="#" class="block px-4 py-2 text-sm text-gray-300 hover:bg-blue-500 hover:bg-opacity-30">Cyroas</a>
+                            <a href="#" class="block px-4 py-2 text-sm text-gray-300 hover:bg-violet-600 hover:bg-opacity-40">Thilyarem</a>
+                            <a href="#" class="block px-4 py-2 text-sm text-gray-300 hover:bg-violet-600 hover:bg-opacity-40">Destrier</a>
+                            <a href="#" class="block px-4 py-2 text-sm text-gray-300 hover:bg-violet-600 hover:bg-opacity-40">Cyroas</a>
                         </div>
                     </div>
 
@@ -120,9 +118,9 @@
                             <svg class="w-4 h-4 ml-1" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd"></path></svg>
                         </button>
                         <div class="dropdown-menu absolute right-0 mt-2 w-48 rounded-md shadow-lg py-1 z-20">
-                            <a href="#" class="block px-4 py-2 text-sm text-gray-300 hover:bg-blue-500 hover:bg-opacity-30">Flesh and Teeth</a>
-                            <a href="#" class="block px-4 py-2 text-sm text-gray-300 hover:bg-blue-500 hover:bg-opacity-30">Eye Colours</a>
-                            <a href="#" class="block px-4 py-2 text-sm text-gray-300 hover:bg-blue-500 hover:bg-opacity-30">Shading</a>
+                            <a href="#" class="block px-4 py-2 text-sm text-gray-300 hover:bg-violet-600 hover:bg-opacity-40">Flesh and Teeth</a>
+                            <a href="#" class="block px-4 py-2 text-sm text-gray-300 hover:bg-violet-600 hover:bg-opacity-40">Eye Colours</a>
+                            <a href="#" class="block px-4 py-2 text-sm text-gray-300 hover:bg-violet-600 hover:bg-opacity-40">Shading</a>
                         </div>
                     </div>
                 </nav>
@@ -148,37 +146,37 @@
         <div class="bg-transparent py-16">
             <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                 <div class="text-center mb-12" data-aos="fade-up">
-                    <h3 class="text-4xl font-bold text-blue-300">Acquiring a Thilyarem</h3>
+                    <h3 class="text-4xl font-bold text-violet-300">Acquiring a Thilyarem</h3>
                     <p class="text-lg text-gray-400 mt-2">Your official guide to obtaining a Thilyarem.</p>
                 </div>
                  <div class="grid grid-cols-1 md:grid-cols-2 gap-8" data-aos="fade-up" data-aos-delay="200">
                     <!-- The Hatchery -->
                     <div class="box p-6 flex flex-col">
-                        <h4 class="text-2xl font-bold text-blue-300 mb-3">The Hatchery: Your First Thilyarem</h4>
+                        <h4 class="text-2xl font-bold text-violet-300 mb-3">The Hatchery: Your First Thilyarem</h4>
                         <p class="text-sm text-gray-400 mb-4 flex-grow">The primary and recommended method for new participants. As a new member, you are allowed to hatch one common egg to begin your adventure!</p>
                         <a href="#" class="shiny-btn text-white text-center px-4 py-2 rounded-md text-sm font-medium mt-auto">Visit the Hatchery</a>
                     </div>
                      <!-- The Adoption Center -->
                     <div class="box p-6 flex flex-col">
-                        <h4 class="text-2xl font-bold text-blue-300 mb-3">The Adoption Center</h4>
+                        <h4 class="text-2xl font-bold text-violet-300 mb-3">The Adoption Center</h4>
                         <p class="text-sm text-gray-400 mb-4 flex-grow">A secondary avenue for acquiring a Thilyarem. All members may adopt up to two Thilyarem from the center. This policy may be adjusted to reflect supply and demand at a later date.</p>
                         <a href="#" class="shiny-btn text-white text-center px-4 py-2 rounded-md text-sm font-medium mt-auto">Go to the Adoption Center</a>
                     </div>
                      <!-- Player Trading & Sales -->
                     <div class="box p-6 flex flex-col">
-                        <h4 class="text-2xl font-bold text-blue-300 mb-3">Player Trading & Sales</h4>
+                        <h4 class="text-2xl font-bold text-violet-300 mb-3">Player Trading & Sales</h4>
                         <p class="text-sm text-gray-400 mb-4 flex-grow">Obtaining genos and breeding slots directly from other players. Trades often involve art, USD, or in-game items. Sale advertisements are most frequent on our official Discord.</p>
                         <a href="#" class="shiny-btn text-white text-center px-4 py-2 rounded-md text-sm font-medium mt-auto">Join the Discord</a>
                     </div>
                      <!-- Breeding -->
                     <div class="box p-6 flex flex-col">
-                        <h4 class="text-2xl font-bold text-blue-300 mb-3">Breeding</h4>
+                        <h4 class="text-2xl font-bold text-violet-300 mb-3">Breeding</h4>
                         <p class="text-sm text-gray-400 mb-4 flex-grow">For those seeking custom or non-standard genos. Acquire breeding slots via player exchanges or by purchasing starter slots during official sales events.</p>
                         <a href="#" class="shiny-btn text-white text-center px-4 py-2 rounded-md text-sm font-medium mt-auto">Learn About Breeding</a>
                     </div>
                 </div>
                  <div class="text-center mt-12" data-aos="fade-up">
-                    <h4 class="text-2xl font-bold text-blue-300">Future Developments</h4>
+                    <h4 class="text-2xl font-bold text-violet-300">Future Developments</h4>
                     <p class="text-md text-gray-400 mt-2">These are the current methods, but we are always developing new features and opportunities. Stay tuned for exciting updates!</p>
                 </div>
             </div>
