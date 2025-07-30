@@ -1,29 +1,31 @@
 export const Gene = {
     // -- BASE COLORS AND MODIFIERS --
     BASE_COLORS: {
-        NORMAL_MELANIN: ['Black', 'Brown', 'Green', 'Slate', 'Tan'],
-        BLUE_DILUTE: ['Brown', 'Seagreen', 'Blue', 'Tan'], // MB Expression
-        NO_MEL_DILUTE: ['Lilac', 'Teagreen', 'White', 'Cream']  // M0 Expression
+        B_PLUS: { NORMAL_MELANIN: 'Tan', NO_MELANIN: 'Cream' },
+        BA: { NORMAL_MELANIN: 'Brown', NO_MELANIN: 'Lilac' },
+        BG: { NORMAL_MELANIN: 'Green', DILUTED_MELANIN: 'Seagreen', NO_MELANIN: 'Seafoam' },
+        BW: { NORMAL_MELANIN: 'Slate', DILUTED_MELANIN: 'Blue', NO_MELANIN: 'White' },
+        KB_OVERRIDE: { NORMAL_MELANIN: 'Black' }
     },
     BASE_MODIFIERS: {
         VERMILLION: {
             HOMOZYGOUS: [['VmVm']],
-            EXPRESSED: [['VmVm'], ['nVm']],
+            EXPRESSED: [['VmVm'], ['Vm']],
             CARRIED: []
         },
         JADE: {
             HOMOZYGOUS: [['JaJa']],
-            EXPRESSED: [['JaJa'], ['nJa']],
+            EXPRESSED: [['JaJa'], ['Ja']],
             CARRIED: []
         },
         VIOLET: {
             HOMOZYGOUS: [['VlVl']],
-            EXPRESSED: [['VlVl'], ['nVl']],
+            EXPRESSED: [['VlVl'], ['Vl']],
             CARRIED: []
         },
         AMBER: {
             HOMOZYGOUS: [['AmAm']],
-            EXPRESSED: [['AmAm'], ['nAm']],
+            EXPRESSED: [['AmAm'], ['Am']],
             CARRIED: []
         },
     },
@@ -32,152 +34,151 @@ export const Gene = {
     MARKINGS_COMMON: {
         BELLYTONE: {
             HOMOZYGOUS: [['BtBt']],
-            EXPRESSED: [['BtBt'], ['nBt']],
+            EXPRESSED: [['BtBt'], ['Bt']],
             CARRIED: []
         },
         COLLAR: {
             HOMOZYGOUS: [['ClCl']],
-            EXPRESSED: [['ClCl'], ['nCl']],
+            EXPRESSED: [['ClCl'], ['Cl']],
             CARRIED: []
         },
         INKED: {
             HOMOZYGOUS: [['InIn']],
-            EXPRESSED: [['InIn'], ['nIn']],
+            EXPRESSED: [['InIn'], ['In']],
             CARRIED: []
         },
         MANTLE: {
             HOMOZYGOUS: [['MntMnt']],
-            EXPRESSED: [['MntMnt'], ['nMnt']],
+            EXPRESSED: [['MntMnt'], ['Mnt']],
             CARRIED: []
         },
         PANGARE: {
             HOMOZYGOUS: [['PgPg']],
-            EXPRESSED: [['PgPg'], ['nPg']],
+            EXPRESSED: [['PgPg'], ['Pg']],
             CARRIED: []
         },
         POINTS: {
             HOMOZYGOUS: [['PtPt']],
-            EXPRESSED: [['PtPt'], ['nPt']],
+            EXPRESSED: [['PtPt'], ['Pt']],
             CARRIED: []
         },
         ROAN: {
             HOMOZYGOUS: [['RoRo']],
-            EXPRESSED: [['RoRo'], ['nRo']],
+            EXPRESSED: [['RoRo'], ['Ro']],
             CARRIED: []
         },
         SABLE: {
             HOMOZYGOUS: [['SbSb']],
-            EXPRESSED: [['SbSb'], ['nSb']],
+            EXPRESSED: [['SbSb'], ['Sb']],
             CARRIED: []
         },
         SIAMESE: {
             HOMOZYGOUS: [['SiSi']],
-            EXPRESSED: [['SiSi'], ['nSi']],
+            EXPRESSED: [['SiSi'], ['Si']],
             CARRIED: []
         },
         STAINED: {
             HOMOZYGOUS: [['StnStn']],
-            EXPRESSED: [['StnStn'], ['nStn']],
+            EXPRESSED: [['StnStn'], ['Stn']],
             CARRIED: []
         },
     },
     MARKINGS_UNCOMMON: {
-        OVERO: { // Heterozygous form of Apl
+        OVERO: {
             HOMOZYGOUS: [],
-            EXPRESSED: [['nApl']],
+            EXPRESSED: [['Apl']],
             CARRIED: []
         },
-        APPALOOSA: { // Homozygous form of Apl
+        APPALOOSA: {
             HOMOZYGOUS: [['AplApl']],
             EXPRESSED: [['AplApl']],
             CARRIED: []
         },
         BARRING: {
             HOMOZYGOUS: [['BrnBrn']],
-            EXPRESSED: [['BrnBrn'], ['nBrn']],
+            EXPRESSED: [['BrnBrn'], ['Brn']],
             CARRIED: []
         },
         DAPPLES: {
             HOMOZYGOUS: [['DplDpl']],
-            EXPRESSED: [['DplDpl'], ['nDpl']],
+            EXPRESSED: [['DplDpl'], ['Dpl']],
             CARRIED: []
         },
-        DUN: { // Heterozygous form of Bng
+        DUN: {
             HOMOZYGOUS: [],
-            EXPRESSED: [['nBng']],
+            EXPRESSED: [['Bng']],
             CARRIED: []
         },
-        BENGAL: { // Homozygous form of Bng
+        BENGAL: {
             HOMOZYGOUS: [['BngBng']],
             EXPRESSED: [['BngBng']],
             CARRIED: []
         },
         MERLE: {
-            // Homozygous Merle expresses minor birth defects.
             HOMOZYGOUS: [['MrlMrl']],
-            EXPRESSED: [['MrlMrl'], ['nMrl']],
+            EXPRESSED: [['MrlMrl'], ['Mrl']],
             CARRIED: []
         },
         PANDA: {
             HOMOZYGOUS: [['PndPnd']],
-            EXPRESSED: [['PndPnd'], ['nPnd']],
+            EXPRESSED: [['PndPnd'], ['Pnd']],
             CARRIED: []
         },
         PYTHON: {
             HOMOZYGOUS: [['PyPy']],
-            EXPRESSED: [['PyPy'], ['nPy']],
+            EXPRESSED: [['PyPy'], ['Py']],
             CARRIED: []
         },
         RORSCHACH: {
             HOMOZYGOUS: [['RscRsc']],
-            EXPRESSED: [['RscRsc'], ['nRsc']],
+            EXPRESSED: [['RscRsc'], ['Rsc']],
             CARRIED: []
         },
         SPOTTED: {
             HOMOZYGOUS: [['SpSp']],
-            EXPRESSED: [['SpSp'], ['nSp']],
+            EXPRESSED: [['SpSp'], ['Sp']],
             CARRIED: []
         },
     },
     MARKINGS_RARE: {
         DIAMOND: {
             HOMOZYGOUS: [['DiDi']],
-            EXPRESSED: [['DiDi'], ['nDi']],
+            EXPRESSED: [['DiDi'], ['Di']],
             CARRIED: []
         },
         GLINT: {
             HOMOZYGOUS: [['GlGl']],
-            EXPRESSED: [['GlGl'], ['nGl']],
+            EXPRESSED: [['GlGl'], ['Gl']],
             CARRIED: []
         },
         IRIDESCENT: {
             HOMOZYGOUS: [['IrIr']],
-            EXPRESSED: [['IrIr'], ['nIr']],
+            EXPRESSED: [['IrIr'], ['Ir']],
             CARRIED: []
         },
         PIEBALD: {
             HOMOZYGOUS: [['PbPb']],
-            EXPRESSED: [['PbPb'], ['nPb']],
+            EXPRESSED: [['PbPb'], ['Pb']],
             CARRIED: []
         },
         TICKING: {
             HOMOZYGOUS: [['TkTk']],
-            EXPRESSED: [['TkTk'], ['nTk']],
+            EXPRESSED: [['TkTk'], ['Tk']],
             CARRIED: []
         },
         SPECTRUM: {
             HOMOZYGOUS: [['StmStm']],
-            EXPRESSED: [['StmStm'], ['nStm']],
+            EXPRESSED: [['StmStm'], ['Stm']],
             CARRIED: []
         },
         SPIDER: {
             HOMOZYGOUS: [['SdSd']],
-            EXPRESSED: [['SdSd'], ['nSd']],
+            EXPRESSED: [['SdSd'], ['Sd']],
             CARRIED: []
         },
         WIDOW: {
             HOMOZYGOUS: [['WdWd']],
-            EXPRESSED: [['WdWd'], ['nWd']],
+            EXPRESSED: [['WdWd'], ['Wd']],
             CARRIED: []
         },
     },
@@ -186,19 +187,19 @@ export const Gene = {
     OVERRIDES: {
         PAINTED: { // Piebald + Widow
             HOMOZYGOUS: [['PbPb', 'WdWd']],
-            EXPRESSED: [['PbPb', 'WdWd'], ['PbPb', 'nWd'], ['nPb', 'WdWd'], ['nPb', 'nWd']],
+            EXPRESSED: [['PbPb', 'WdWd'], ['PbPb', 'Wd'], ['Pb', 'WdWd'], ['Pb', 'Wd']],
             CARRIED: []
         },
         CROSS: { // Sable + Pangare
             HOMOZYGOUS: [['SbSb', 'PgPg']],
-            EXPRESSED: [['SbSb', 'PgPg'], ['SbSb', 'nPg'], ['nSb', 'PgPg'], ['nSb', 'nPg']],
+            EXPRESSED: [['SbSb', 'PgPg'], ['SbSb', 'Pg'], ['Sb', 'PgPg'], ['Sb', 'Pg']],
             CARRIED: []
         },
-        EMPEROR: { // Tabby (assumed from old data as Se+Str) + Bengal
+        EMPEROR: { // Tabby (assumed Se+Str) + Bengal
             HOMOZYGOUS: [['SeSe', 'StrStr', 'BngBng']],
             EXPRESSED: [
-                ['SeSe', 'StrStr', 'BngBng'], ['nSe', 'StrStr', 'BngBng'],
-                ['SeSe', 'nStr', 'BngBng'], ['nSe', 'nStr', 'BngBng']
+                ['SeSe', 'StrStr', 'BngBng'], ['Se', 'StrStr', 'BngBng'],
+                ['SeSe', 'Str', 'BngBng'], ['Se', 'Str', 'BngBng']
             ],
             CARRIED: []
         }
@@ -208,27 +209,27 @@ export const Gene = {
     TRAITS: {
         FANGED: {
             HOMOZYGOUS: [['FgFg']],
-            EXPRESSED: [['FgFg'], ['nFg']],
+            EXPRESSED: [['FgFg'], ['Fg']],
             CARRIED: []
         },
         FINLESS: {
             HOMOZYGOUS: [['FnFn']],
-            EXPRESSED: [['FnFn'], ['nFn']],
+            EXPRESSED: [['FnFn'], ['Fn']],
             CARRIED: []
         },
         HORNED: {
             HOMOZYGOUS: [['HrHr']],
-            EXPRESSED: [['HrHr'], ['nHr']],
+            EXPRESSED: [['HrHr'], ['Hr']],
             CARRIED: []
         },
         SAIL: {
             HOMOZYGOUS: [['SaiSai']],
-            EXPRESSED: [['SaiSai'], ['nSai']],
+            EXPRESSED: [['SaiSai'], ['Sai']],
             CARRIED: []
         },
         TUSKED: {
             HOMOZYGOUS: [['TskTsk']],
-            EXPRESSED: [['TskTsk'], ['nTsk']],
+            EXPRESSED: [['TskTsk'], ['Tsk']],
             CARRIED: []
         },
     },
@@ -238,6 +239,11 @@ export const Gene = {
         ALBINISM: {
             HOMOZYGOUS: [['ALB']],
             EXPRESSED: [['ALB'], ['Alb']],
+            CARRIED: []
+        },
+        LAVENDER: {
+            HOMOZYGOUS: [['ALV']],
+            EXPRESSED: [['ALV'], ['Alv']],
             CARRIED: []
         },
         AXANTHIC_G: {
@@ -250,17 +256,12 @@ export const Gene = {
             EXPRESSED: [['TSK'], ['Tsk']],
             CARRIED: []
         },
-        LAVENDER: {
-            HOMOZYGOUS: [['ALV']],
-            EXPRESSED: [['ALV'], ['Alv']],
-            CARRIED: []
-        },
         LEUCISTIC: {
             HOMOZYGOUS: [['LCT']],
             EXPRESSED: [['LCT'], ['Lct']],
             CARRIED: []
         },
-        VITILIGO: { // Note: original prompt had 'Vtl' and 'VTL', standardized here
+        VITILIGO: {
             HOMOZYGOUS: [['VTL']],
             EXPRESSED: [['VTL'], ['Vtl']],
             CARRIED: []
