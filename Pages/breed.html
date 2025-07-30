@@ -208,16 +208,16 @@
                         <div class="space-y-4">
                              <h4 class="text-xl font-bold text-violet-400">Items & Inbreeding</h4>
                             <div>
-                                <label for="gender_pot" class="form-label">Sex-Determination Potion</label>
-                                <select id="gender_pot" x-model="items.gender_pot" class="form-select">
+                                <label for="cresc_herb" class="form-label">Crescent Herb</label>
+                                <select id="cresc_herb" x-model="items.cresc_herb" class="form-select">
                                     <option value=""></option>
                                     <template x-for="value in data.potions.gender"><option :value="value" x-text="value"></option></template>
                                 </select>
                             </div>
                             <div>
-                                <label class="form-label"><abbr title="Coefficient of Inbreeding">COI</abbr> (%)</label>
+                                <label class="form-label"><abbr title="Inbreeding Level">IL</abbr> (%)</label>
                                 <input type="number" id="coi" x-model.number="coi" class="form-input" min="0" max="100" step=".01">
-                                <small class="text-xs text-gray-500 mt-1">Calculate with the <a href="#" class="text-violet-400 hover:underline">COI calculator</a>.</small>
+                                <small class="text-xs text-gray-500 mt-1">Calculate: <a href="#" class="text-violet-400 hover:underline">Here</a>.</small>
                             </div>
                         </div>
                     </div>
@@ -296,8 +296,8 @@
                     // This would be populated by your JS files
                     console.log("Breeding roller initialized.");
                     this.data = {
-                       breeds: ["Thilyarem", "Destrier", "Cyroas"],
-                       potions: { gender: ["Potion of Male Sex", "Potion of Female Sex"] }
+                       breeds: ["Thilyarem", "Destrier"],
+                       herb: { gender: ["Crescent Herb", "Moonlit Herb"] }
                        // ... other data from your JS files
                     };
                 },
@@ -317,7 +317,7 @@
             }));
         });
     </script>
-    <script src="./js/breeding-roller.js"></script>
+    <script src="./breeding-roller.js"></script>
 
 </body>
 </html>
