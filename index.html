@@ -1,156 +1,222 @@
-
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Mutations</title>
-<link rel="stylesheet" href="/Thilyarem/css/style.css">
-    <!-- Link to your external JavaScript file -->
-    <script src="js/main.js" defer></script>
+    <title>Thilyarem Design Hub</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&display=swap" rel="stylesheet">
+    <!-- Link for Animate On Scroll (AOS) library -->
+    <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #111; /* Darker background */
+            color: #e0e0e0;
+        }
+        .main-bg {
+            /* --- New background image --- */
+            background-image: url('http://googleusercontent.com/file_content/1');
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+        }
+        .text-shadow {
+            text-shadow: 1px 1px 3px rgba(0,0,0,0.8);
+        }
+        /* --- Updated "glassy blurred" look for cards --- */
+        .box {
+            background-color: rgba(17, 24, 39, 0.6); /* A slightly blue-tinted dark transparent background */
+            backdrop-filter: blur(16px); /* Increased blur for a glassier effect */
+            border: 1px solid rgba(255, 255, 255, 0.1); /* Subtle white border to define the edge */
+            border-radius: 0.75rem; /* Slightly more rounded corners */
+            height: 100%; 
+        }
+        
+        /* --- Styles for Sleek Shiny Buttons (Blue/Purple Theme) --- */
+        .shiny-btn {
+            background: linear-gradient(to bottom, #4f46e5 0%, #3730a3 100%); /* indigo-600 to indigo-800 */
+            border: 1px solid #818cf8; /* indigo-400 */
+            box-shadow: 0 1px 2px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.2);
+            transition: all 0.3s ease;
+        }
+        .shiny-btn:hover {
+            background: linear-gradient(to bottom, #6366f1 0%, #4f46e5 100%); /* indigo-500 to indigo-600 */
+            box-shadow: 0 2px 4px rgba(0,0,0,0.7), inset 0 1px 0 rgba(255,255,255,0.3);
+            transform: translateY(-2px);
+        }
+        .shiny-btn.active {
+             background: linear-gradient(to bottom, #60a5fa 0%, #3b82f6 100%); /* blue-400 to blue-500 */
+             border-color: #93c5fd; /* blue-300 */
+        }
+
+        /* --- Styles for Smoother Dropdowns --- */
+        .dropdown-menu {
+            opacity: 0;
+            visibility: hidden;
+            transform: translateY(-10px);
+            transition: opacity 0.3s ease, transform 0.3s ease, visibility 0.3s;
+            background-color: rgba(30, 30, 32, 0.75);
+            backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        .dropdown:hover .dropdown-menu {
+            opacity: 1;
+            visibility: visible;
+            transform: translateY(0);
+        }
+    </style>
 </head>
-<body class="bg-gray-300 text-slate-800 font-sans">
+<body class="bg-[#111]">
 
-    <!-- Always-on Side Panel Menu -->
-    <div id="side-panel" class="fixed top-0 left-0 h-full w-64 bg-gray-800 text-white p-4 z-30 flex flex-col">
-        <div class="px-2 pt-2 pb-4">
-            <h2 class="text-xl font-bold text-white">Thilyarem Guide</h2>
-        </div>
-        <nav class="flex-grow space-y-4">
-            <div>
-                <h3 class="px-4 mb-2 text-xs font-semibold tracking-wider text-gray-400 uppercase">Main</h3>
-                <a href="/Thilyarem/index.html" class="block px-4 py-2 text-sm text-gray-300 rounded-lg hover:bg-gray-700 transition-colors duration-200">Home</a>
-                <a href="https://thilyarem.chibidreams.net/" class="block px-4 py-2 text-sm text-gray-300 rounded-lg hover:bg-gray-700 transition-colors duration-200">Lorekeeper</a>
-            </div>
-            <div>
-                <h3 class="px-4 mb-2 text-xs font-semibold tracking-wider text-gray-400 uppercase">Resources</h3>
-                <a href="/Thilyarem/Pages/imports.html" class="block px-4 py-2 text-sm text-gray-300 rounded-lg hover:bg-gray-700 transition-colors duration-200">Import Files</a>
-                <a href="/Thilyarem/Pages/mutations.html" class="block px-4 py-2 text-sm font-semibold text-white bg-gray-900 rounded-lg transition-colors duration-200">Mutations</a>
-                <a href="/Thilyarem/Pages/physicaltr.html" class="block px-4 py-2 text-sm text-gray-300 rounded-lg hover:bg-gray-700 transition-colors duration-200">Physical Traits</a>
-                <a href="/Thilyarem/Pages/genetics.html" class="block px-4 py-2 text-sm text-gray-300 rounded-lg hover:bg-gray-700 transition-colors duration-200">Genetics</a>
-                <a href="/Thilyarem/Pages/finaltouch.html" class="block px-4 py-2 text-sm text-gray-300 rounded-lg hover:bg-gray-700 transition-colors duration-200">Final Touches</a>
-            </div>
-        </nav>
-    </div>
+    <div class="max-w-7xl mx-auto bg-black bg-opacity-20 shadow-2xl">
 
-    <div class="container mx-auto p-4 sm:p-6 md:p-8 max-w-7xl space-y-6 ml-0 md:ml-64">
+        <!-- Header and Navigation -->
+        <header class="bg-black bg-opacity-60 backdrop-filter backdrop-blur-sm border-b border-gray-800 px-4 sm:px-6 lg:px-8 sticky top-0 z-30">
+            <div class="flex items-center justify-between h-20">
+                <!-- Logo -->
+                <div class="flex-shrink-0">
+                    <h1 class="text-4xl font-bold text-shadow" style="color: #93c5fd;">Thilyarem</h1>
+                </div>
 
-        <!-- Main Content Section with two columns -->
-        <main class="grid grid-cols-1 md:grid-cols-3 gap-6">
-            
-            <!-- Left Column: Large text box -->
-            <div class="md:col-span-2 bg-gray-100 border-2 border-slate-500 rounded-lg p-6">
-                <h1 class="text-3xl font-bold mb-4">Thilyarem Design Hub</h1>
-                <p class="mb-2">Blitz welcomes you to our temporary design hub!</p>
-                <p class="mb-2">Here you will find all the information you will need to get started designing your very own dog noodle!</p>
-                <p class="mb-2">If you don't have one of your own yet, please look below on the variety of ways you can obtain a noodle of your very own.</p>
-            </div>
+                <!-- Desktop Navigation Links -->
+                <nav class="hidden md:flex items-center space-x-2">
+                    <a href="#" class="shiny-btn active text-white px-4 py-2 rounded-md text-sm font-medium">Home</a>
+                    
+                    <!-- Genetics Dropdown -->
+                    <div class="relative dropdown">
+                        <button class="shiny-btn text-gray-200 hover:text-white px-4 py-2 rounded-md text-sm font-medium flex items-center">
+                            <span>Genetics</span>
+                            <svg class="w-4 h-4 ml-1" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd"></path></svg>
+                        </button>
+                        <div class="dropdown-menu absolute left-0 mt-2 w-48 rounded-md shadow-lg py-1 z-20">
+                            <a href="#" class="block px-4 py-2 text-sm text-gray-300 hover:bg-blue-500 hover:bg-opacity-30">Free Marks</a>
+                            <a href="#" class="block px-4 py-2 text-sm text-gray-300 hover:bg-blue-500 hover:bg-opacity-30">Markings</a>
+                            <a href="#" class="block px-4 py-2 text-sm text-gray-300 hover:bg-blue-500 hover:bg-opacity-30">Mutations</a>
+                            <a href="#" class="block px-4 py-2 text-sm text-gray-300 hover:bg-blue-500 hover:bg-opacity-30">Manetypes</a>
+                            <a href="#" class="block px-4 py-2 text-sm text-gray-300 hover:bg-blue-500 hover:bg-opacity-30">Physical Traits</a>
+                        </div>
+                    </div>
 
-            <!-- Right Column: Small image box -->
-            <div class="md:col-span-1 bg-gray-100 border-2 border-slate-500 rounded-lg p-4 flex items-center justify-center">
-                <div class="w-full h-full border-2 border-dashed border-gray-400 rounded-lg flex items-center justify-center bg-gray-200">
-                    <img src="https://raw.githubusercontent.com/RioXeniayo/Thilyarem/refs/heads/main/images/54147637_Aqmhed756c3Pccb.png">
+                    <!-- Species Dropdown -->
+                    <div class="relative dropdown">
+                        <button class="shiny-btn text-gray-200 hover:text-white px-4 py-2 rounded-md text-sm font-medium flex items-center">
+                            <span>Species</span>
+                            <svg class="w-4 h-4 ml-1" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd"></path></svg>
+                        </button>
+                        <div class="dropdown-menu absolute left-0 mt-2 w-48 rounded-md shadow-lg py-1 z-20">
+                            <a href="#" class="block px-4 py-2 text-sm text-gray-300 hover:bg-blue-500 hover:bg-opacity-30">Thilyarem</a>
+                            <a href="#" class="block px-4 py-2 text-sm text-gray-300 hover:bg-blue-500 hover:bg-opacity-30">Destrier</a>
+                            <a href="#" class="block px-4 py-2 text-sm text-gray-300 hover:bg-blue-500 hover:bg-opacity-30">Cyroas</a>
+                        </div>
+                    </div>
+
+                    <!-- Extra Dropdown -->
+                    <div class="relative dropdown">
+                        <button class="shiny-btn text-gray-200 hover:text-white px-4 py-2 rounded-md text-sm font-medium flex items-center">
+                            <span>Extra</span>
+                            <svg class="w-4 h-4 ml-1" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd"></path></svg>
+                        </button>
+                        <div class="dropdown-menu absolute right-0 mt-2 w-48 rounded-md shadow-lg py-1 z-20">
+                            <a href="#" class="block px-4 py-2 text-sm text-gray-300 hover:bg-blue-500 hover:bg-opacity-30">Flesh and Teeth</a>
+                            <a href="#" class="block px-4 py-2 text-sm text-gray-300 hover:bg-blue-500 hover:bg-opacity-30">Eye Colours</a>
+                            <a href="#" class="block px-4 py-2 text-sm text-gray-300 hover:bg-blue-500 hover:bg-opacity-30">Shading</a>
+                        </div>
+                    </div>
+                </nav>
+
+                 <!-- Mobile Menu Button -->
+                <div class="md:hidden">
+                    <button id="mobile-menu-button" type="button" class="inline-flex items-center justify-center p-2 rounded-md text-gray-400 hover:text-white hover:bg-gray-700 focus:outline-none"><span class="sr-only">Open main menu</span><svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7"></path></svg></button>
                 </div>
             </div>
-
-        </main>
-    </div>
-
-        <!-- Bottom Section with one large box -->
-   <div class="container mx-auto p-4 sm:p-6 md:p-8 max-w-7xl space-y-6 ml-0 md:ml-64">
-        
-        <!-- Header Section -->
-        <header class="bg-gray-100 border-2 border-slate-500 rounded-lg p-6 text-center">
-            <h1 class="text-4xl md:text-5xl font-bold text-slate-900 tracking-tight">Acquiring a Thilyarem</h1>
-            <p class="mt-4 text-lg text-slate-600">Your official guide to obtaining a Thilyarem.</p>
         </header>
 
-        <!-- Acquisition Methods -->
-        <main class="space-y-6">
-
-            <!-- Method 1: Hatchery -->
-            <section class="md:flex items-center gap-8 p-6 bg-gray-100 border-2 border-slate-500 rounded-lg">
-                <div class="flex-shrink-0 mb-4 md:mb-0 text-center">
-                    <div class="bg-indigo-500 text-white w-16 h-16 rounded-full flex items-center justify-center mx-auto">
-                        <!-- Icon Placeholder -->
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z" />
-                        </svg>
-                    </div>
+        <!-- Main Content -->
+        <main class="main-bg" id="main-bg">
+            <div class="min-h-[400px] p-4 sm:p-6 lg:p-8 flex justify-center items-center text-center bg-black bg-opacity-40">
+                <div data-aos="zoom-in" data-aos-duration="1000">
+                    <h2 class="text-5xl md:text-6xl font-bold text-white text-shadow">Thilyarem Design Hub</h2>
+                    <p class="mt-4 text-lg text-gray-300 text-shadow max-w-3xl mx-auto">Blitz welcomes you to our temporary design hub!<br>Here you will find all the information you will need to get started designing your very own dog noodle!<br>If you don't have one of your own yet, please look below on the variety of ways you can obtain a noodle of your very own.</p>
                 </div>
-                <div>
-                    <h2 class="text-2xl font-bold text-slate-900">The Hatchery: Your First Thilyarem</h2>
-                    <p class="mt-2 text-slate-600">The primary and recommended method for new participants. As a new member, you are allowed to hatch one common egg to begin your adventure!</p>
-                    <a href="#" class="inline-block mt-4 px-5 py-2 text-sm font-medium text-white bg-indigo-600 rounded-lg hover:bg-indigo-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-100 focus:ring-indigo-500 transition-colors">
-                        Visit the Hatchery
-                    </a>
-                </div>
-            </section>
-
-            <!-- Method 2: Adoption Center -->
-            <section class="md:flex items-center gap-8 p-6 bg-gray-100 border-2 border-slate-500 rounded-lg">
-                <div class="flex-shrink-0 mb-4 md:mb-0 text-center">
-                    <div class="bg-teal-500 text-white w-16 h-16 rounded-full flex items-center justify-center mx-auto">
-                        <!-- Icon Placeholder -->
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
-                        </svg>
-                    </div>
-                </div>
-                <div>
-                    <h2 class="text-2xl font-bold text-slate-900">The Adoption Center</h2>
-                    <p class="mt-2 text-slate-600">A secondary avenue for acquiring a Thilyarem. All members may adopt up to two Thilyarem from the center. This policy may be adjusted to reflect supply and demand at a later date.</p>
-                    <a href="#" class="inline-block mt-4 px-5 py-2 text-sm font-medium text-white bg-teal-600 rounded-lg hover:bg-teal-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-100 focus:ring-teal-500 transition-colors">
-                        Go to the Adoption Center
-                    </a>
-                </div>
-            </section>
-
-            <!-- Method 3: Player Exchange -->
-            <section class="md:flex items-center gap-8 p-6 bg-gray-100 border-2 border-slate-500 rounded-lg">
-                <div class="flex-shrink-0 mb-4 md:mb-0 text-center">
-                    <div class="bg-sky-500 text-white w-16 h-16 rounded-full flex items-center justify-center mx-auto">
-                        <!-- Icon Placeholder -->
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
-                        </svg>
-                    </div>
-                </div>
-                <div>
-                    <h2 class="text-2xl font-bold text-slate-900">Player Trading & Sales</h2>
-                    <p class="mt-2 text-slate-600">Obtaining genos and breeding slots directly from other players. Trades often involve art, USD, or in-game items. Sale advertisements are most frequent on our official Discord.</p>
-                    <a href="#" class="inline-block mt-4 px-5 py-2 text-sm font-medium text-white bg-sky-600 rounded-lg hover:bg-sky-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-100 focus:ring-sky-500 transition-colors">
-                        Join the Discord
-                    </a>
-                </div>
-            </section>
-
-            <!-- Method 4: Breeding -->
-            <section class="md:flex items-center gap-8 p-6 bg-gray-100 border-2 border-slate-500 rounded-lg">
-                <div class="flex-shrink-0 mb-4 md:mb-0 text-center">
-                    <div class="bg-rose-500 text-white w-16 h-16 rounded-full flex items-center justify-center mx-auto">
-                       <!-- Icon Placeholder -->
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M14.828 14.828a4 4 0 01-5.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                        </svg>
-                    </div>
-                </div>
-                <div>
-                    <h2 class="text-2xl font-bold text-slate-900">Breeding</h2>
-                    <p class="mt-2 text-slate-600">For those seeking custom or non-standard genos. Acquire breeding slots via player exchanges or by purchasing starter slots during official sales events.</p>
-                    <a href="#" class="inline-block mt-4 px-5 py-2 text-sm font-medium text-white bg-rose-600 rounded-lg hover:bg-rose-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-100 focus:ring-rose-500 transition-colors">
-                        Learn About Breeding
-                    </a>
-                </div>
-            </section>
+            </div>
         </main>
+        
+        <!-- Acquiring Section -->
+        <div class="bg-transparent py-16">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="text-center mb-12" data-aos="fade-up">
+                    <h3 class="text-4xl font-bold text-blue-300">Acquiring a Thilyarem</h3>
+                    <p class="text-lg text-gray-400 mt-2">Your official guide to obtaining a Thilyarem.</p>
+                </div>
+                 <div class="grid grid-cols-1 md:grid-cols-2 gap-8" data-aos="fade-up" data-aos-delay="200">
+                    <!-- The Hatchery -->
+                    <div class="box p-6 flex flex-col">
+                        <h4 class="text-2xl font-bold text-blue-300 mb-3">The Hatchery: Your First Thilyarem</h4>
+                        <p class="text-sm text-gray-400 mb-4 flex-grow">The primary and recommended method for new participants. As a new member, you are allowed to hatch one common egg to begin your adventure!</p>
+                        <a href="#" class="shiny-btn text-white text-center px-4 py-2 rounded-md text-sm font-medium mt-auto">Visit the Hatchery</a>
+                    </div>
+                     <!-- The Adoption Center -->
+                    <div class="box p-6 flex flex-col">
+                        <h4 class="text-2xl font-bold text-blue-300 mb-3">The Adoption Center</h4>
+                        <p class="text-sm text-gray-400 mb-4 flex-grow">A secondary avenue for acquiring a Thilyarem. All members may adopt up to two Thilyarem from the center. This policy may be adjusted to reflect supply and demand at a later date.</p>
+                        <a href="#" class="shiny-btn text-white text-center px-4 py-2 rounded-md text-sm font-medium mt-auto">Go to the Adoption Center</a>
+                    </div>
+                     <!-- Player Trading & Sales -->
+                    <div class="box p-6 flex flex-col">
+                        <h4 class="text-2xl font-bold text-blue-300 mb-3">Player Trading & Sales</h4>
+                        <p class="text-sm text-gray-400 mb-4 flex-grow">Obtaining genos and breeding slots directly from other players. Trades often involve art, USD, or in-game items. Sale advertisements are most frequent on our official Discord.</p>
+                        <a href="#" class="shiny-btn text-white text-center px-4 py-2 rounded-md text-sm font-medium mt-auto">Join the Discord</a>
+                    </div>
+                     <!-- Breeding -->
+                    <div class="box p-6 flex flex-col">
+                        <h4 class="text-2xl font-bold text-blue-300 mb-3">Breeding</h4>
+                        <p class="text-sm text-gray-400 mb-4 flex-grow">For those seeking custom or non-standard genos. Acquire breeding slots via player exchanges or by purchasing starter slots during official sales events.</p>
+                        <a href="#" class="shiny-btn text-white text-center px-4 py-2 rounded-md text-sm font-medium mt-auto">Learn About Breeding</a>
+                    </div>
+                </div>
+                 <div class="text-center mt-12" data-aos="fade-up">
+                    <h4 class="text-2xl font-bold text-blue-300">Future Developments</h4>
+                    <p class="text-md text-gray-400 mt-2">These are the current methods, but we are always developing new features and opportunities. Stay tuned for exciting updates!</p>
+                </div>
+            </div>
+        </div>
 
-        <!-- Footer Section -->
-        <footer class="bg-gray-100 border-2 border-slate-500 rounded-lg p-6 text-center">
-            <h3 class="text-xl font-bold text-slate-900">Future Developments</h3>
-            <p class="mt-2 max-w-2xl mx-auto text-slate-600">These are the current methods, but we are always developing new features and opportunities. Stay tuned for exciting updates!</p>
+        <!-- Footer -->
+        <footer class="bg-[#0A0A0A] text-gray-500 text-xs p-4 border-t border-gray-800">
+            <div class="text-center">
+                <p>Copyright © 2025 BlueLionCreations LLC. All rights reserved.</p>
+                <p>Web Design By <span class="text-gray-400">Rio Xeniayo</span></p>
+            </div>
         </footer>
-
     </div>
 
+    <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+    <script>
+        AOS.init({ once: true, disable: 'mobile' });
+        const mobileMenuButton = document.getElementById('mobile-menu-button');
+        const mobileMenu = document.querySelector('.md\\:hidden.hidden');
+        if(mobileMenuButton && mobileMenu) {
+            mobileMenuButton.addEventListener('click', () => {
+                const isHidden = mobileMenu.classList.contains('hidden');
+                if (isHidden) {
+                    mobileMenu.classList.remove('hidden');
+                } else {
+                    mobileMenu.classList.add('hidden');
+                }
+            });
+        }
+        const mainBg = document.getElementById('main-bg');
+        if(mainBg) {
+            window.addEventListener('scroll', () => {
+                if (window.innerWidth > 768) { 
+                    const scrollPosition = window.pageYOffset;
+                    mainBg.style.backgroundPosition = `center ${scrollPosition * 0.5}px`;
+                }
+            });
+        }
+    </script>
 </body>
 </html>
