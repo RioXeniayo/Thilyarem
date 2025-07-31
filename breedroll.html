@@ -87,9 +87,9 @@
                             </div>
                             <div class="grid grid-cols-3 gap-4 pt-2">
                                 <div class="col-span-2">
-                                    <label for="sire_rank" class="form-label">Rank</label>
-                                    <select id="sire_rank" x-model="p_a.rank" class="form-select">
-                                        <template x-for="value in data.ranks"><option :value="value" x-text="value"></option></template>
+                                    <label for="sire_age" class="form-label">age</label>
+                                    <select id="sire_age" x-model="p_a.age" class="form-select">
+                                        <template x-for="value in data.ages"><option :value="value" x-text="value"></option></template>
                                     </select>
                                 </div>
                                 <div class="col-span-1">
@@ -101,10 +101,10 @@
                             </div>
                             <div class="grid grid-cols-3 gap-4">
                                 <div>
-                                    <label for="sire_ability" class="form-label">Ability</label>
-                                    <select id="sire_ability" x-model="p_a.ability" class="form-select">
+                                    <label for="sire_Trait" class="form-label">Trait</label>
+                                    <select id="sire_Trait" x-model="p_a.Trait" class="form-select">
                                         <option value=""></option>
-                                        <template x-for="value in data.abilities"><option :value="value" x-text="value"></option></template>
+                                        <template x-for="value in data.Traits"><option :value="value" x-text="value"></option></template>
                                     </select>
                                 </div>
                                 <div>
@@ -142,9 +142,9 @@
                             </div>
                             <div class="grid grid-cols-3 gap-4 pt-2">
                                 <div class="col-span-2">
-                                    <label for="dam_rank" class="form-label">Rank</label>
-                                    <select id="dam_rank" x-model="p_b.rank" class="form-select">
-                                        <template x-for="value in data.ranks"><option :value="value" x-text="value"></option></template>
+                                    <label for="dam_age" class="form-label">age</label>
+                                    <select id="dam_age" x-model="p_b.age" class="form-select">
+                                        <template x-for="value in data.ages"><option :value="value" x-text="value"></option></template>
                                     </select>
                                 </div>
                                 <div class="col-span-1">
@@ -156,10 +156,10 @@
                             </div>
                             <div class="grid grid-cols-3 gap-4">
                                 <div>
-                                    <label for="dam_ability" class="form-label">Ability</label>
-                                    <select id="dam_ability" x-model="p_b.ability" class="form-select">
+                                    <label for="dam_Trait" class="form-label">Trait</label>
+                                    <select id="dam_Trait" x-model="p_b.Trait" class="form-select">
                                         <option value=""></option>
-                                        <template x-for="value in data.abilities"><option :value="value" x-text="value"></option></template>
+                                        <template x-for="value in data.Traits"><option :value="value" x-text="value"></option></template>
                                     </select>
                                 </div>
                                 <div>
@@ -236,11 +236,11 @@
     <script>
         document.addEventListener('alpine:init', () => {
             Alpine.data('breedingroller', () => ({
-                p_a: { species: '', genotype: '', phenotype: '', rank: '', fertility: '', ability: '', element: '', aberrant: '' },
-                p_b: { species: '', genotype: '', phenotype: '', rank: '', fertility: '', ability: '', element: '', aberrant: '' },
+                p_a: { species: '', genotype: '', phenotype: '', age: '', fertility: '', Trait: '', element: '', aberrant: '' },
+                p_b: { species: '', genotype: '', phenotype: '', age: '', fertility: '', Trait: '', element: '', aberrant: '' },
                 items: { gender_pot: '', minor_fert: 0, major_fert: 0, unstable_elixir: 0 },
                 coi: 0,
-                data: { breeds: [], ranks: [], fertility: [], abilities: [], elements: [], aberrations: [], potions: { gender: [], stacking: {} } },
+                data: { breeds: [], ages: [], fertility: [], Traits: [], elements: [], aberrations: [], potions: { gender: [], stacking: {} } },
                 stats: { clutch: 'N/A', sex: [], markings: [] },
                 load() { /* This function will be populated by your breeding-roller.js */ },
                 getPhenotype(geno) { return "Phenotype..."; },
@@ -262,19 +262,19 @@
         }
     </script>
     
-    <script src="./js/gene_maps.js"></script>
-    <script src="./js/old_genes.js"></script>
-    <script src="./js/genotype-helper.js"></script>
-    <script src="./js/phenotype-helper.js"></script>
-    <script src="./js/punnett-helper.js"></script>
-    <script src="./js/clutch_size.js"></script>
-    <script src="./js/items.js"></script>
-    <script src="./js/item-list.js"></script>
-    <script src="./js/genetics-services.js"></script>
-    <script src="./js/breed_mix.js"></script>
-    <script src="./js/breeding.js"></script>
-    <script src="./js/chart_colors.js"></script>
-    <script src="./js/breeding-roller.js"></script>
+    <script src="./gene_maps.js"></script>
+    <script src="./old_genes.js"></script>
+    <script src="./genotype-helper.js"></script>
+    <script src="./phenotype-helper.js"></script>
+    <script src="./punnett-helper.js"></script>
+    <script src="./clutch_size.js"></script>
+    <script src="./items.js"></script>
+    <script src="./item-list.js"></script>
+    <script src="./genetics-services.js"></script>
+    <script src="./breed_mix.js"></script>
+    <script src="./breeding.js"></script>
+    <script src="./chart_colors.js"></script>
+    <script src="./breeding-roller.js"></script>
 
 </body>
 </html>
