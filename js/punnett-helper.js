@@ -1,4 +1,4 @@
-import { Sex, Rank } from './breeding';
+import { Sex, Age } from './breeding';
 import { ClutchMin, ClutchMax } from './clutch_size';
 import { GetBreedMix } from './breed_mix';
 import { Utils } from './utils';
@@ -99,9 +99,9 @@ export class PunnettHelper {
         let clutchMin = Math.min(ClutchMin[parent_a.species], ClutchMin[parent_b.species]);
         let clutchMax = Math.min(ClutchMax[parent_a.species], ClutchMax[parent_b.species]);
         
-        if (parent_a.rank === Rank.CELESTIAL || parent_b.rank === Rank.CELESTIAL) {
+        if (parent_a.Age === Age.CELESTIAL || parent_b.Age === Age.CELESTIAL) {
             clutchMin = clutchMax;
-        } else if (parent_a.rank === Rank.UNRANKED || parent_b.rank === Rank.UNRANKED) {
+        } else if (parent_a.Age === Age.UNAgeED || parent_b.Age === Age.UNAgeED) {
             clutchMin = 1;
             clutchMax = 1;
         }
