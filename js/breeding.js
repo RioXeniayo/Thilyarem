@@ -6,7 +6,7 @@ const Sex = {
 const Breed = {
     THIL: 'Thilyarem',
     DEST: 'Destrier',
-   /* CYROA: 'CYROA',*/
+    /* CYROA: 'CYROA',*/
 };
 
 const Species = {
@@ -18,6 +18,10 @@ const Species = {
 const Rank = {
     HATCHLING: 'Hatchling',
     ADOLESCENT: 'Adolescent',
+    YOUNG_ADULT: 'Young Adult',
+    ADULT: 'Adult',
+    ELDER: 'Elder',
+    ANCIENT: 'Ancient',
     CELESTIAL: 'Celestial'
 };
 
@@ -49,9 +53,17 @@ const Element = {
 };
 
 const Deformities = {
-    MINOR: 'Minor',
-    MAJOR: 'Major',
-    SEVERE: 'Severe'
+    SLUG_EGG: 'Slug Egg', // empty egg, deceased
+    UNDERDEVELOPED: 'Underdeveloped', // deceased
+    DEAF: 'Deafness',
+    BLIND: 'Blindness',
+    ANOSMIA: 'Anosmia',
+    MALFORMATION_LIGHT: 'Light',
+    MALFORMATION_MODERATE: 'Moderate',
+    MALFORMATION_SEVERE: 'Severe',
+    DYS: 'Hip Dysplasia',
+    HEART: 'Heart Disease',
+    EPILEPSY: 'Epilepsy' 
 };
 
 export { Sex, Breed, Species, Rank, Fertility, Traits, Element, Deformities }
