@@ -1,13 +1,14 @@
 /* eslint-disable */
 // --- IMPORTS ---
-import { GeneticsService } from './genetics-service.js';
-import { PunnettHelper } from './punnett-helper.js';
-import { GenotypeHelper } from './genotype-helper.js';
-import { PhenotypeHelper } from './phenotype-helper.js';
-import { Sex, Breed, Age, Fertility, Trait, Element, Deformities } from './breeding.js';
-import { CrescentHerb, MoonlitHerb } from './items.js';
-import { BreedChartColor, BaseChartColor } from './chart_colors.js';
-import { Chart, ArcElement, Tooltip, Legend, Title, PieController } from 'chart.js';
+import { GeneticsService } from "./genetics-service";
+import { PunnettHelper } from "./punnett-helper";
+
+import { Sex, Breed, Rank, Fertility, Ability, Element, Aberration } from './breeding';
+import { GenderPotion, StackingPotion } from "./items";
+import { GenotypeHelper } from "./genotype-helper";
+import { PhenotypeHelper } from "./phenotype-helper";
+import { ArcElement, Chart, Legend, PieController, Title, Tooltip } from "chart.js";
+import { BaseChartColor, BreedChartColor } from "./chart_colors";
 
 export default function breedingRoller() {
     return {
