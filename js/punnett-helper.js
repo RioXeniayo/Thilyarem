@@ -3,6 +3,7 @@ import { ClutchMin, ClutchMax } from './clutch_size.js';
 import { GetBreedMix } from './breed_mix.js';
 import { Utils } from './utils.js';
 import { GenotypeHelper } from './genotype-helper.js';
+import { Genes } from './genes.js';
 
 export class PunnettHelper {
 
