@@ -1,4 +1,4 @@
-export const Gene = {
+export const Genes = {
     // -- BASE COLORS AND MODIFIERS --
     BASE_COLORS: {
         B_PLUS: { NORMAL_MELANIN: 'Tan', NO_MELANIN: 'Cream' },
@@ -268,3 +268,5 @@ export const Gene = {
         },
     }
 };
+
+export: { Genes }
