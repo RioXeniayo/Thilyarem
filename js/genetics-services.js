@@ -1,34 +1,35 @@
-// CORRECTED: This service now imports your static data files.
-import { loci } from './loci.js';
-import { GeneMap } from './gene_maps.js';
+// genetics-service.js
 
 export class GeneticsService {
     static loci = [];
     static phenotypes = [];
 
-    // The load function is now simpler; it just assigns the imported data.
-    static load() {
+    static async load() {
+        const endpoints = [
+            // These URLs must point to where your data is served.
+            { url: '/data/loci.json', key: 'loci' },
+            { url: '/data/phenotypes.json', key: 'phenotypes' }
+        ];
+        
         try {
-            // The GeneMap is what the PhenotypeHelper expects as 'phenotype_data'
-            this.phenotypes = GeneMap; 
-            this.loci = loci;
-            console.log('Static genetic data loaded successfully!');
-            // Return a resolved promise to maintain compatibility with the calling code.
-            return Promise.resolve();
+            const promises = endpoints.map(endpoint =>
+                fetch(endpoint.url).then(response => {
+                    if (!response.ok) {
+                        throw new Error(`Failed to fetch ${endpoint.url}`);
+                    }
+                    return response.json();
+                }).then(data => ({ [endpoint.key]: data }))
+            );
+
+            const dataArray = await Promise.all(promises);
+            const data = Object.assign({}, ...dataArray);
+
+            this.loci = data.loci || [];
+            this.phenotypes = data.phenotypes || [];
         } catch (error) {
-            console.error('Failed to load static genetic data:', error);
-            return Promise.reject(error);
+            console.error('Error loading data:', error);
         }
     }
 
-    // --- All getters below this line remain the same ---
-    static get base_loci() {
-        return this.loci.filter(x => x.category === 'base');
-    }
-
-    static get marking_loci() {
-        return this.loci.filter(x => x.category === 'marking');
-    }
-    
-    // ... etc.
+    // ... your other getter methods (base_loci, marking_phenotypes, etc.)
 }
