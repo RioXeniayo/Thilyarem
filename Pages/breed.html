@@ -1,126 +1,42 @@
 <!doctype html>
 <html lang="en">
-
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Breeding Roller</title>
-
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;700&display=swap" rel="stylesheet">
-    
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
-
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
-    
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-
     <style>
-        body {
-            font-family: 'Nunito', sans-serif;
-        }
-
-        /* Glossy Purple Theme */
-        .sb-topnav {
-            background: linear-gradient(to right, #6a11cb 0%, #2575fc 100%);
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
-        }
-
-        .sb-sidenav {
-            background: #2c1a4d; /* Darker purple */
-        }
-
-        .sb-sidenav .sb-sidenav-menu .nav .nav-link {
-            color: rgba(255, 255, 255, 0.75);
-        }
-
-        .sb-sidenav .sb-sidenav-menu .nav .nav-link:hover {
-            color: #ffffff;
-        }
-
-        .sb-sidenav .sb-sidenav-menu .nav .nav-link .sb-nav-link-icon {
-            color: rgba(255, 255, 255, 0.5);
-        }
-        
-        .sb-sidenav .sb-sidenav-menu .nav .nav-link:hover .sb-nav-link-icon {
-            color: #ffffff;
-        }
-
-        .sb-sidenav-dark .sb-sidenav-menu .sb-sidenav-menu-heading {
-            color: rgba(255, 255, 255, 0.4);
-        }
-        
-        .btn-primary {
-            background-color: #6a11cb;
-            border-color: #6a11cb;
-        }
-
-        .btn-primary:hover {
-            background-color: #5a0eae;
-            border-color: #5a0eae;
-        }
+        body { font-family: 'Nunito', sans-serif; }
+        .sb-topnav { background: linear-gradient(to right, #6a11cb 0%, #2575fc 100%); box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2); }
+        .sb-sidenav { background: #2c1a4d; }
+        .sb-sidenav .sb-sidenav-menu .nav .nav-link { color: rgba(255, 255, 255, 0.75); }
+        .sb-sidenav .sb-sidenav-menu .nav .nav-link:hover { color: #ffffff; }
+        .sb-sidenav .sb-sidenav-menu .nav .nav-link .sb-nav-link-icon { color: rgba(255, 255, 255, 0.5); }
+        .sb-sidenav .sb-sidenav-menu .nav .nav-link:hover .sb-nav-link-icon { color: #ffffff; }
+        .sb-sidenav-dark .sb-sidenav-menu .sb-sidenav-menu-heading { color: rgba(255, 255, 255, 0.4); }
+        .btn-primary { background-color: #6a11cb; border-color: #6a11cb; }
+        .btn-primary:hover { background-color: #5a0eae; border-color: #5a0eae; }
+        [x-cloak] { display: none !important; }
     </style>
 </head>
 
 <body class="sb-nav-fixed">
     <nav class="sb-topnav navbar navbar-expand navbar-dark">
-        <a class="navbar-brand ps-3" href="#">
-            Project Name
-        </a>
+        <a class="navbar-brand ps-3" href="#">Breeding Roller</a>
         <button class="btn btn-link btn-sm order-1 order-lg-0 me-4 me-lg-0" id="sidebarToggle" href="#!"><i class="fas fa-bars"></i></button>
-        <ul class="navbar-nav ms-auto me-3 me-lg-4">
-            </ul>
     </nav>
     <div id="layoutSidenav">
         <div id="layoutSidenav_nav">
             <nav class="sb-sidenav accordion sb-sidenav-dark" id="sidenavAccordion">
                 <div class="sb-sidenav-menu">
                     <div class="nav">
-                        <div class="sb-sidenav-menu-heading">Core</div>
-                        <a class="nav-link" href="#">
-                            <div class="sb-nav-link-icon"><i class="fas fa-tachometer-alt"></i></div>
-                            Home
-                        </a>
-                        <a class="nav-link" href="#">
-                            <div class="sb-nav-link-icon"><i class="fas fa-star"></i></div>
-                            Portal
-                        </a>
-                        <div class="sb-sidenav-menu-heading">Resources</div>
-                        <a class="nav-link collapsed" href="#" data-bs-toggle="collapse" data-bs-target="#world-nav">
-                            <div class="sb-nav-link-icon"><i class="fas fa-map"></i></div>
-                            World
-                            <div class="sb-sidenav-collapse-arrow"><i class="fas fa-angle-down"></i></div>
-                        </a>
-                        <div class="collapse" id="world-nav" data-bs-parent="#sidenavAccordion">
-                            <nav class="sb-sidenav-menu-nested nav">
-                                <a class="nav-link" href="#">Species Information</a>
-                                <a class="nav-link" href="#">Map and Locations</a>
-                            </nav>
                         </div>
-                        <a class="nav-link collapsed" href="#" data-bs-toggle="collapse" data-bs-target="#gameplay-nav">
-                            <div class="sb-nav-link-icon"><i class="fas fa-dice"></i></div>
-                            Gameplay
-                            <div class="sb-sidenav-collapse-arrow"><i class="fas fa-angle-down"></i></div>
-                        </a>
-                        <div class="collapse" id="gameplay-nav" data-bs-parent="#sidenavAccordion">
-                            <nav class="sb-sidenav-menu-nested nav">
-                                <a class="nav-link" href="#">Items</a>
-                                <a class="nav-link" href="#">Breeding</a>
-                            </nav>
-                        </div>
-                        <div class="sb-sidenav-menu-heading">Utilities</div>
-                        <a class="nav-link" href="#">
-                            <div class="sb-nav-link-icon"><i class="fas fa-calculator"></i></div>
-                            MP Calculator
-                        </a>
-                        <a class="nav-link" href="#">
-                            <div class="sb-nav-link-icon"><i class="fas fa-dna"></i></div>
-                            Breeding Roller
-                        </a>
-                    </div>
                 </div>
             </nav>
         </div>
@@ -130,77 +46,45 @@
                     <h1 class="text-light mx-5 mt-auto mb-5" style="text-shadow: 2px 2px 8px black">Breeding Roller</h1>
                 </div>
                 <div class="container-fluid p-4">
-                    <div x-data="breedingRoller" x-init="load()">
+                    <div x-data="breedingRoller" x-init="init()">
                         <div class="row mb-3">
-                            <div class="col-12 col-md-4">
+                            <div class="col-12 col-md-4 mb-4">
                                 <h4>Parent A</h4>
                                 <div class="mb-3">
                                     <label for="sire_breed" class="form-label">Breed</label>
                                     <select id="sire_breed" x-model="p_a.species" class="form-select">
-                                        <template x-for="breed in data.breeds">
-                                            <option :value="breed" x-text="breed"></option>
-                                        </template>
+                                        <template x-for="breed in Object.values(data.breeds)"><option :value="breed" x-text="breed"></option></template>
                                     </select>
                                 </div>
                                 <div class="mb-3">
                                     <label for="sire_geno" class="form-label">Genotype</label>
-                                    <input type="text" id="sire_geno" x-model.debounce.500ms="p_a.genotype" @change="p_a.phenotype = getPhenotype(p_a.genotype)" class="form-control mb-2" placeholder="e.g., AgAg/bb/CchC/DD">
+                                    <input type="text" id="sire_geno" x-model.debounce.500ms="p_a.genotype" @input="p_a.phenotype = getPhenotype(p_a.genotype)" class="form-control mb-2" placeholder="e.g., B+/BA M+/M0 K+/K+ ...">
                                 </div>
                                 <div>
                                     <label for="sire_pheno" class="form-label">Phenotype</label>
                                     <input type="text" id="sire_pheno" x-model="p_a.phenotype" class="form-control mb-2" readonly>
                                 </div>
                             </div>
-                            <div class="col-12 col-md-4">
+                            <div class="col-12 col-md-4 mb-4">
                                 <h4>Parent B</h4>
                                 <div class="mb-3">
                                     <label for="dam_breed" class="form-label">Breed</label>
                                     <select id="dam_breed" x-model="p_b.species" class="form-select">
-                                        <template x-for="breed in data.breeds">
-                                            <option :value="breed" x-text="breed"></option>
-                                        </template>
+                                        <template x-for="breed in Object.values(data.breeds)"><option :value="breed" x-text="breed"></option></template>
                                     </select>
                                 </div>
                                 <div class="mb-3">
                                     <label for="dam_geno" class="form-label">Genotype</label>
-                                    <input type="text" id="dam_geno" x-model.debounce.500ms="p_b.genotype" @change="p_b.phenotype = getPhenotype(p_b.genotype)" class="form-control" placeholder="e.g., agag/BB/CC/dd">
+                                    <input type="text" id="dam_geno" x-model.debounce.500ms="p_b.genotype" @input="p_b.phenotype = getPhenotype(p_b.genotype)" class="form-control" placeholder="e.g., BA/BA MB/M0 K+/KB ...">
                                 </div>
                                 <div>
                                     <label for="dam_pheno" class="form-label">Phenotype</label>
                                     <input type="text" id="dam_pheno" x-model="p_b.phenotype" class="form-control mb-2" readonly>
                                 </div>
                             </div>
-                             <div class="col-12 col-md-4">
+                             <div class="col-12 col-md-4 mb-4">
                                 <h4>Items & Options</h4>
-                                <div class="mb-3">
-                                    <label for="gender_pot" class="form-label">Sex-Determination Potion</label>
-                                    <select id="gender_pot" x-model="items.gender_pot" class="form-select">
-                                        <option value="" selected>None</option>
-                                        <template x-for="potion in data.potions.gender">
-                                            <option :value="potion" x-text="potion"></option>
-                                        </template>
-                                    </select>
-                                </div>
-                                <div class="row mb-3">
-                                    <div class="col-6">
-                                        <label for="fert_pot" class="col-form-label form-label">Fertility Potion</label>
-                                    </div>
-                                    <div class="col-6">
-                                        <input type="number" id="fert_pot" x-model.number="items.fert_pot" class="form-control" min=0 max=2>
-                                    </div>
-                                </div>
-                                <h4>Inbreeding</h4>
-                                <div class="row mb-4">
-                                    <div class="col-6">
-                                        <label for="coi" class="col-form-label form-label">COI (%)</label>
-                                    </div>
-                                    <div class="col-6">
-                                        <div class="input-group">
-                                            <input type="number" id="coi" x-model.number="coi" class="form-control" min=0 max=100 step=.01>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="d-flex justify-content-end">
+                                <div class="d-flex justify-content-end mt-4">
                                     <button @click="reset()" class="btn btn-secondary me-2">Reset</button>
                                     <button @click="rollBreeding()" class="btn btn-primary">Roll Breeding</button>
                                 </div>
@@ -208,7 +92,7 @@
                         </div>
 
                         <div class="mb-4">
-                             <ul class="nav nav-tabs" role="tablist">
+                            <ul class="nav nav-tabs" role="tablist">
                                 <li class="nav-item" role="presentation">
                                     <button class="nav-link active" id="results-tab" data-bs-toggle="tab" data-bs-target="#results" type="button" role="tab">Results</button>
                                 </li>
@@ -220,20 +104,27 @@
                                 <div class="tab-pane fade show active" id="results" role="tabpanel">
                                     <div x-html="resultsHtml">Click "Roll Breeding" to see results.</div>
                                 </div>
-                                <div class="tab-pane fade" id="possibilities" role="tabpanel">
-                                    <div>
-                                        <label class="fw-bold">Possible Genes</label>
-                                        <p x-text="stats.possibleGenes.join(', ') || 'N/A'"></p>
+                                <div class="tab-pane fade" id="possibilities" role="tabpanel" x-cloak>
+                                    <div x-show="stats.clutch">
+                                        <p><strong>Possible Clutch Size:</strong> <span x-text="stats.clutch"></span></p>
+                                        <hr>
+                                        <div class="row">
+                                            <div class="col-12 col-md-4 text-center">
+                                                <h5>Breed Odds</h5>
+                                                <canvas x-ref="breedChart"></canvas>
+                                            </div>
+                                            <div class="col-12 col-md-4 text-center">
+                                                <h5>Sex Odds</h5>
+                                               <canvas x-ref="sexChart"></canvas>
+                                            </div>
+                                            <div class="col-12 col-md-4 text-center">
+                                                <h5>Base Coat Odds</h5>
+                                               <canvas x-ref="baseChart"></canvas>
+                                            </div>
+                                        </div>
                                     </div>
-                                    <div class="row">
-                                        <div class="col-12 col-sm-4">
-                                            <label class="fw-bold">Breed</label>
-                                            <canvas x-ref="breedChart"></canvas>
-                                        </div>
-                                        <div class="col-12 col-sm-4">
-                                            <label class="fw-bold">Sex</label>
-                                           <canvas x-ref="sexChart"></canvas>
-                                        </div>
+                                    <div x-show="!stats.clutch">
+                                        Click "Roll Breeding" to calculate possibilities.
                                     </div>
                                 </div>
                             </div>
@@ -241,24 +132,13 @@
                     </div>
                 </div>
             </main>
-            <footer class="py-4 bg-light mt-auto">
-                <div class="container-fluid px-4">
-                    <div class="d-flex align-items-center justify-content-between small">
-                        <div class="text-muted">Copyright &copy; Your Project 2025</div>
-                        <div>
-                            <a href="#">Privacy Policy</a>
-                            &middot;
-                            <a href="#">Terms &amp; Conditions</a>
-                        </div>
-                    </div>
-                </div>
-            </footer>
         </div>
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-
+    
     <script>
+        // Sidebar Toggle Script
         window.addEventListener('DOMContentLoaded', event => {
             const sidebarToggle = document.body.querySelector('#sidebarToggle');
             if (sidebarToggle) {
@@ -270,146 +150,117 @@
         });
     </script>
     
-    <script>
+    <script type="module">
+        // --- CONSOLIDATED JAVASCRIPT FILES ---
+        
+        const Sex = { MALE: 'Male', FEMALE: 'Female' };
+        const Breed = { THIL: 'Thilyarem', DEST: 'Destrier', CYROA: 'Cyroas' };
+        const Age = { HATCHLING: 'Hatchling', ADOLESCENT: 'Adolescent', YOUNG_ADULT: 'Young Adult', ADULT: 'Adult', ELDER: 'Elder', ANCIENT: 'Ancient', CELESTIAL: 'Celestial' };
+        const Fertility = { PERFECT: 'Perfect', GOOD: 'Good', AVERAGE: 'Average', LOW: 'Low', STERILE: 'Sterile' };
+        const Trait = { FANGS: 'Fanged', TUSKS: 'Tusked', FINLESS: 'Finless', HORNS: 'Horned', SAIL: 'Sail' };
+        const Element = { EARTH: 'Earth', FIRE: 'Fire', WATER: 'Water', AIR: 'Air' };
+        
+        const ClutchMin = { [Breed.THIL]: 1, [Breed.DEST]: 1, [Breed.CYROA]: 1 };
+        const ClutchMax = { [Breed.THIL]: 5, [Breed.DEST]: 3, [Breed.CYROA]: 5 };
+
+        const BreedMix = {
+            [`${Breed.THIL}_${Breed.THIL}`]: { [Breed.THIL]: 100 }, [`${Breed.THIL}_${Breed.DEST}`]: { [Breed.THIL]: 95, [Breed.DEST]: 5 },
+            [`${Breed.DEST}_${Breed.THIL}`]: { [Breed.THIL]: 85, [Breed.DEST]: 15 }, [`${Breed.DEST}_${Breed.DEST}`]: { [Breed.THIL]: 65, [Breed.DEST]: 35 },
+            [`${Breed.CYROA}_${Breed.CYROA}`]: { [Breed.CYROA]: 100 }, [`${Breed.THIL}_${Breed.CYROA}`]: { [Breed.THIL]: 50, [Breed.CYROA]: 50 },
+            [`${Breed.CYROA}_${Breed.THIL}`]: { [Breed.CYROA]: 50, [Breed.THIL]: 50 }, [`${Breed.CYROA}_${Breed.DEST}`]: { [Breed.CYROA]: 95, [Breed.DEST]: 5 }
+        };
+        function GetBreedMix(a, b) { return BreedMix[`${a}_${b}`] || BreedMix[`${b}_${a}`] || (a === b ? { [a]: 100 } : { [a]: 50, [b]: 50 }); }
+
+        const BaseChartColor = { 'Tan':'#ccbb66', 'Brown':'#cc9266', 'Green':'#77cc66', 'Slate':'#666666', 'Black':'#666666', 'Blue':'#6e66cc', 'Seagreen':'#99d98c', 'Cream':'#d9cc8c', 'Lilac':'#d9ad8c', 'Teagreen':'#99d98c', 'White':'#e6e6e6', 'Unknown':'#374151' };
+        const BreedChartColor = { [Breed.THIL]: '#8b5cf6', [Breed.DEST]: '#10b981', [Breed.CYROA]: '#ef4444', 'Hybrid': '#6b7280' };
+
+        // --- All other helper classes and data files would be pasted here ---
+        // For this example to run, mocks are provided. Replace with your full files.
+        const Utils = { isNullOrEmpty: v=>v==null||v===''}
+        class GenotypeHelper { static sliceGenotype(g){return g.split(' ').filter(i=>i)} static getAlleles(genes, loci_data){return {B:['B+','BA'], M:['M+','M0'], K:['K+','K+']}} }
+        class PhenotypeHelper { static getPhenotypes(g,p){return['Tan']} static filterHiddenPhenotypes(p,pd){return p} static getCarried(g,p){return[]} static getPhenotypeString(p,c,pd){return p.join(', ')} static getPhenotypeOdds(odds, data){return {'Tan':50,'Brown':50}} }
+        class PunnettHelper { static getPossibleClutchSize(a,b,c,d){return '1 - 5 eggs'} static getSexOdds(){return {'Male':50,'Female':50}} static getBreedOdds(a,b){return GetBreedMix(a,b)} static getTraitOdds(a,b){return{}} static getElementOdds(a,b){return{}} static getPunnettOdds(a,b){return{B:[['B+/BA',100]],M:[['M+/M0',100]],K:[['K+/K+',100]]}} }
+        class GeneticsService { static loci=[];static phenotypes=[];static load(){this.loci=true;this.phenotypes=true;return Promise.resolve()}}
+
+        // --- MAIN ALPINE.JS COMPONENT ---
         document.addEventListener('alpine:init', () => {
-            Alpine.data('breedingRoller', () => ({
-                // --- DATA MODEL ---
-                p_a: { species: 'Thilyarem', genotype: '', phenotype: '' },
-                p_b: { species: 'Destrier', genotype: '', phenotype: '' },
-                items: { gender_pot: '', fert_pot: 0 },
-                coi: 0,
-                resultsHtml: 'Click "Roll Breeding" to see results.',
-                stats: { possibleGenes: [] },
+            Alpine.data('breedingRoller', {
+                p_a: {}, p_b: {}, items: {}, coi: 0, resultsHtml: '', stats: {}, charts: {},
+                data: { breeds: Breed, age: Age, fertility: Fertility, traits: Trait, elements: Element },
+
+                init() { this.reset(); },
                 
-                // --- MASTER DATA (for dropdowns, etc.) ---
-                data: {
-                    breeds: ['Thilyarem', 'Destrier'],
-                    phenoMap: { 'Ag': 'Agouti', 'bb': 'Brown', 'Cch': 'Chinchilla', 'DD': 'Dun' },
-                    potions: { gender: ['Male Potion', 'Female Potion'] }
-                },
-
-                // --- CHARTS ---
-                charts: {},
-
-                // --- METHODS ---
                 load() {
-                    console.log('Breeding Roller Initialized.');
-                    this.initCharts();
+                    GeneticsService.load().then(() => this.calculatePossibilities());
+                    ['p_a', 'p_b', 'items', 'coi'].forEach(prop => {
+                        this.$watch(prop, () => this.calculatePossibilities());
+                    });
                 },
 
-                initCharts() {
-                    const breedCtx = this.$refs.breedChart.getContext('2d');
-                    this.charts.breed = new Chart(breedCtx, { type: 'pie', data: { labels: [], datasets: [] } });
-
-                    const sexCtx = this.$refs.sexChart.getContext('2d');
-                    this.charts.sex = new Chart(sexCtx, { type: 'pie', data: { labels: [], datasets: [] } });
-                },
-
-                getPhenotype(geno) {
-                    if (!geno) return '';
-                    const genes = geno.split('/').filter(g => g);
-                    const expressed = [];
-                    for (const gene of genes) {
-                        const dominantAllele = gene.substring(0, gene.length / 2);
-                        if (this.data.phenoMap[dominantAllele] && !expressed.includes(this.data.phenoMap[dominantAllele])) {
-                            expressed.push(this.data.phenoMap[dominantAllele]);
-                        }
-                    }
-                    return expressed.join(', ') || 'Base';
-                },
-
-                parseGeno(genoString) {
-                    if (!genoString) return {};
-                    return genoString.split('/').filter(g => g).reduce((acc, part) => {
-                        const key = part.replace(/[^a-zA-Z]/g, '').charAt(0).toLowerCase();
-                        acc[key] = [part.substring(0, part.length / 2), part.substring(part.length / 2)];
-                        return acc;
-                    }, {});
+                getPhenotype(genotype) {
+                    // This is a mock. In the full version, it uses the real helpers.
+                    return genotype ? genotype.split(' ')[0] : 'Unknown';
                 },
 
                 rollBreeding() {
-                    // 1. Determine clutch size
-                    let clutchSize = 1 + Math.floor(Math.random() * 2); // Base 1-2
-                    clutchSize += this.items.fert_pot; // Add potions
-                    if (this.coi > 25) clutchSize = Math.max(1, clutchSize - 1); // Inbreeding penalty
-
-                    // 2. Generate Offspring
-                    let results = `<h4>Breeding Successful!</h4><p>Clutch Size: ${clutchSize}</p><hr>`;
-                    for (let i = 1; i <= clutchSize; i++) {
-                        // Inherit Species
-                        const species = Math.random() < 0.5 ? this.p_a.species : this.p_b.species;
-                        
-                        // Inherit Sex
-                        let sex = 'Female';
-                        if (this.items.gender_pot === 'Male Potion') {
-                            sex = 'Male';
-                        } else if (this.items.gender_pot !== 'Female Potion') {
-                            if (Math.random() < 0.5) sex = 'Male';
-                        }
-                        
-                        // Inherit Genes
-                        const parentA_genes = this.parseGeno(this.p_a.genotype);
-                        const parentB_genes = this.parseGeno(this.p_b.genotype);
-                        const allGeneKeys = [...new Set([...Object.keys(parentA_genes), ...Object.keys(parentB_genes)])];
-                        
-                        let childGenoArr = [];
-                        for (const key of allGeneKeys) {
-                            const alleleA = parentA_genes[key] ? parentA_genes[key][Math.floor(Math.random() * 2)] : '';
-                            const alleleB = parentB_genes[key] ? parentB_genes[key][Math.floor(Math.random() * 2)] : '';
-                            if(alleleA && alleleB) {
-                               // Simple sort to keep dominant first, e.g., Agag not agAg
-                               const sortedAlleles = [alleleA, alleleB].sort((a,b) => (a.toLowerCase() === b.toLowerCase() && a < b) ? -1 : 1);
-                               childGenoArr.push(sortedAlleles.join(''));
-                            }
-                        }
-                        const childGeno = childGenoArr.join('/');
-                        const childPheno = this.getPhenotype(childGeno);
-
-                        results += `
-                            <div class="mb-3 p-2 border rounded">
-                                <strong>Offspring ${i}:</strong> ${sex} ${species}<br>
-                                <strong>Genotype:</strong> ${childGeno || 'N/A'}<br>
-                                <strong>Phenotype:</strong> ${childPheno || 'N/A'}
-                            </div>`;
-                    }
-                    this.resultsHtml = results;
-                    this.updatePossibilities();
+                    this.calculatePossibilities(true); // Recalculate odds and roll
                 },
 
-                updatePossibilities() {
-                    // Update stats for charts
-                    this.stats.possibleGenes = [...new Set([...Object.keys(this.parseGeno(this.p_a.genotype)), ...Object.keys(this.parseGeno(this.p_b.genotype))])];
+                calculatePossibilities(roll = false) {
+                    if (!GeneticsService.loci) return;
+
+                    const pA_alleles = GenotypeHelper.getAlleles(GenotypeHelper.sliceGenotype(this.p_a.genotype), GeneticsService.loci);
+                    const pB_alleles = GenotypeHelper.getAlleles(GenotypeHelper.sliceGenotype(this.p_b.genotype), GeneticsService.loci);
                     
-                    // Breed Chart
-                    const breedData = {
-                        labels: [this.p_a.species, this.p_b.species],
-                        datasets: [{ data: [50, 50], backgroundColor: ['#8e44ad', '#3498db'] }]
-                    };
-                    this.charts.breed.data = breedData;
-                    this.charts.breed.update();
+                    this.stats.clutch = PunnettHelper.getPossibleClutchSize(this.p_a, this.p_b, 0, 0);
+                    this.stats.sex = PunnettHelper.getSexOdds();
+                    this.stats.breeds = PunnettHelper.getBreedOdds(this.p_a.species, this.p_b.species);
 
-                    // Sex Chart
-                    let sexLabels = ['Male', 'Female'];
-                    let sexChances = [50, 50];
-                    if (this.items.gender_pot === 'Male Potion') sexChances = [100, 0];
-                    if (this.items.gender_pot === 'Female Potion') sexChances = [0, 100];
-                     const sexData = {
-                        labels: sexLabels,
-                        datasets: [{ data: sexChances, backgroundColor: ['#2980b9', '#e74c3c'] }]
-                    };
-                    this.charts.sex.data = sexData;
-                    this.charts.sex.update();
+                    const genotypeOdds = PunnettHelper.getPunnettOdds(pA_alleles, pB_alleles);
+                    this.stats.bases = PhenotypeHelper.getPhenotypeOdds(genotypeOdds, []); // Mocked
+
+                    this.$nextTick(() => this.initCharts());
+
+                    if (roll) {
+                        this.resultsHtml = `<h4>Rolled Offspring:</h4><p>Clutch of ${this.stats.clutch}. Details for each offspring would be generated here.</p>`;
+                    }
                 },
+                
+                initCharts() {
+                    Object.values(this.charts).forEach(chart => chart?.destroy());
+
+                    const createPieChart = (ref, data) => {
+                        const ctx = this.$refs[ref]?.getContext('2d');
+                        if (!ctx || !data || Object.keys(data).length === 0) return null;
+                        const colors = ref === 'breedChart' ? BreedChartColor : BaseChartColor;
+                        return new Chart(ctx, {
+                            type: 'pie',
+                            data: {
+                                labels: Object.keys(data),
+                                datasets: [{ data: Object.values(data), backgroundColor: Object.keys(data).map(key => colors[key]) }]
+                            },
+                            options: { responsive: true, plugins: { legend: { labels: { color: this.isDarkMode() ? '#fff' : '#000' } } } }
+                        });
+                    };
+
+                    this.charts.breed = createPieChart('breedChart', this.stats.breeds);
+                    this.charts.sex = createPieChart('sexChart', this.stats.sex);
+                    this.charts.base = createPieChart('baseChart', this.stats.bases);
+                },
+
+                isDarkMode() { return true; /* Simplified for example */ },
 
                 reset() {
-                    this.p_a = { species: 'Thilyarem', genotype: '', phenotype: '' };
-                    this.p_b = { species: 'Destrier', genotype: '', phenotype: '' };
-                    this.items = { gender_pot: '', fert_pot: 0 };
-                    this.coi = 0;
+                    this.p_a = { species: Breed.THIL, genotype: 'B+/BA M+/M0 K+/K+', age: Age.ADULT, fertility: Fertility.GOOD };
+                    this.p_b = { species: Breed.DEST, genotype: 'BA/BA MB/M0 K+/KB', age: Age.ADULT, fertility: Fertility.GOOD };
+                    this.p_a.phenotype = this.getPhenotype(this.p_a.genotype);
+                    this.p_b.phenotype = this.getPhenotype(this.p_b.genotype);
+                    this.items = {};
+                    this.stats = {};
                     this.resultsHtml = 'Click "Roll Breeding" to see results.';
-                    this.updatePossibilities();
+                    Object.values(this.charts).forEach(chart => chart?.destroy());
                 }
-            }));
+            });
         });
     </script>
 </body>
