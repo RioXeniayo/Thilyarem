@@ -47,51 +47,59 @@
                     <div x-data="breedingRoller" x-init="init()">
                         <div class="row mb-3">
                             <div class="col-12 col-md-4 mb-4">
-                                <h4>Parent A</h4>
-                                <div class="mb-3">
-                                    <label for="sire_breed" class="form-label">Breed</label>
-                                    <select id="sire_breed" x-model="p_a.species" class="form-select">
-                                        <template x-for="breed in Object.values(data.breeds)"><option :value="breed" x-text="breed"></option></template>
-                                    </select>
-                                </div>
-                                <div class="mb-3">
-                                     <label for="sire_age" class="form-label">Age</label>
-                                     <select id="sire_age" x-model="p_a.age" class="form-select">
-                                         <template x-for="age in Object.values(data.age)"><option :value="age" x-text="age"></option></template>
-                                     </select>
-                                </div>
-                                <div class="mb-3">
-                                    <label for="sire_geno" class="form-label">Genotype</label>
-                                    <input type="text" id="sire_geno" x-model.debounce.500ms="p_a.genotype" @input="p_a.phenotype = getPhenotype(p_a.genotype)" class="form-control mb-2" placeholder="e.g., B+/BA M+/M0 K+/K+">
-                                </div>
-                                <div>
-                                    <label for="sire_pheno" class="form-label">Phenotype</label>
-                                    <input type="text" id="sire_pheno" x-model="p_a.phenotype" class="form-control mb-2" readonly>
-                                </div>
-                            </div>
-                            <div class="col-12 col-md-4 mb-4">
-                                <h4>Parent B</h4>
-                                <div class="mb-3">
-                                    <label for="dam_breed" class="form-label">Breed</label>
-                                    <select id="dam_breed" x-model="p_b.species" class="form-select">
-                                        <template x-for="breed in Object.values(data.breeds)"><option :value="breed" x-text="breed"></option></template>
-                                    </select>
-                                </div>
-                                <div class="mb-3">
-                                     <label for="dam_age" class="form-label">Age</label>
-                                     <select id="dam_age" x-model="p_b.age" class="form-select">
-                                         <template x-for="age in Object.values(data.age)"><option :value="age" x-text="age"></option></template>
-                                     </select>
-                                </div>
-                                <div class="mb-3">
-                                    <label for="dam_geno" class="form-label">Genotype</label>
-                                    <input type="text" id="dam_geno" x-model.debounce.500ms="p_b.genotype" @input="p_b.phenotype = getPhenotype(p_b.genotype)" class="form-control" placeholder="e.g., BA/BA MB/M0 K+/KB">
-                                </div>
-                                <div>
-                                    <label for="dam_pheno" class="form-label">Phenotype</label>
-                                    <input type="text" id="dam_pheno" x-model="p_b.phenotype" class="form-control mb-2" readonly>
-                                </div>
-                            </div>
+    <h4>Parent A</h4>
+    <div class="mb-3">
+        <label for="sire_breed" class="form-label">Breed</label>
+        <select id="sire_breed" x-model="p_a.species" class="form-select">
+            <template x-for="breed in Object.values(data.breeds)">
+                <option :value="breed" x-text="breed"></option>
+            </template>
+        </select>
+    </div>
+    <div class="mb-3">
+        <label for="sire_age" class="form-label">Age</label>
+        <select id="sire_age" x-model="p_a.age" class="form-select">
+            <template x-for="age in Object.values(data.age)">
+                <option :value="age" x-text="age"></option>
+            </template>
+        </select>
+    </div>
+    <div class="mb-3">
+        <label for="sire_geno" class="form-label">Genotype</label>
+        <input type="text" id="sire_geno" x-model.debounce.500ms="p_a.genotype" @input="p_a.phenotype = getPhenotype(p_a.genotype)" class="form-control mb-2" placeholder="e.g., B+/BA M+/M0 K+/K+">
+    </div>
+    <div>
+        <label for="sire_pheno" class="form-label">Phenotype</label>
+        <input type="text" id="sire_pheno" x-model="p_a.phenotype" class="form-control mb-2" readonly>
+    </div>
+</div>
+               <div class="col-12 col-md-4 mb-4">
+    <h4>Dam</h4>
+    <div class="mb-3">
+        <label for="sire_breed" class="form-label">Breed</label>
+        <select id="sire_breed" x-model="p_a.species" class="form-select">
+            <template x-for="breed in Object.values(data.breeds)">
+                <option :value="breed" x-text="breed"></option>
+            </template>
+        </select>
+    </div>
+    <div class="mb-3">
+        <label for="sire_age" class="form-label">Age</label>
+        <select id="sire_age" x-model="p_a.age" class="form-select">
+            <template x-for="age in Object.values(data.age)">
+                <option :value="age" x-text="age"></option>
+            </template>
+        </select>
+    </div>
+    <div class="mb-3">
+        <label for="sire_geno" class="form-label">Genotype</label>
+        <input type="text" id="sire_geno" x-model.debounce.500ms="p_a.genotype" @input="p_a.phenotype = getPhenotype(p_a.genotype)" class="form-control mb-2" placeholder="e.g., B+/BA M+/M0 K+/K+">
+    </div>
+    <div>
+        <label for="sire_pheno" class="form-label">Phenotype</label>
+        <input type="text" id="sire_pheno" x-model="p_a.phenotype" class="form-control mb-2" readonly>
+    </div>
+</div>
                              <div class="col-12 col-md-4 mb-4">
                                 <h4>Items & Options</h4>
                                 <div class="d-flex justify-content-end mt-4">
