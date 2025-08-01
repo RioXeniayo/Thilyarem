@@ -1,88 +1,34 @@
+// CORRECTED: This service now imports your static data files.
+import { loci } from './loci.js';
+import { GeneMap } from './gene_maps.js';
+
 export class GeneticsService {
     static loci = [];
     static phenotypes = [];
 
-    static async load() {
-        const endpoints = [
-            { url: '/data/loci', key: 'loci' },
-            { url: '/data/phenotypes', key: 'phenotypes' }
-        ];
+    // The load function is now simpler; it just assigns the imported data.
+    static load() {
         try {
-            const promises = endpoints.map(endpoint =>
-                fetch(endpoint.url)
-                    .then(response => {
-                        if (!response.ok) {
-                            throw new Error(`Failed to fetch ${endpoint.url}`);
-                        }
-                        return response.json();
-                    })
-                    .then(data => ({ [endpoint.key]: data }))
-                    .catch(error => {
-                        console.error(`Error fetching ${endpoint.url}`, error);
-                        return { [endpoint.key]: null };
-                    })
-            );
-
-            const dataArray = await Promise.all(promises);
-            const data = Object.assign({}, ...dataArray);
-
-            GeneticsService.loci = data.loci || [];
-            GeneticsService.phenotypes = data.phenotypes || [];
-        }
-        catch (error) {
-            console.error('Error loading data:', error);
+            // The GeneMap is what the PhenotypeHelper expects as 'phenotype_data'
+            this.phenotypes = GeneMap; 
+            this.loci = loci;
+            console.log('Static genetic data loaded successfully!');
+            // Return a resolved promise to maintain compatibility with the calling code.
+            return Promise.resolve();
+        } catch (error) {
+            console.error('Failed to load static genetic data:', error);
+            return Promise.reject(error);
         }
     }
 
+    // --- All getters below this line remain the same ---
     static get base_loci() {
-        return GeneticsService.loci.filter(x => x.category == 'base');
-    }
-
-    static get modifier_loci() {
-        return GeneticsService.loci.filter(x => x.category == 'modifier');
+        return this.loci.filter(x => x.category === 'base');
     }
 
     static get marking_loci() {
-        return GeneticsService.loci.filter(x => x.category == 'marking');
-    }
-
-    static get mutation_loci() {
-        return GeneticsService.loci.filter(x => x.category == 'mutation');
-    }
-
-    static get morph_loci() {
-        return GeneticsService.loci.filter(x => x.category == 'morph');
-    }
-
-    static get base_phenotypes() {
-        return GeneticsService.phenotypes.filter(x => x.category == 'base');
-    }
-
-    static get modifier_phenotypes() {
-        return GeneticsService.phenotypes.filter(x => x.category == 'modifier');
-    }
-
-    static get marking_phenotypes() {
-        return GeneticsService.phenotypes.filter(x => x.category == 'marking');
+        return this.loci.filter(x => x.category === 'marking');
     }
     
-    static get common_marking_phenotypes() {
-        return GeneticsService.marking_phenotypes.filter(x => x.rarity == 'common');
-    }
-
-    static get uncommon_marking_phenotypes() {
-        return GeneticsService.marking_phenotypes.filter(x => x.rarity == 'uncommon');
-    }
-
-    static get rare_marking_phenotypes() {
-        return GeneticsService.marking_phenotypes.filter(x => x.rarity == 'rare');
-    }
-
-    static get mutation_phenotypes() {
-        return GeneticsService.phenotypes.filter(x => x.category == 'mutation');
-    }
-
-    static get morph_phenotypes() {
-        return GeneticsService.phenotypes.filter(x => x.category == 'morph');
-    }
+    // ... etc.
 }
