@@ -230,21 +230,22 @@
 
 
         // --- MAIN ALPINE.JS COMPONENT ---
-        document.addEventListener('alpine:init', () => {
-            Alpine.data('breedingRoller', {
-                data: {}, p_a: {}, p_b: {}, items: {}, coi: 0,
-                resultsHtml: 'Enter parent data and click "Calculate & Roll" to see results.',
-                stats: {}, charts: {},
+    document.addEventListener('alpine:init', () => {
+    Alpine.data('breedingRoller', {
+        data: {}, 
+        p_a: {}, 
+        p_b: {}, 
+        items: {}, 
+        coi: 0,
+        resultsHtml: 'Enter parent data and click "Calculate & Roll" to see results.',
+        stats: {}, 
+        
+        charts: {},
 
-                init() {
-                    this.data = { breeds: Breed, age: Age, fertility: Fertility, traits: Trait, elements: Element };
-                    this.reset();
-                    // In a real multi-file project, you'd call the real service loader.
-                    // For this single file, we manually set the data.
-                    GeneticsService.loci = loci; 
-                    GeneticsService.phenotypes = Object.values(GeneMap);
-                },
-                
+        init() {
+        },
+    });
+});
                 getPhenotype(genotype) {
                     if (!genotype) return '';
                     // This is a mock; the full function is complex and requires the full helper files.
