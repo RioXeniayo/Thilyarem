@@ -9,7 +9,7 @@ import { GenotypeHelper } from "./genotype-helper.js";
 import { PhenotypeHelper } from "./phenotype-helper.js";
 import { ArcElement, Chart, Legend, PieController, Title, Tooltip } from "chart.js";
 import { BaseChartColor, BreedChartColor } from "./chart_colors.js";
-import { BaseChartColor, BreedChartColor } from "./genes.js";
+import { Genes } from './genes.js';
 
 export default function breedingRoller() {
     return {
