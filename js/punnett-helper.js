@@ -1,8 +1,8 @@
-import { Sex, Age } from './breeding';
-import { ClutchMin, ClutchMax } from './clutch_size';
-import { GetBreedMix } from './breed_mix';
-import { Utils } from './utils';
-import { GenotypeHelper } from './genotype-helper';
+import { Sex, Age } from './breeding.js';
+import { ClutchMin, ClutchMax } from './clutch_size.js';
+import { GetBreedMix } from './breed_mix.js';
+import { Utils } from './utils.js';
+import { GenotypeHelper } from './genotype-helper.js';
 
 export class PunnettHelper {
 
