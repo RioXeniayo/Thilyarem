@@ -78,7 +78,6 @@ export class GeneticsService {
         return GeneticsService.marking_phenotypes.filter(x => x.rarity == 'rare');
     }
 
-
     static get mutation_phenotypes() {
         return GeneticsService.phenotypes.filter(x => x.category == 'mutation');
     }
