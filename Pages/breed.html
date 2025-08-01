@@ -52,16 +52,16 @@
                         <div class="row mb-3">
                             <div class="col-12 col-md-4 mb-4">
                                 <h4>Parent A</h4>
-                                <div class="mb-3">
-                                    <label for="sire_breed" class="form-label">Breed</label>
-                                    <select id="sire_breed" x-model="p_a.species" class="form-select">
-                                        <template x-for="breed in Object.values(data.breeds)"><option :value="breed" x-text="breed"></option></template>
+                                       <div class="mb-3">
+                                    <label for="dam_breed" class="form-label">Breed</label>
+                                    <select id="dam_breed" x-model="p_b.species" class="form-select">
+                                        <template x-for="breed in Object.values(data.breeds)"><option :value="breed" x-text="breed">Thilyarem</option></template>
                                     </select>
                                 </div>
                                 <div class="mb-3">
-                                    <label for="sire_age" class="form-label">Age</label>
-                                    <select id="sire_age" x-model="p_a.age" class="form-select">
-                                        <template x-for="age in Object.values(data.age)"><option :value="age" x-text="age"></option></template>
+                                    <label for="dam_age" class="form-label">Age</label>
+                                    <select id="dam_age" x-model="p_b.age" class="form-select">
+                                        <template x-for="age in Object.values(data.age)"><option :value="age" x-text="age">Adolescent</option></template>
                                     </select>
                                 </div>
                                 <div class="mb-3">
@@ -78,13 +78,13 @@
                                 <div class="mb-3">
                                     <label for="dam_breed" class="form-label">Breed</label>
                                     <select id="dam_breed" x-model="p_b.species" class="form-select">
-                                        <template x-for="breed in Object.values(data.breeds)"><option :value="breed" x-text="breed"></option></template>
+                                        <template x-for="breed in Object.values(data.breeds)"><option :value="breed" x-text="breed">Thilyarem</option></template>
                                     </select>
                                 </div>
                                 <div class="mb-3">
                                     <label for="dam_age" class="form-label">Age</label>
                                     <select id="dam_age" x-model="p_b.age" class="form-select">
-                                        <template x-for="age in Object.values(data.age)"><option :value="age" x-text="age"></option></template>
+                                        <template x-for="age in Object.values(data.age)"><option :value="age" x-text="age">Adolescent</option></template>
                                     </select>
                                 </div>
                                 <div class="mb-3">
