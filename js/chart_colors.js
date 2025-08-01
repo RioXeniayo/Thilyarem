@@ -1,9 +1,5 @@
-// This import is a placeholder for your existing constants
 import { Breed } from "./breeding";
 
-/**
- * UPDATED: Defines the official display names for base colors using the new names.
- */
 const BaseColor = {
     TAN: 'Tan',
     CREAM: 'Cream',
@@ -18,9 +14,6 @@ const BaseColor = {
     WHITE: 'White'
 };
 
-/**
- * UPDATED: Maps the new display names to their corresponding hex color codes.
- */
 const BaseChartColor = {
     [BaseColor.TAN]: '#ccbb66',  
     [BaseColor.CREAM]: '#d9cc8c', 
@@ -51,9 +44,6 @@ const phenotypeToDisplayNameMap = {
     'Unknown': 'Unknown'
 };
 
-/**
- * Contains the available species and their chart colors.
- */
 const BreedChartColor = {
     [Breed.THIL]: '#8b5cf6',   // Purple
     [Breed.DEST]: '#10b981',   // Green
