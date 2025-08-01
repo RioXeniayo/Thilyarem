@@ -1,0 +1,213 @@
+export const loci = [
+    // -- BASE COAT LOCI --
+    {
+        locus: 'B',
+        category: 'base',
+        null_allele: 'n', // Not typically used for B, but required for structure
+        genes: [
+            { allele: 'B+', homozygous_genotype: 'B+/B+', heterozygous_genotypes: ['B+/BA', 'B+/BG', 'B+/BW'] },
+            { allele: 'BA', homozygous_genotype: 'BA/BA', heterozygous_genotypes: ['BA/BG', 'BA/BW'] },
+            { allele: 'BG', homozygous_genotype: 'BG/BG', heterozygous_genotypes: ['BG/BW'] },
+            { allele: 'BW', homozygous_genotype: 'BW/BW', heterozygous_genotypes: [] },
+        ]
+    },
+    {
+        locus: 'M',
+        category: 'base',
+        null_allele: 'n',
+        genes: [
+            { allele: 'M+', homozygous_genotype: 'M+/M+', heterozygous_genotypes: ['M+/MB', 'M+/M0'] },
+            { allele: 'MB', homozygous_genotype: 'MB/MB', heterozygous_genotypes: ['MB/M0'] },
+            { allele: 'M0', homozygous_genotype: 'M0/M0', heterozygous_genotypes: [] },
+        ]
+    },
+    {
+        locus: 'K',
+        category: 'base',
+        null_allele: 'n',
+        genes: [
+            { allele: 'K+', homozygous_genotype: 'K+/K+', heterozygous_genotypes: ['K+/KB'] },
+            { allele: 'KB', homozygous_genotype: 'KB/KB', heterozygous_genotypes: [] },
+        ]
+    },
+
+    // -- BASE MODIFIER LOCI --
+    {
+        locus: 'Vm', category: 'modifier', null_allele: 'n',
+        genes: [{ allele: 'Vm', homozygous_genotype: 'VmVm', heterozygous_genotypes: ['Vm'] }]
+    },
+    {
+        locus: 'Ja', category: 'modifier', null_allele: 'n',
+        genes: [{ allele: 'Ja', homozygous_genotype: 'JaJa', heterozygous_genotypes: ['Ja'] }]
+    },
+    {
+        locus: 'Vl', category: 'modifier', null_allele: 'n',
+        genes: [{ allele: 'Vl', homozygous_genotype: 'VlVl', heterozygous_genotypes: ['Vl'] }]
+    },
+    {
+        locus: 'Am', category: 'modifier', null_allele: 'n',
+        genes: [{ allele: 'Am', homozygous_genotype: 'AmAm', heterozygous_genotypes: ['Am'] }]
+    },
+
+    // -- COMMON MARKING LOCI --
+    {
+        locus: 'Bt', category: 'marking', null_allele: 'n',
+        genes: [{ allele: 'Bt', homozygous_genotype: 'BtBt', heterozygous_genotypes: ['Bt'] }]
+    },
+    {
+        locus: 'Cl', category: 'marking', null_allele: 'n',
+        genes: [{ allele: 'Cl', homozygous_genotype: 'ClCl', heterozygous_genotypes: ['Cl'] }]
+    },
+    {
+        locus: 'In', category: 'marking', null_allele: 'n',
+        genes: [{ allele: 'In', homozygous_genotype: 'InIn', heterozygous_genotypes: ['In'] }]
+    },
+    {
+        locus: 'Mnt', category: 'marking', null_allele: 'n',
+        genes: [{ allele: 'Mnt', homozygous_genotype: 'MntMnt', heterozygous_genotypes: ['Mnt'] }]
+    },
+    {
+        locus: 'Pg', category: 'marking', null_allele: 'n',
+        genes: [{ allele: 'Pg', homozygous_genotype: 'PgPg', heterozygous_genotypes: ['Pg'] }]
+    },
+    {
+        locus: 'Pt', category: 'marking', null_allele: 'n',
+        genes: [{ allele: 'Pt', homozygous_genotype: 'PtPt', heterozygous_genotypes: ['Pt'] }]
+    },
+    {
+        locus: 'Ro', category: 'marking', null_allele: 'n',
+        genes: [{ allele: 'Ro', homozygous_genotype: 'RoRo', heterozygous_genotypes: ['Ro'] }]
+    },
+    {
+        locus: 'Sb', category: 'marking', null_allele: 'n',
+        genes: [{ allele: 'Sb', homozygous_genotype: 'SbSb', heterozygous_genotypes: ['Sb'] }]
+    },
+    {
+        locus: 'Si', category: 'marking', null_allele: 'n',
+        genes: [{ allele: 'Si', homozygous_genotype: 'SiSi', heterozygous_genotypes: ['Si'] }]
+    },
+    {
+        locus: 'Stn', category: 'marking', null_allele: 'n',
+        genes: [{ allele: 'Stn', homozygous_genotype: 'StnStn', heterozygous_genotypes: ['Stn'] }]
+    },
+
+    // -- UNCOMMON MARKING LOCI --
+    {
+        locus: 'Apl', category: 'marking', null_allele: 'n', // Overo (het) / Appaloosa (hom)
+        genes: [{ allele: 'Apl', homozygous_genotype: 'AplApl', heterozygous_genotypes: ['Apl'] }]
+    },
+    {
+        locus: 'Brn', category: 'marking', null_allele: 'n',
+        genes: [{ allele: 'Brn', homozygous_genotype: 'BrnBrn', heterozygous_genotypes: ['Brn'] }]
+    },
+    {
+        locus: 'Dpl', category: 'marking', null_allele: 'n',
+        genes: [{ allele: 'Dpl', homozygous_genotype: 'DplDpl', heterozygous_genotypes: ['Dpl'] }]
+    },
+    {
+        locus: 'Bng', category: 'marking', null_allele: 'n', // Dun (het) / Bengal (hom)
+        genes: [{ allele: 'Bng', homozygous_genotype: 'BngBng', heterozygous_genotypes: ['Bng'] }]
+    },
+    {
+        locus: 'Mrl', category: 'marking', null_allele: 'n',
+        genes: [{ allele: 'Mrl', homozygous_genotype: 'MrlMrl', heterozygous_genotypes: ['Mrl'] }]
+    },
+    {
+        locus: 'Pnd', category: 'marking', null_allele: 'n',
+        genes: [{ allele: 'Pnd', homozygous_genotype: 'PndPnd', heterozygous_genotypes: ['Pnd'] }]
+    },
+    {
+        locus: 'Py', category: 'marking', null_allele: 'n',
+        genes: [{ allele: 'Py', homozygous_genotype: 'PyPy', heterozygous_genotypes: ['Py'] }]
+    },
+    {
+        locus: 'Rsc', category: 'marking', null_allele: 'n',
+        genes: [{ allele: 'Rsc', homozygous_genotype: 'RscRsc', heterozygous_genotypes: ['Rsc'] }]
+    },
+    {
+        locus: 'Sp', category: 'marking', null_allele: 'n',
+        genes: [{ allele: 'Sp', homozygous_genotype: 'SpSp', heterozygous_genotypes: ['Sp'] }]
+    },
+
+    // -- RARE MARKING LOCI --
+    {
+        locus: 'Di', category: 'marking', null_allele: 'n',
+        genes: [{ allele: 'Di', homozygous_genotype: 'DiDi', heterozygous_genotypes: ['Di'] }]
+    },
+    {
+        locus: 'Gl', category: 'marking', null_allele: 'n',
+        genes: [{ allele: 'Gl', homozygous_genotype: 'GlGl', heterozygous_genotypes: ['Gl'] }]
+    },
+    {
+        locus: 'Ir', category: 'marking', null_allele: 'n',
+        genes: [{ allele: 'Ir', homozygous_genotype: 'IrIr', heterozygous_genotypes: ['Ir'] }]
+    },
+    {
+        locus: 'Pb', category: 'marking', null_allele: 'n',
+        genes: [{ allele: 'Pb', homozygous_genotype: 'PbPb', heterozygous_genotypes: ['Pb'] }]
+    },
+    {
+        locus: 'Tk', category: 'marking', null_allele: 'n',
+        genes: [{ allele: 'Tk', homozygous_genotype: 'TkTk', heterozygous_genotypes: ['Tk'] }]
+    },
+    {
+        locus: 'Stm', category: 'marking', null_allele: 'n',
+        genes: [{ allele: 'Stm', homozygous_genotype: 'StmStm', heterozygous_genotypes: ['Stm'] }]
+    },
+    {
+        locus: 'Sd', category: 'marking', null_allele: 'n',
+        genes: [{ allele: 'Sd', homozygous_genotype: 'SdSd', heterozygous_genotypes: ['Sd'] }]
+    },
+    {
+        locus: 'Wd', category: 'marking', null_allele: 'n',
+        genes: [{ allele: 'Wd', homozygous_genotype: 'WdWd', heterozygous_genotypes: ['Wd'] }]
+    },
+
+    // -- PHYSICAL TRAIT LOCI --
+    {
+        locus: 'Fg', category: 'trait', null_allele: 'n',
+        genes: [{ allele: 'Fg', homozygous_genotype: 'FgFg', heterozygous_genotypes: ['Fg'] }]
+    },
+    {
+        locus: 'Fn', category: 'trait', null_allele: 'n',
+        genes: [{ allele: 'Fn', homozygous_genotype: 'FnFn', heterozygous_genotypes: ['Fn'] }]
+    },
+    {
+        locus: 'Hr', category: 'trait', null_allele: 'n',
+        genes: [{ allele: 'Hr', homozygous_genotype: 'HrHr', heterozygous_genotypes: ['Hr'] }]
+    },
+    {
+        locus: 'Sai', category: 'trait', null_allele: 'n',
+        genes: [{ allele: 'Sai', homozygous_genotype: 'SaiSai', heterozygous_genotypes: ['Sai'] }]
+    },
+    {
+        locus: 'Tsk', category: 'trait', null_allele: 'n',
+        genes: [{ allele: 'Tsk', homozygous_genotype: 'TskTsk', heterozygous_genotypes: ['Tsk'] }]
+    },
+
+    // -- MUTATION LOCI --
+    {
+        locus: 'Alb', category: 'mutation', null_allele: 'n',
+        genes: [{ allele: 'Alb', homozygous_genotype: 'ALB', heterozygous_genotypes: ['Alb'] }]
+    },
+    {
+        locus: 'Alv', category: 'mutation', null_allele: 'n',
+        genes: [{ allele: 'Alv', homozygous_genotype: 'ALV', heterozygous_genotypes: ['Alv'] }]
+    },
+    {
+        locus: 'Gcr', category: 'mutation', null_allele: 'n',
+        genes: [{ allele: 'Gcr', homozygous_genotype: 'GCR', heterozygous_genotypes: ['Gcr'] }]
+    },
+    {
+        locus: 'Tsk', category: 'mutation', null_allele: 'n',
+        genes: [{ allele: 'Tsk', homozygous_genotype: 'TSK', heterozygous_genotypes: ['Tsk'] }]
+    },
+    {
+        locus: 'Lct', category: 'mutation', null_allele: 'n',
+        genes: [{ allele: 'Lct', homozygous_genotype: 'LCT', heterozygous_genotypes: ['Lct'] }]
+    },
+    {
+        locus: 'Vtl', category: 'mutation', null_allele: 'n',
+        genes: [{ allele: 'Vtl', homozygous_genotype: 'VTL', heterozygous_genotypes: ['Vtl'] }]
+    },
+];
