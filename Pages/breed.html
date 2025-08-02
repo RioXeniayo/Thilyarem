@@ -3,246 +3,283 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Breeding Roller</title>
+    <title>Thilyarem Design Hub - Breeding Roller</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
-    
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <!-- Chart.js for result visualization -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- Alpine.js for interactivity -->
+    <script src="https://unpkg.com/alpinejs@3.13.10/dist/cdn.min.js"></script>
     <style>
-        body { font-family: 'Nunito', sans-serif; background-color: #f8f9fa; }
-        .sb-topnav { background: linear-gradient(to right, #6a11cb 0%, #2575fc 100%); box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2); }
-        .btn-primary { background-color: #6a11cb; border-color: #6a11cb; }
-        .btn-primary:hover { background-color: #5a0eae; border-color: #5a0eae; }
+        body { font-family: 'Inter', sans-serif; background-color: #111; color: #e0e0e0; }
+        .main-bg { background-image: url('https://f2.toyhou.se/file/f2-toyhou-se/images/104628454_TIW9qLUgkOd23xn.png'); background-size: cover; background-position: center; background-attachment: fixed; }
+        .text-shadow { text-shadow: 1px 1px 3px rgba(0,0,0,0.8); }
+        .box { background-color: rgba(17, 24, 39, 0.8); backdrop-filter: blur(16px); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 0.75rem; }
+        .shiny-btn { background: linear-gradient(to bottom, #6d28d9 0%, #4c1d95 100%); border: 1px solid #a78bfa; box-shadow: 0 1px 2px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.15); transition: all 0.3s ease; }
+        .shiny-btn:hover { background: linear-gradient(to bottom, #7c3aed 0%, #6d28d9 100%); box-shadow: 0 2px 4px rgba(0,0,0,0.7), inset 0 1px 0 rgba(255,255,255,0.25); transform: translateY(-2px); }
+        .shiny-btn:disabled { background: #374151; border-color: #4b5563; cursor: not-allowed; transform: none; box-shadow: none; }
+        .shiny-btn.active { background: linear-gradient(to bottom, #a78bfa 0%, #8b5cf6 100%); border-color: #c4b5fd; }
+        .sidebar { background-color: rgba(10, 10, 12, 0.8); backdrop-filter: blur(10px); }
+        .dropdown-menu { opacity: 0; visibility: hidden; transform: translateY(-10px); transition: opacity 0.3s ease, transform 0.3s ease, visibility 0.3s; background-color: rgba(30, 30, 32, 0.75); backdrop-filter: blur(16px); border: 1px solid rgba(255, 255, 255, 0.1); }
+        .dropdown:hover .dropdown-menu { opacity: 1; visibility: visible; transform: translateY(0); }
+        .form-label { display: block; margin-bottom: 0.5rem; font-size: 0.875rem; font-weight: 500; color: #9ca3af; }
+        .form-input, .form-select { width: 100%; background-color: rgba(31, 41, 55, 0.8); border: 1px solid #4b5563; color: #e0e0e0; border-radius: 0.375rem; padding: 0.5rem 0.75rem; }
         [x-cloak] { display: none !important; }
-        .form-label { font-weight: 600; }
-        .card { border: 0; box-shadow: 0 0.125rem 0.25rem rgba(0,0,0,.075); }
-        .nav-tabs .nav-link.active { color: #495057; background-color: #fff; border-color: #dee2e6 #dee2e6 #fff; }
     </style>
 </head>
+<body class="main-bg">
 
-<body class="sb-nav-fixed">
-    <nav class="sb-topnav navbar navbar-expand navbar-dark">
-        <a class="navbar-brand ps-3" href="#">Breeding Roller</a>
-    </nav>
-    <div id="layoutSidenav">
-        <div id="layoutSidenav_content">
-            <main>
-                <div class="container-fluid p-4">
-                    <div class="card">
-                        <div class="card-header bg-light">
-                            <h1 class="mt-2">Breeding Roller</h1>
-                        </div>
-                        <div class="card-body" x-data="breedingRoller" x-init="init()">
-                            <div class="row mb-3">
-                                <!-- Parent A -->
-                                <div class="col-12 col-md-6 mb-4">
-                                    <h4>Parent A</h4>
-                                    <div class="mb-3">
-                                        <label for="sire_breed" class="form-label">Breed</label>
-                                        <select id="sire_breed" x-model="p_a.species" class="form-select">
-                                            <template x-for="breed in Object.values(data.breeds)"><option :value="breed" x-text="breed"></option></template>
-                                        </select>
-                                    </div>
-                                    <div class="mb-3">
-                                         <label for="sire_age" class="form-label">Age</label>
-                                         <select id="sire_age" x-model="p_a.age" class="form-select">
-                                             <template x-for="age in Object.values(data.age)"><option :value="age" x-text="age"></option></template>
-                                         </select>
-                                    </div>
-                                    <div class="mb-3">
-                                        <label for="sire_geno" class="form-label">Genotype</label>
-                                        <input type="text" id="sire_geno" x-model.debounce.500ms="p_a.genotype" @input="p_a.phenotype = getPhenotype(p_a.genotype)" class="form-control mb-2" placeholder="e.g., B+/BA M+/M0 K+/K+">
-                                    </div>
-                                    <div>
-                                        <label for="sire_pheno" class="form-label">Phenotype</label>
-                                        <input type="text" id="sire_pheno" x-model="p_a.phenotype" class="form-control mb-2" readonly>
-                                    </div>
+    <div class="flex h-screen">
+        <!-- Sidebar -->
+        <aside id="sidebar" class="sidebar w-64 flex flex-col flex-shrink-0 p-4 transition-all duration-300 ease-in-out">
+            <div>
+                <h1 class="text-2xl font-bold text-violet-400 mb-6">Design Hub</h1>
+                <nav class="space-y-4">
+                    <div>
+                        <h2 class="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">Core</h2>
+                        <a href="Thilyarem.Chibidreams.net" class="flex items-center p-2 text-gray-300 hover:bg-violet-800 hover:bg-opacity-50 rounded-md">
+                            <i class="fas fa-home w-6"></i>
+                            <span>Website</span>
+                        </a>
+                        <a href="https://discord.gg/ezJDtzthVN" class="flex items-center p-2 text-gray-300 hover:bg-violet-800 hover:bg-opacity-50 rounded-md">
+                            <i class="fab fa-discord w-6"></i>
+                            <span>Official Discord</span>
+                        </a>
+                    </div>
+                    <div>
+                        <h2 class="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">Resources</h2>
+                        <!-- Collapsible Menu Item -->
+                        <div>
+                            <button onclick="toggleMenu('community-menu')" class="w-full flex items-center justify-between p-2 text-gray-300 hover:bg-violet-800 hover:bg-opacity-50 rounded-md">
+                                <div class="flex items-center">
+                                    <i class="fas fa-comment w-6"></i>
+                                    <span>Community</span>
                                 </div>
-                                <!-- Parent B -->
-                                 <div class="col-12 col-md-6 mb-4">
-                                    <h4>Parent B</h4>
-                                    <div class="mb-3">
-                                        <label for="dam_breed" class="form-label">Breed</label>
-                                        <select id="dam_breed" x-model="p_b.species" class="form-select">
-                                            <template x-for="breed in Object.values(data.breeds)"><option :value="breed" x-text="breed"></option></template>
-                                        </select>
-                                    </div>
-                                    <div class="mb-3">
-                                         <label for="dam_age" class="form-label">Age</label>
-                                         <select id="dam_age" x-model="p_b.age" class="form-select">
-                                             <template x-for="age in Object.values(data.age)"><option :value="age" x-text="age"></option></template>
-                                         </select>
-                                    </div>
-                                    <div class="mb-3">
-                                        <label for="dam_geno" class="form-label">Genotype</label>
-                                        <input type="text" id="dam_geno" x-model.debounce.500ms="p_b.genotype" @input="p_b.phenotype = getPhenotype(p_b.genotype)" class="form-control" placeholder="e.g., BA/BA MB/M0 K+/KB">
-                                    </div>
-                                    <div>
-                                        <label for="dam_pheno" class="form-label">Phenotype</label>
-                                        <input type="text" id="dam_pheno" x-model="p_b.phenotype" class="form-control mb-2" readonly>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div class="d-flex justify-content-end mb-4">
-                                <button @click="reset()" class="btn btn-secondary me-2">Reset</button>
-                                <button @click="rollBreeding()" class="btn btn-primary">Calculate & Roll</button>
-                            </div>
-
-                            <!-- Results and Possibilities -->
-                            <div class="mb-4">
-                                <ul class="nav nav-tabs" role="tablist">
-                                    <li class="nav-item" role="presentation"><button class="nav-link active" id="results-tab" data-bs-toggle="tab" data-bs-target="#results" type="button" role="tab">Results</button></li>
-                                    <li class="nav-item" role="presentation"><button class="nav-link" id="possibilities-tab" data-bs-toggle="tab" data-bs-target="#possibilities" type="button" role="tab">Possibilities</button></li>
-                                </ul>
-                                <div class="tab-content bg-white rounded-bottom p-4 border-start border-end border-bottom">
-                                    <div class="tab-pane fade show active" id="results" role="tabpanel">
-                                        <div x-html="resultsHtml">Enter parent data and click "Calculate & Roll" to see results.</div>
-                                    </div>
-                                    <div class="tab-pane fade" id="possibilities" role="tabpanel" x-cloak>
-                                        <div x-show="stats.clutch">
-                                            <p><strong>Possible Clutch Size:</strong> <span x-text="stats.clutch"></span></p><hr>
-                                            <div class="row">
-                                                <div class="col-12 col-md-4 text-center">
-                                                    <h5>Breed Odds</h5><canvas x-ref="breedChart"></canvas>
-                                                </div>
-                                                <div class="col-12 col-md-4 text-center">
-                                                    <h5>Sex Odds</h5><canvas x-ref="sexChart"></canvas>
-                                                </div>
-                                                <div class="col-12 col-md-4 text-center">
-                                                    <h5>Base Coat Odds</h5><canvas x-ref="baseChart"></canvas>
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <div x-show="!stats.clutch">Click "Calculate & Roll" to see possibilities.</div>
-                                    </div>
-                                </div>
+                                <i id="community-menu-arrow" class="fas fa-angle-down"></i>
+                            </button>
+                            <div id="community-menu" class="hidden pl-6 mt-1 space-y-1">
+                                <a href="Thilyarem.Chibidreams.net/info/Event" class="block p-2 text-sm text-gray-400 hover:text-white">Event</a>
+                                <a href="Thilyarem.Chibidreams.net/info/Pricing" class="block p-2 text-sm text-gray-400 hover:text-white">Pricing</a>
                             </div>
                         </div>
+                        <!-- Another Collapsible Menu -->
+                        <div>
+                            <button onclick="toggleMenu('design-menu')" class="w-full flex items-center justify-between p-2 text-gray-300 hover:bg-violet-800 hover:bg-opacity-50 rounded-md">
+                                <div class="flex items-center">
+                                    <i class="fas fa-palette w-6"></i>
+                                    <span>Breeding</span>
+                                </div>
+                                <i id="design-menu-arrow" class="fas fa-angle-down"></i>
+                            </button>
+                            <div id="design-menu" class="hidden pl-6 mt-1 space-y-1">
+                                <a href="/Thilyarem/Pages/breed.html" class="block p-2 text-sm text-gray-400 hover:text-white">Breeding Roller</a>
+                                <a href="/Thilyarem/Pages/geneupdate.html" class="block p-2 text-sm text-gray-400 hover:text-white">Genetics Roller</a>
+                                <a href="/Thilyarem/Pages/hatchling.html" class="block p-2 text-sm text-gray-400 hover:text-white">Hatchling Roller</a>
+                                <a href="/Thilyarem/Pages/element.html" class="block p-2 text-sm text-gray-400 hover:text-white">Inborn Element Roller</a>
+                            </div>
+                        </div>
+                    </div>
+                    <div>
+                        <h2 class="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">Utilities</h2>
+                        <a href="#" class="flex items-center p-2 text-gray-300 hover:bg-violet-800 hover:bg-opacity-50 rounded-md">
+                            <i class="fas fa-calculator w-6"></i>
+                            <span>EXP Calc</span>
+                        </a>
+                    </div>
+                </nav>
+            </div>
+            <div class="mt-auto text-center text-xs text-gray-500">
+                <p>Background by <a href="https://www.pexels.com/@belle-co-99483/" target="_blank" class="hover:text-violet-300 underline">Draconic-King</a></p>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <div class="flex-1 flex flex-col overflow-hidden">
+            <!-- Top Bar -->
+            <header class="bg-black bg-opacity-60 backdrop-filter backdrop-blur-sm border-b border-gray-800 px-4 sm:px-6 lg:px-8 sticky top-0 z-10">
+                 <div class="flex items-center justify-between h-20">
+                    <div class="flex items-center">
+                        <button id="sidebar-toggle" class="text-gray-300 hover:text-white focus:outline-none">
+                            <i class="fas fa-bars text-xl"></i>
+                        </button>
+                    </div>
+                    <nav class="hidden md:flex items-center space-x-2">
+                        <a href="#" class="shiny-btn text-white px-4 py-2 rounded-md text-sm font-medium">Home</a>
+                        <div class="relative dropdown">
+                            <button class="shiny-btn active text-gray-200 hover:text-white px-4 py-2 rounded-md text-sm font-medium flex items-center">
+                                <span>Genetics</span>
+                                <svg class="w-4 h-4 ml-1" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd"></path></svg>
+                            </button>
+                            <div class="dropdown-menu absolute right-0 mt-2 w-48 rounded-md shadow-lg py-1 z-20">
+                                <a href="#" class="block px-4 py-2 text-sm text-gray-300 hover:bg-violet-600 hover:bg-opacity-40">Markings</a>
+                                <a href="#" class="block px-4 py-2 text-sm text-gray-300 hover:bg-violet-600 hover:bg-opacity-40">Mutations</a>
+                            </div>
+                        </div>
+                        <div class="relative dropdown">
+                            <button class="shiny-btn text-gray-200 hover:text-white px-4 py-2 rounded-md text-sm font-medium flex items-center">
+                                <span>Species</span>
+                                <svg class="w-4 h-4 ml-1" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd"></path></svg>
+                            </button>
+                            <div class="dropdown-menu absolute right-0 mt-2 w-48 rounded-md shadow-lg py-1 z-20">
+                                <a href="#" class="block px-4 py-2 text-sm text-gray-300 hover:bg-violet-600 hover:bg-opacity-40">Thilyarem</a>
+                                <a href="#" class="block px-4 py-2 text-sm text-gray-300 hover:bg-violet-600 hover:bg-opacity-40">Destrier</a>
+                            </div>
+                        </div>
+                    </nav>
+                </div>
+            </header>
+
+            <!-- Content Area -->
+            <main class="flex-1 overflow-y-auto p-6" x-data="breedingRoller" x-init="init()">
+                <div class="box p-6 mb-6">
+                    <h1 class="text-3xl font-bold text-violet-300 mb-6 text-center">Breeding Roller</h1>
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                        <!-- Parent A -->
+                        <div class="space-y-4">
+                            <h4 class="text-xl font-bold text-violet-400">Parent A</h4>
+                            <div>
+                                <label for="sire_breed" class="form-label">Breed</label>
+                                <select id="sire_breed" x-model="parentA.species" class="form-select">
+                                    <template x-for="breed in Object.values(data.breeds)"><option :value="breed" x-text="breed"></option></template>
+                                </select>
+                            </div>
+                            <div>
+                                <label for="sire_age" class="form-label">Age</label>
+                                <select id="sire_age" x-model="parentA.age" class="form-select">
+                                    <template x-for="age in Object.values(data.age)"><option :value="age" x-text="age"></option></template>
+                                </select>
+                            </div>
+                            <div>
+                                <label for="sire_mane" class="form-label">Mane</label>
+                                <select id="sire_mane" x-model="parentA.mane" @change="updatePhenotype('A')" class="form-select">
+                                    <template x-for="mane in Object.values(data.manes)"><option :value="mane" x-text="mane"></option></template>
+                                </select>
+                            </div>
+                             <div>
+                                <label for="sire_element" class="form-label">Inborn Element</label>
+                                <select id="sire_element" x-model="parentA.element" class="form-select">
+                                    <template x-for="element in Object.values(data.elements)"><option :value="element" x-text="element"></option></template>
+                                </select>
+                            </div>
+                             <div class="mb-3">
+                                <label for="sire_geno" class="form-label">Genotype</label>
+                                <input type="text" id="sire_geno" x-model.debounce.500ms="parentA.genotype" @input="updatePhenotype('A')" class="form-input" placeholder="e.g., B+/BA M+/M0 K+/K+ Vm">
+                            </div>
+                            <div>
+                                <label for="sire_pheno" class="form-label">Phenotype</label>
+                                <input type="text" id="sire_pheno" x-model="parentA.phenotype" class="form-input bg-gray-800" readonly>
+                            </div>
+                        </div>
+                        <!-- Parent B -->
+                        <div class="space-y-4">
+                             <h4 class="text-xl font-bold text-violet-400">Parent B</h4>
+                            <div>
+                                <label for="dam_breed" class="form-label">Breed</label>
+                                <select id="dam_breed" x-model="parentB.species" class="form-select">
+                                    <template x-for="breed in Object.values(data.breeds)"><option :value="breed" x-text="breed"></option></template>
+                                </select>
+                            </div>
+                            <div>
+                                <label for="dam_age" class="form-label">Age</label>
+                                <select id="dam_age" x-model="parentB.age" class="form-select">
+                                    <template x-for="age in Object.values(data.age)"><option :value="age" x-text="age"></option></template>
+                                </select>
+                            </div>
+                            <div>
+                                <label for="dam_mane" class="form-label">Mane</label>
+                                <select id="dam_mane" x-model="parentB.mane" @change="updatePhenotype('B')" class="form-select">
+                                    <template x-for="mane in Object.values(data.manes)"><option :value="mane" x-text="mane"></option></template>
+                                </select>
+                            </div>
+                             <div>
+                                <label for="dam_element" class="form-label">Inborn Element</label>
+                                <select id="dam_element" x-model="parentB.element" class="form-select">
+                                    <template x-for="element in Object.values(data.elements)"><option :value="element" x-text="element"></option></template>
+                                </select>
+                            </div>
+                             <div class="mb-3">
+                                <label for="dam_geno" class="form-label">Genotype</label>
+                                <input type="text" id="dam_geno" x-model.debounce.500ms="parentB.genotype" @input="updatePhenotype('B')" class="form-control" placeholder="e.g., BA/BA MB/M0 K+/KB">
+                            </div>
+                            <div>
+                                <label for="dam_pheno" class="form-label">Phenotype</label>
+                                <input type="text" id="dam_pheno" x-model="parentB.phenotype" class="form-control bg-gray-800" readonly>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <hr class="my-6 border-gray-700">
+                    
+                    <h4 class="text-xl font-bold text-violet-400 mb-4">Items & Inbreeding</h4>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                        <div class="space-y-3">
+                            <div class="flex items-center">
+                              <input id="crescent_herb" x-model="items.crescent_herb" type="checkbox" class="h-4 w-4 rounded border-gray-300 text-violet-600 focus:ring-violet-500">
+                              <label for="crescent_herb" class="ml-3 block text-sm font-medium text-gray-300">Crescent Herb (+2 pups max)</label>
+                            </div>
+                            <div class="flex items-center">
+                              <input id="moonlit_herb" x-model="items.moonlit_herb" type="checkbox" class="h-4 w-4 rounded border-gray-300 text-violet-600 focus:ring-violet-500">
+                              <label for="moonlit_herb" class="ml-3 block text-sm font-medium text-gray-300">Moonlit Herb (+mutations/traits, +2 pups max)</label>
+                            </div>
+                        </div>
+                        <div>
+                            <label for="coi" class="form-label">Inbreeding Level</label>
+                            <select id="coi" x-model="coi" class="form-select">
+                                <option>None</option>
+                                <option>Slight</option>
+                                <option>Medium</option>
+                                <option>High</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div x-show="parentA.age === 'Celestial' || parentB.age === 'Celestial'" x-cloak class="mt-6">
+                        <hr class="my-4 border-gray-700">
+                        <h4 class="text-xl font-bold text-violet-400">Celestial Perk</h4>
+                        <p class="text-sm text-gray-400">One parent is Celestial. Please choose ONE hereditary trait.</p>
+                        <select id="celestial_perk" x-model="items.celestial_perk" class="form-select mt-2">
+                            <option>None</option>
+                            <option>Divine Blessing</option>
+                            <option>Savage Boon</option>
+                            <option>Prismatic Aura</option>
+                        </select>
+                    </div>
+
+                    <div class="flex justify-end gap-4 mt-8">
+                        <button @click="reset()" class="py-2 px-4 rounded-md text-white font-semibold bg-gray-600 hover:bg-gray-500 transition-colors">Reset</button>
+                        <button @click="rollBreeding()" class="shiny-btn text-white font-bold py-2 px-6 rounded-md" :disabled="!parentA.genotype || !parentB.genotype">Hatch Time!</button>
+                    </div>
+
+                    <!-- Results Section -->
+                    <div x-show="resultsHtml" x-cloak class="mt-8 border-t border-gray-700 pt-6">
+                        <h3 class="text-2xl font-bold text-violet-300 mb-4">Results</h3>
+                        <div x-html="resultsHtml" class="space-y-4"></div>
                     </div>
                 </div>
             </main>
         </div>
     </div>
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-    
-    <script type="module">
-        // --- CONSOLIDATED JAVASCRIPT LOGIC ---
-        
-        // --- Enums & Data ---
-        const Sex = { MALE: 'Male', FEMALE: 'Female' };
-        const Breed = { THIL: 'Thilyarem', DEST: 'Destrier', CYROA: 'Cyroas' };
-        const Age = { HATCHLING: 'Hatchling', ADOLESCENT: 'Adolescent', YOUNG_ADULT: 'Young Adult', ADULT: 'Adult', ELDER: 'Elder', ANCIENT: 'Ancient', CELESTIAL: 'Celestial' };
-        const Fertility = { PERFECT: 'Perfect', GOOD: 'Good', AVERAGE: 'Average', LOW: 'Low', STERILE: 'Sterile' };
-        const ClutchMin = { [Breed.THIL]: 1, [Breed.DEST]: 1, [Breed.CYROA]: 1 };
-        const ClutchMax = { [Breed.THIL]: 5, [Breed.DEST]: 3, [Breed.CYROA]: 5 };
-        const BreedMix = {
-            [`${Breed.THIL}_${Breed.THIL}`]: { [Breed.THIL]: 100 }, [`${Breed.THIL}_${Breed.DEST}`]: { [Breed.THIL]: 95, [Breed.DEST]: 5 },
-            [`${Breed.DEST}_${Breed.THIL}`]: { [Breed.THIL]: 85, [Breed.DEST]: 15 }, [`${Breed.DEST}_${Breed.DEST}`]: { [Breed.THIL]: 65, [Breed.DEST]: 35 },
-            [`${Breed.CYROA}_${Breed.CYROA}`]: { [Breed.CYROA]: 100 }, [`${Breed.THIL}_${Breed.CYROA}`]: { [Breed.THIL]: 50, [Breed.CYROA]: 50 },
-            [`${Breed.CYROA}_${Breed.THIL}`]: { [Breed.CYROA]: 50, [Breed.THIL]: 50 }, [`${Breed.CYROA}_${Breed.DEST}`]: { [Breed.CYROA]: 95, [Breed.DEST]: 5 }
-        };
-        const BaseChartColor = { 'Tan':'#ccbb66', 'Brown':'#cc9266', 'Green':'#77cc66', 'Slate':'#666666', 'Black':'#666666', 'Blue':'#6e66cc', 'Seagreen':'#99d98c', 'Cream':'#d9cc8c', 'Lilac':'#d9ad8c', 'Teagreen':'#99d98c', 'White':'#e6e6e6', 'Unknown':'#374151' };
-        const BreedChartColor = { [Breed.THIL]: '#8b5cf6', [Breed.DEST]: '#10b981', [Breed.CYROA]: '#ef4444', 'Hybrid': '#6b7280' };
-
-        // --- Mocks for data files (replace with your full JSON/JS objects) ---
-        const loci = []; 
-        const GeneMap = {}; 
-
-        // --- Mocks for helper classes (replace with your full class definitions) ---
-        class GenotypeHelper {/* ... */}
-        class PhenotypeHelper {/* ... */}
-        class PunnettHelper {
-            static getPossibleClutchSize(p_a, p_b, minor, major) {
-                let min = Math.min(ClutchMin[p_a.species], ClutchMin[p_b.species]);
-                let max = Math.max(ClutchMax[p_a.species], ClutchMax[p_b.species]);
-                if (major > 0) { min++; max++; } else if (minor > 0) max++;
-                if (min === max) return `${min} ${min === 1 ? 'egg' : 'eggs'}`;
-                return `${min} - ${max} eggs`;
-            }
-            static getSexOdds() { return { 'Male': 50, 'Female': 50 }; }
-            static getBreedOdds(a, b) { return BreedMix[`${a}_${b}`] || BreedMix[`${b}_${a}`] || (a === b ? { [a]: 100 } : { [a]: 50, [b]: 50 }); }
+    <script type="module" src="/js/Breeding_Roller.js"></script>
+    <script>
+        // --- UI Interaction Scripts ---
+        function toggleMenu(menuId) {
+            const menu = document.getElementById(menuId);
+            const arrow = document.getElementById(menuId + '-arrow');
+            menu.classList.toggle('hidden');
+            arrow.classList.toggle('fa-angle-down');
+            arrow.classList.toggle('fa-angle-up');
         }
-        class GeneticsService { static loci=[]; static phenotypes=[]; static load(){this.loci=loci;this.phenotypes=Object.values(GeneMap);return Promise.resolve();}}
-
-        // --- MAIN ALPINE.JS COMPONENT ---
-        document.addEventListener('alpine:init', () => {
-            Alpine.data('breedingRoller', {
-                data: {}, p_a: {}, p_b: {}, stats: {}, charts: {},
-                resultsHtml: 'Click "Calculate & Roll" to see results.',
-
-                init() {
-                    this.data = { breeds: Breed, age: Age };
-                    this.reset();
-                },
-                
-                getPhenotype(genotype) {
-                    if (!genotype) return '';
-                    if (genotype.includes('B+')) return 'Tan';
-                    if (genotype.includes('BA')) return 'Brown';
-                    return 'Unknown';
-                },
-
-                rollBreeding() {
-                    this.calculatePossibilities();
-                    
-                    const clutchRange = this.stats.clutch.split(' - ').map(n => parseInt(n));
-                    const min = clutchRange[0];
-                    const max = clutchRange.length > 1 ? clutchRange[1] : min;
-                    const clutchSize = Math.floor(Math.random() * (max - min + 1)) + min;
-                    
-                    let results = `<h4>Rolled a clutch of ${clutchSize}!</h4>`;
-                    
-                    for (let i = 1; i <= clutchSize; i++) {
-                        results += `<div class="mb-3 p-2 border rounded"><strong>Offspring ${i}:</strong> Offspring details would be rolled here based on possibility charts.</div>`;
-                    }
-                    this.resultsHtml = results;
-                },
-
-                calculatePossibilities() {
-                    this.stats.clutch = PunnettHelper.getPossibleClutchSize(this.p_a, this.p_b, 0, 0);
-                    this.stats.breeds = PunnettHelper.getBreedOdds(this.p_a.species, this.p_b.species);
-                    this.stats.sex = PunnettHelper.getSexOdds();
-                    this.stats.bases = { 'Tan': 75, 'Brown': 25 }; // Mocked result
-                    
-                    this.$nextTick(() => this.initCharts());
-                },
-                
-                initCharts() {
-                    Object.values(this.charts).forEach(chart => chart?.destroy());
-                    const createPieChart = (ref, data, colors) => {
-                        const ctx = this.$refs[ref]?.getContext('2d');
-                        if (!ctx || !data || Object.keys(data).length === 0) return null;
-                        return new Chart(ctx, {
-                            type: 'pie',
-                            data: {
-                                labels: Object.keys(data),
-                                datasets: [{ data: Object.values(data), backgroundColor: Object.keys(data).map(key => colors[key] || '#cccccc') }]
-                            },
-                            options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { labels: { color: '#495057' } } } }
-                        });
-                    };
-
-                    this.charts.breed = createPieChart('breedChart', this.stats.breeds, BreedChartColor);
-                    this.charts.sex = createPieChart('sexChart', this.stats.sex, {'Male': '#3498db', 'Female': '#e74c3c'});
-                    this.charts.base = createPieChart('baseChart', this.stats.bases, BaseChartColor);
-                },
-
-                reset() {
-                    this.p_a = { species: Breed.THIL, genotype: 'B+/BA M+/M0 K+/K+', age: Age.YOUNG_ADULT };
-                    this.p_b = { species: Breed.DEST, genotype: 'BA/BA MB/M0 K+/KB', age: Age.YOUNG_ADULT };
-                    this.p_a.phenotype = this.getPhenotype(this.p_a.genotype);
-                    this.p_b.phenotype = this.getPhenotype(this.p_b.genotype);
-                    this.stats = {};
-                    this.resultsHtml = 'Click "Calculate & Roll" to see results.';
-                    Object.values(this.charts).forEach(chart => chart?.destroy());
-                }
-            });
+        const sidebarToggle = document.getElementById('sidebar-toggle');
+        sidebarToggle.addEventListener('click', () => {
+            const sidebar = document.getElementById('sidebar');
+            sidebar.classList.toggle('w-64');
+            sidebar.classList.toggle('w-0');
+            sidebar.classList.toggle('p-4');
+            sidebar.classList.toggle('p-0');
         });
     </script>
 </body>
