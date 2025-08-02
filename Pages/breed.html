@@ -1,286 +1,276 @@
 <!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Thilyarem Design Hub - Breeding Roller</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&display=swap" rel="stylesheet">
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
-    <!-- Chart.js for result visualization -->
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <!-- Alpine.js for interactivity -->
-    <script src="https://unpkg.com/alpinejs@3.13.10/dist/cdn.min.js"></script>
+<html>
+  <head>
+    <base target="_top">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <style>
-        body { font-family: 'Inter', sans-serif; background-color: #111; color: #e0e0e0; }
-        .main-bg { background-image: url('https://f2.toyhou.se/file/f2-toyhou-se/images/104628454_TIW9qLUgkOd23xn.png'); background-size: cover; background-position: center; background-attachment: fixed; }
-        .text-shadow { text-shadow: 1px 1px 3px rgba(0,0,0,0.8); }
-        .box { background-color: rgba(17, 24, 39, 0.8); backdrop-filter: blur(16px); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 0.75rem; }
-        .shiny-btn { background: linear-gradient(to bottom, #6d28d9 0%, #4c1d95 100%); border: 1px solid #a78bfa; box-shadow: 0 1px 2px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.15); transition: all 0.3s ease; }
-        .shiny-btn:hover { background: linear-gradient(to bottom, #7c3aed 0%, #6d28d9 100%); box-shadow: 0 2px 4px rgba(0,0,0,0.7), inset 0 1px 0 rgba(255,255,255,0.25); transform: translateY(-2px); }
-        .shiny-btn:disabled { background: #374151; border-color: #4b5563; cursor: not-allowed; transform: none; box-shadow: none; }
-        .shiny-btn.active { background: linear-gradient(to bottom, #a78bfa 0%, #8b5cf6 100%); border-color: #c4b5fd; }
-        .sidebar { background-color: rgba(10, 10, 12, 0.8); backdrop-filter: blur(10px); }
-        .dropdown-menu { opacity: 0; visibility: hidden; transform: translateY(-10px); transition: opacity 0.3s ease, transform 0.3s ease, visibility 0.3s; background-color: rgba(30, 30, 32, 0.75); backdrop-filter: blur(16px); border: 1px solid rgba(255, 255, 255, 0.1); }
-        .dropdown:hover .dropdown-menu { opacity: 1; visibility: visible; transform: translateY(0); }
-        .form-label { display: block; margin-bottom: 0.5rem; font-size: 0.875rem; font-weight: 500; color: #9ca3af; }
-        .form-input, .form-select { width: 100%; background-color: rgba(31, 41, 55, 0.8); border: 1px solid #4b5563; color: #e0e0e0; border-radius: 0.375rem; padding: 0.5rem 0.75rem; }
-        [x-cloak] { display: none !important; }
+        body { padding: 1rem; }
+        .form-label { font-weight: 600; }
+        #results { margin-top: 1rem; padding: 1rem; border: 1px solid #dee2e6; border-radius: .375rem; min-height: 100px; }
+        #loading { display: none; }
+        .celestial-perk-section { display: none; } /* Hidden by default */
     </style>
-</head>
-<body class="main-bg">
+  </head>
+  <body>
+    <div class="row">
+      <!-- Sire Column -->
+      <div class="col-md-6">
+        <h4>Sire</h4>
+        <div class="mb-3">
+            <label for="sire_breed" class="form-label">Breed</label>
+            <select id="sire_breed" class="form-select">
+                <option>Thilyarem</option>
+                <option>Destrier</option>
+                <option>Cyroas</option>
+            </select>
+        </div>
+        <div class="mb-3">
+            <label for="sire_age" class="form-label">Age</label>
+            <select id="sire_age" class="form-select" onchange="checkCelestial()">
+                <option>Hatchling</option>
+                <option>Juvenile</option>
+                <option>Adolescent</option>
+                <option selected>Young Adult</option>
+                <option>Adult</option>
+                <option>Elder</option>
+                <option>Ancient</option>
+                <option>Celestial</option>
+            </select>
+        </div>
+        <div class="mb-3">
+            <label for="sire_mane" class="form-label">Mane</label>
+            <select id="sire_mane" class="form-select" onchange="updatePhenotype('sire')">
+                <option>Natural</option>
+                <option>Curly</option>
+                <option>Sphinx</option>
+                <option>Long</option>
+                <option>Fiery</option>
+            </select>
+        </div>
+        <div class="mb-3">
+            <label for="sire_element" class="form-label">Inborn Element</label>
+            <select id="sire_element" class="form-select">
+                <option>Fire</option><option>Water</option><option>Air</option><option>Earth</option>
+                <option>Metal</option><option>Wood</option><option>Ice</option><option>Lightning</option>
+                <option>Light</option><option>Shadow</option><option>Aether</option><option>Verdant</option>
+            </select>
+        </div>
+         <div class="mb-3">
+            <label for="sire_geno" class="form-label">Genotype</label>
+            <input type="text" id="sire_geno" class="form-control" value="B+/BA M+/M0 K+/K+ Vm" oninput="updatePhenotype('sire')">
+        </div>
+        <div>
+            <label for="sire_pheno" class="form-label">Phenotype</label>
+            <input type="text" id="sire_pheno" class="form-control" readonly>
+        </div>
+      </div>
 
-    <div class="flex h-screen">
-        <!-- Sidebar -->
-        <aside id="sidebar" class="sidebar w-64 flex flex-col flex-shrink-0 p-4 transition-all duration-300 ease-in-out">
-            <div>
-                <h1 class="text-2xl font-bold text-violet-400 mb-6">Design Hub</h1>
-                <nav class="space-y-4">
-                    <div>
-                        <h2 class="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">Core</h2>
-                        <a href="Thilyarem.Chibidreams.net" class="flex items-center p-2 text-gray-300 hover:bg-violet-800 hover:bg-opacity-50 rounded-md">
-                            <i class="fas fa-home w-6"></i>
-                            <span>Website</span>
-                        </a>
-                        <a href="https://discord.gg/ezJDtzthVN" class="flex items-center p-2 text-gray-300 hover:bg-violet-800 hover:bg-opacity-50 rounded-md">
-                            <i class="fab fa-discord w-6"></i>
-                            <span>Official Discord</span>
-                        </a>
-                    </div>
-                    <div>
-                        <h2 class="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">Resources</h2>
-                        <!-- Collapsible Menu Item -->
-                        <div>
-                            <button onclick="toggleMenu('community-menu')" class="w-full flex items-center justify-between p-2 text-gray-300 hover:bg-violet-800 hover:bg-opacity-50 rounded-md">
-                                <div class="flex items-center">
-                                    <i class="fas fa-comment w-6"></i>
-                                    <span>Community</span>
-                                </div>
-                                <i id="community-menu-arrow" class="fas fa-angle-down"></i>
-                            </button>
-                            <div id="community-menu" class="hidden pl-6 mt-1 space-y-1">
-                                <a href="Thilyarem.Chibidreams.net/info/Event" class="block p-2 text-sm text-gray-400 hover:text-white">Event</a>
-                                <a href="Thilyarem.Chibidreams.net/info/Pricing" class="block p-2 text-sm text-gray-400 hover:text-white">Pricing</a>
-                            </div>
-                        </div>
-                        <!-- Another Collapsible Menu -->
-                        <div>
-                            <button onclick="toggleMenu('design-menu')" class="w-full flex items-center justify-between p-2 text-gray-300 hover:bg-violet-800 hover:bg-opacity-50 rounded-md">
-                                <div class="flex items-center">
-                                    <i class="fas fa-palette w-6"></i>
-                                    <span>Breeding</span>
-                                </div>
-                                <i id="design-menu-arrow" class="fas fa-angle-down"></i>
-                            </button>
-                            <div id="design-menu" class="hidden pl-6 mt-1 space-y-1">
-                                <a href="/Thilyarem/Pages/breed.html" class="block p-2 text-sm text-gray-400 hover:text-white">Breeding Roller</a>
-                                <a href="/Thilyarem/Pages/geneupdate.html" class="block p-2 text-sm text-gray-400 hover:text-white">Genetics Roller</a>
-                                <a href="/Thilyarem/Pages/hatchling.html" class="block p-2 text-sm text-gray-400 hover:text-white">Hatchling Roller</a>
-                                <a href="/Thilyarem/Pages/element.html" class="block p-2 text-sm text-gray-400 hover:text-white">Inborn Element Roller</a>
-                            </div>
-                        </div>
-                    </div>
-                    <div>
-                        <h2 class="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">Utilities</h2>
-                        <a href="#" class="flex items-center p-2 text-gray-300 hover:bg-violet-800 hover:bg-opacity-50 rounded-md">
-                            <i class="fas fa-calculator w-6"></i>
-                            <span>EXP Calc</span>
-                        </a>
-                    </div>
-                </nav>
+      <!-- Dam Column -->
+      <div class="col-md-6">
+        <h4 class="mt-4 mt-md-0">Dam</h4>
+        <div class="mb-3">
+            <label for="dam_breed" class="form-label">Breed</label>
+            <select id="dam_breed" class="form-select">
+                <option>Thilyarem</option>
+                <option selected>Destrier</option>
+                <option>Cyroas</option>
+            </select>
+        </div>
+        <div class="mb-3">
+            <label for="dam_age" class="form-label">Age</label>
+            <select id="dam_age" class="form-select" onchange="checkCelestial()">
+                <option>Hatchling</option>
+                <option>Juvenile</option>
+                <option>Adolescent</option>
+                <option selected>Young Adult</option>
+                <option>Adult</option>
+                <option>Elder</option>
+                <option>Ancient</option>
+                <option>Celestial</option>
+            </select>
+        </div>
+        <div class="mb-3">
+            <label for="dam_mane" class="form-label">Mane</label>
+            <select id="dam_mane" class="form-select" onchange="updatePhenotype('dam')">
+                <option>Natural</option>
+                <option>Curly</option>
+                <option>Sphinx</option>
+                <option>Long</option>
+                <option>Fiery</option>
+            </select>
+        </div>
+        <div class="mb-3">
+            <label for="dam_element" class="form-label">Inborn Element</label>
+            <select id="dam_element" class="form-select">
+                <option>Fire</option><option>Water</option><option>Air</option><option>Earth</option>
+                <option>Metal</option><option>Wood</option><option>Ice</option><option>Lightning</option>
+                <option>Light</option><option>Shadow</option><option>Aether</option><option>Verdant</option>
+            </select>
+        </div>
+         <div class="mb-3">
+            <label for="dam_geno" class="form-label">Genotype</label>
+            <input type="text" id="dam_geno" class="form-control" value="BA/BA MB/M0 K+/KB" oninput="updatePhenotype('dam')">
+        </div>
+        <div>
+            <label for="dam_pheno" class="form-label">Phenotype</label>
+            <input type="text" id="dam_pheno" class="form-control" readonly>
+        </div>
+      </div>
+    </div>
+    
+    <hr class="my-4">
+    <h4>Items & Inbreeding</h4>
+    <div class="row">
+        <div class="col-md-6">
+            <div class="form-check">
+              <input class="form-check-input" type="checkbox" value="" id="crescent_herb">
+              <label class="form-check-label" for="crescent_herb">Crescent Herb (+2 pups max)</label>
             </div>
-            <div class="mt-auto text-center text-xs text-gray-500">
-                <p>Background by <a href="https://www.pexels.com/@belle-co-99483/" target="_blank" class="hover:text-violet-300 underline">Draconic-King</a></p>
+            <div class="form-check">
+              <input class="form-check-input" type="checkbox" value="" id="moonlit_herb">
+              <label class="form-check-label" for="moonlit_herb">Moonlit Herb (+mutations/traits, +2 pups max)</label>
             </div>
-        </aside>
-
-        <!-- Main Content -->
-        <div class="flex-1 flex flex-col overflow-hidden">
-            <!-- Top Bar -->
-            <header class="bg-black bg-opacity-60 backdrop-filter backdrop-blur-sm border-b border-gray-800 px-4 sm:px-6 lg:px-8 sticky top-0 z-10">
-                 <div class="flex items-center justify-between h-20">
-                    <div class="flex items-center">
-                        <button id="sidebar-toggle" class="text-gray-300 hover:text-white focus:outline-none">
-                            <i class="fas fa-bars text-xl"></i>
-                        </button>
-                    </div>
-                    <nav class="hidden md:flex items-center space-x-2">
-                        <a href="#" class="shiny-btn text-white px-4 py-2 rounded-md text-sm font-medium">Home</a>
-                        <div class="relative dropdown">
-                            <button class="shiny-btn active text-gray-200 hover:text-white px-4 py-2 rounded-md text-sm font-medium flex items-center">
-                                <span>Genetics</span>
-                                <svg class="w-4 h-4 ml-1" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd"></path></svg>
-                            </button>
-                            <div class="dropdown-menu absolute right-0 mt-2 w-48 rounded-md shadow-lg py-1 z-20">
-                                <a href="#" class="block px-4 py-2 text-sm text-gray-300 hover:bg-violet-600 hover:bg-opacity-40">Markings</a>
-                                <a href="#" class="block px-4 py-2 text-sm text-gray-300 hover:bg-violet-600 hover:bg-opacity-40">Mutations</a>
-                            </div>
-                        </div>
-                        <div class="relative dropdown">
-                            <button class="shiny-btn text-gray-200 hover:text-white px-4 py-2 rounded-md text-sm font-medium flex items-center">
-                                <span>Species</span>
-                                <svg class="w-4 h-4 ml-1" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd"></path></svg>
-                            </button>
-                            <div class="dropdown-menu absolute right-0 mt-2 w-48 rounded-md shadow-lg py-1 z-20">
-                                <a href="#" class="block px-4 py-2 text-sm text-gray-300 hover:bg-violet-600 hover:bg-opacity-40">Thilyarem</a>
-                                <a href="#" class="block px-4 py-2 text-sm text-gray-300 hover:bg-violet-600 hover:bg-opacity-40">Destrier</a>
-                            </div>
-                        </div>
-                    </nav>
-                </div>
-            </header>
-
-            <!-- Content Area -->
-            <main class="flex-1 overflow-y-auto p-6" x-data="breedingRoller" x-init="init()">
-                <div class="box p-6 mb-6">
-                    <h1 class="text-3xl font-bold text-violet-300 mb-6 text-center">Breeding Roller</h1>
-                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                        <!-- Parent A -->
-                        <div class="space-y-4">
-                            <h4 class="text-xl font-bold text-violet-400">Parent A</h4>
-                            <div>
-                                <label for="sire_breed" class="form-label">Breed</label>
-                                <select id="sire_breed" x-model="parentA.species" class="form-select">
-                                    <template x-for="breed in Object.values(data.breeds)"><option :value="breed" x-text="breed"></option></template>
-                                </select>
-                            </div>
-                            <div>
-                                <label for="sire_age" class="form-label">Age</label>
-                                <select id="sire_age" x-model="parentA.age" class="form-select">
-                                    <template x-for="age in Object.values(data.age)"><option :value="age" x-text="age"></option></template>
-                                </select>
-                            </div>
-                            <div>
-                                <label for="sire_mane" class="form-label">Mane</label>
-                                <select id="sire_mane" x-model="parentA.mane" @change="updatePhenotype('A')" class="form-select">
-                                    <template x-for="mane in Object.values(data.manes)"><option :value="mane" x-text="mane"></option></template>
-                                </select>
-                            </div>
-                             <div>
-                                <label for="sire_element" class="form-label">Inborn Element</label>
-                                <select id="sire_element" x-model="parentA.element" class="form-select">
-                                    <template x-for="element in Object.values(data.elements)"><option :value="element" x-text="element"></option></template>
-                                </select>
-                            </div>
-                             <div class="mb-3">
-                                <label for="sire_geno" class="form-label">Genotype</label>
-                                <input type="text" id="sire_geno" x-model.debounce.500ms="parentA.genotype" @input="updatePhenotype('A')" class="form-input" placeholder="e.g., B+/BA M+/M0 K+/K+ Vm">
-                            </div>
-                            <div>
-                                <label for="sire_pheno" class="form-label">Phenotype</label>
-                                <input type="text" id="sire_pheno" x-model="parentA.phenotype" class="form-input bg-gray-800" readonly>
-                            </div>
-                        </div>
-                        <!-- Parent B -->
-                        <div class="space-y-4">
-                             <h4 class="text-xl font-bold text-violet-400">Parent B</h4>
-                            <div>
-                                <label for="dam_breed" class="form-label">Breed</label>
-                                <select id="dam_breed" x-model="parentB.species" class="form-select">
-                                    <template x-for="breed in Object.values(data.breeds)"><option :value="breed" x-text="breed"></option></template>
-                                </select>
-                            </div>
-                            <div>
-                                <label for="dam_age" class="form-label">Age</label>
-                                <select id="dam_age" x-model="parentB.age" class="form-select">
-                                    <template x-for="age in Object.values(data.age)"><option :value="age" x-text="age"></option></template>
-                                </select>
-                            </div>
-                            <div>
-                                <label for="dam_mane" class="form-label">Mane</label>
-                                <select id="dam_mane" x-model="parentB.mane" @change="updatePhenotype('B')" class="form-select">
-                                    <template x-for="mane in Object.values(data.manes)"><option :value="mane" x-text="mane"></option></template>
-                                </select>
-                            </div>
-                             <div>
-                                <label for="dam_element" class="form-label">Inborn Element</label>
-                                <select id="dam_element" x-model="parentB.element" class="form-select">
-                                    <template x-for="element in Object.values(data.elements)"><option :value="element" x-text="element"></option></template>
-                                </select>
-                            </div>
-                             <div class="mb-3">
-                                <label for="dam_geno" class="form-label">Genotype</label>
-                                <input type="text" id="dam_geno" x-model.debounce.500ms="parentB.genotype" @input="updatePhenotype('B')" class="form-control" placeholder="e.g., BA/BA MB/M0 K+/KB">
-                            </div>
-                            <div>
-                                <label for="dam_pheno" class="form-label">Phenotype</label>
-                                <input type="text" id="dam_pheno" x-model="parentB.phenotype" class="form-control bg-gray-800" readonly>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <hr class="my-6 border-gray-700">
-                    
-                    <h4 class="text-xl font-bold text-violet-400 mb-4">Items & Inbreeding</h4>
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
-                        <div class="space-y-3">
-                            <div class="flex items-center">
-                              <input id="crescent_herb" x-model="items.crescent_herb" type="checkbox" class="h-4 w-4 rounded border-gray-300 text-violet-600 focus:ring-violet-500">
-                              <label for="crescent_herb" class="ml-3 block text-sm font-medium text-gray-300">Crescent Herb (+2 pups max)</label>
-                            </div>
-                            <div class="flex items-center">
-                              <input id="moonlit_herb" x-model="items.moonlit_herb" type="checkbox" class="h-4 w-4 rounded border-gray-300 text-violet-600 focus:ring-violet-500">
-                              <label for="moonlit_herb" class="ml-3 block text-sm font-medium text-gray-300">Moonlit Herb (+mutations/traits, +2 pups max)</label>
-                            </div>
-                        </div>
-                        <div>
-                            <label for="coi" class="form-label">Inbreeding Level</label>
-                            <select id="coi" x-model="coi" class="form-select">
-                                <option>None</option>
-                                <option>Slight</option>
-                                <option>Medium</option>
-                                <option>High</option>
-                            </select>
-                        </div>
-                    </div>
-                    
-                    <div x-show="parentA.age === 'Celestial' || parentB.age === 'Celestial'" x-cloak class="mt-6">
-                        <hr class="my-4 border-gray-700">
-                        <h4 class="text-xl font-bold text-violet-400">Celestial Perk</h4>
-                        <p class="text-sm text-gray-400">One parent is Celestial. Please choose ONE hereditary trait.</p>
-                        <select id="celestial_perk" x-model="items.celestial_perk" class="form-select mt-2">
-                            <option>None</option>
-                            <option>Divine Blessing</option>
-                            <option>Savage Boon</option>
-                            <option>Prismatic Aura</option>
-                        </select>
-                    </div>
-
-                    <div class="flex justify-end gap-4 mt-8">
-                        <button @click="reset()" class="py-2 px-4 rounded-md text-white font-semibold bg-gray-600 hover:bg-gray-500 transition-colors">Reset</button>
-                        <button @click="rollBreeding()" class="shiny-btn text-white font-bold py-2 px-6 rounded-md" :disabled="!parentA.genotype || !parentB.genotype">Hatch Time!</button>
-                    </div>
-
-                    <!-- Results Section -->
-                    <div x-show="resultsHtml" x-cloak class="mt-8 border-t border-gray-700 pt-6">
-                        <h3 class="text-2xl font-bold text-violet-300 mb-4">Results</h3>
-                        <div x-html="resultsHtml" class="space-y-4"></div>
-                    </div>
-                </div>
-            </main>
+        </div>
+        <div class="col-md-6">
+            <label for="coi" class="form-label">Inbreeding Level</label>
+            <select id="coi" class="form-select">
+                <option>None</option>
+                <option>Slight</option>
+                <option>Medium</option>
+                <option>High</option>
+            </select>
         </div>
     </div>
 
-    <script type="module" src="/js/Breeding_Roller.js"></script>
+    <!-- Celestial Perk Section -->
+    <div id="celestialPerkSection" class="mt-4 celestial-perk-section">
+        <hr>
+        <h4>Celestial Perk</h4>
+        <p><small>One parent is Celestial. Please choose ONE hereditary trait.</small></p>
+        <select id="celestial_perk" class="form-select">
+            <option>None</option>
+            <option>Divine Blessing</option>
+            <option>Savage Boon</option>
+            <option>Prismatic Aura</option>
+        </select>
+    </div>
+
+    <!-- Button Row -->
+    <div class="d-flex justify-content-end mt-4">
+        <button id="resetButton" class="btn btn-secondary me-2">Reset</button>
+        <button id="rollButton" class="btn btn-primary">Hatch Time!</button>
+    </div>
+    
+    <hr class="my-4">
+
+    <!-- Results Section -->
+    <h4>Results</h4>
+    <div id="loading" style="display: none;">Calculating...</div>
+    <div id="resultsWrapper" style="display: none;">
+        <div id="results" class="space-y-4"></div>
+    </div>
+
     <script>
-        // --- UI Interaction Scripts ---
-        function toggleMenu(menuId) {
-            const menu = document.getElementById(menuId);
-            const arrow = document.getElementById(menuId + '-arrow');
-            menu.classList.toggle('hidden');
-            arrow.classList.toggle('fa-angle-down');
-            arrow.classList.toggle('fa-angle-up');
+      document.addEventListener("DOMContentLoaded", function() {
+        document.getElementById("rollButton").addEventListener("click", runBreeding);
+        document.getElementById("resetButton").addEventListener("click", resetForm);
+        
+        updatePhenotype('sire');
+        updatePhenotype('dam');
+        checkCelestial();
+      });
+
+      function resetForm() {
+        document.getElementById("sire_breed").value = 'Thilyarem';
+        document.getElementById("sire_age").value = 'Young Adult';
+        document.getElementById("sire_mane").value = 'Natural';
+        document.getElementById("sire_element").value = 'Fire';
+        document.getElementById("sire_geno").value = 'B+/BA M+/M0 K+/K+ Vm';
+        document.getElementById("dam_breed").value = 'Destrier';
+        document.getElementById("dam_age").value = 'Young Adult';
+        document.getElementById("dam_mane").value = 'Natural';
+        document.getElementById("dam_element").value = 'Fire';
+        document.getElementById("dam_geno").value = 'BA/BA MB/M0 K+/KB';
+        document.getElementById("crescent_herb").checked = false;
+        document.getElementById("moonlit_herb").checked = false;
+        document.getElementById("coi").value = 'None';
+        document.getElementById("celestial_perk").value = 'None';
+        updatePhenotype('sire');
+        updatePhenotype('dam');
+        checkCelestial();
+        document.getElementById("results").innerHTML = 'Enter parent data and click "Hatch Time!" to see results.';
+        document.getElementById("resultsWrapper").style.display = "none";
+      }
+      function checkCelestial() {
+        const sireAge = document.getElementById("sire_age").value;
+        const damAge = document.getElementById("dam_age").value;
+        const perkSection = document.getElementById("celestialPerkSection");
+        if (sireAge === 'Celestial' || damAge === 'Celestial') {
+          perkSection.style.display = 'block';
+        } else {
+          perkSection.style.display = 'none';
         }
-        const sidebarToggle = document.getElementById('sidebar-toggle');
-        sidebarToggle.addEventListener('click', () => {
-            const sidebar = document.getElementById('sidebar');
-            sidebar.classList.toggle('w-64');
-            sidebar.classList.toggle('w-0');
-            sidebar.classList.toggle('p-4');
-            sidebar.classList.toggle('p-0');
-        });
+      }
+
+      function updatePhenotype(parentPrefix) {
+        const genoInput = document.getElementById(parentPrefix + "_geno");
+        const maneInput = document.getElementById(parentPrefix + "_mane");
+        const phenoInput = document.getElementById(parentPrefix + "_pheno");
+        
+        google.script.run
+          .withSuccessHandler((phenotype) => {
+            phenoInput.value = phenotype;
+          })
+          .getPhenotypeForSidebar(genoInput.value, maneInput.value);
+      }
+
+      function runBreeding() {
+        document.getElementById("loading").style.display = "block";
+        document.getElementById("results").innerHTML = "";
+        document.getElementById("resultsWrapper").style.display = "none";
+
+        const parentA = {
+          species: document.getElementById("sire_breed").value,
+          age: document.getElementById("sire_age").value,
+          mane: document.getElementById("sire_mane").value,
+          element: document.getElementById("sire_element").value,
+          genotype: document.getElementById("sire_geno").value,
+        };
+        const parentB = {
+          species: document.getElementById("dam_breed").value,
+          age: document.getElementById("dam_age").value,
+          mane: document.getElementById("dam_mane").value,
+          element: document.getElementById("dam_element").value,
+          genotype: document.getElementById("dam_geno").value,
+        };
+        const items = {
+          crescent_herb: document.getElementById("crescent_herb").checked,
+          moonlit_herb: document.getElementById("moonlit_herb").checked,
+          celestial_perk: document.getElementById("celestial_perk").value,
+        };
+        const coi = document.getElementById("coi").value;
+
+        google.script.run
+          .withSuccessHandler(updateSidebar)
+          .withFailureHandler(showError)
+          .runBreedingCalculations(parentA, parentB, items, coi);
+      }
+
+      function updateSidebar(response) {
+        document.getElementById("loading").style.display = "none";
+        if (response.error) {
+          showError({ message: response.error });
+        } else {
+          document.getElementById("results").innerHTML = response.resultsHtml;
+          document.getElementById("resultsWrapper").style.display = "block";
+        }
+      }
+
+      function showError(error) {
+        document.getElementById("loading").style.display = "none";
+        document.getElementById("results").innerHTML = '<div class="alert alert-danger">' + error.message + '</div>';
+        document.getElementById("resultsWrapper").style.display = "block";
+      }
     </script>
-</body>
+  </body>
 </html>
