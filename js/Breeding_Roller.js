@@ -1,3 +1,49 @@
+/**
+ * @OnlyCurrentDoc
+ * This script adds a custom menu to the Google Sheet for a breeding roller.
+ */
+
+function onOpen() {
+  SpreadsheetApp.getUi()
+      .createMenu('Breeding Roller')
+      .addItem('Open Roller', 'showDialog')
+      .addToUi();
+}
+
+function showDialog() {
+  var html = HtmlService.createHtmlOutputFromFile('breedroller')
+      .setWidth(1100) // Increased width for better display
+      .setHeight(750); 
+  SpreadsheetApp.getUi().showModalDialog(html, 'Breeding Roller');
+}
+
+function runBreedingCalculations(parentA, parentB, items, coiString) {
+  try {
+    GeneticsService.load();
+    const coiMap = { "None": 0, "Slight": 15, "Medium": 30, "High": 50 };
+    const coi = coiMap[coiString] || 0;
+
+    const possibilities = calculatePossibilities(parentA, parentB, items, coi);
+    const results = rollOffspring(possibilities, parentA, parentB, items, coi);
+    return {
+      possibilities: possibilities,
+      resultsHtml: results
+    };
+  } catch (e) {
+    return { error: e.toString() };
+  }
+}
+
+function getPhenotypeForSidebar(genotype, mane) {
+    if (!genotype) return '';
+    GeneticsService.load();
+    const genes = GenotypeHelper.sliceGenotype(genotype);
+    return PhenotypeHelper.getPhenotype(genes, GeneticsService.phenotypes, mane);
+}
+
+
+// --- CONSOLIDATED JAVASCRIPT LOGIC ---
+
 // --- Enums & Data ---
 const Sex = { MALE: 'Male', FEMALE: 'Female' };
 const Breed = { THIL: 'Thilyarem', DEST: 'Destrier', CYROA: 'Cyroas' };
@@ -45,11 +91,11 @@ const GeneMap = {
     JADE: { TEXT: 'Jade', TYPE: GeneType.BASE, EXPRESSED_SETS: [['JaJa']], CARRIED_SETS: [['Ja']] },
     VIOLET: { TEXT: 'Violet', TYPE: GeneType.BASE, EXPRESSED_SETS: [['VlVl']], CARRIED_SETS: [['Vl']] },
     AMBER: { TEXT: 'Amber', TYPE: GeneType.BASE, EXPRESSED_SETS: [['AmAm']], CARRIED_SETS: [['Am']] },
-    NATURAL: { TEXT: 'Natural', TYPE: GeneType.MANE, RARITY: 'common', EXPRESSED_SETS: [['Natural']] },
-    CURLY: { TEXT: 'Curly', TYPE: GeneType.MANE, RARITY: 'uncommon', EXPRESSED_SETS: [['Curly']] },
-    SPHINX: { TEXT: 'Sphinx', TYPE: GeneType.MANE, RARITY: 'uncommon', EXPRESSED_SETS: [['Sphinx']] },
-    LONG: { TEXT: 'Long', TYPE: GeneType.MANE, RARITY: 'rare', EXPRESSED_SETS: [['Long']] },
-    FIERY: { TEXT: 'Fiery', TYPE: GeneType.MANE, RARITY: 'rare', EXPRESSED_SETS: [['Fiery']] },
+    NATURAL: { TEXT: 'Natural', TYPE: GeneType.MANE, RARITY: 'common' },
+    CURLY: { TEXT: 'Curly', TYPE: GeneType.MANE, RARITY: 'uncommon' },
+    SPHINX: { TEXT: 'Sphinx', TYPE: GeneType.MANE, RARITY: 'uncommon' },
+    LONG: { TEXT: 'Long', TYPE: GeneType.MANE, RARITY: 'rare' },
+    FIERY: { TEXT: 'Fiery', TYPE: GeneType.MANE, RARITY: 'rare' },
     HORNED: { TEXT: 'Horned', TYPE: GeneType.TRAIT, RARITY: 'uncommon', EXPRESSED_SETS: [['HrHr'], ['Hr']] },
     FANGED: { TEXT: 'Fanged', TYPE: GeneType.TRAIT, RARITY: 'uncommon', EXPRESSED_SETS: [['FgFg'], ['Fg']] },
     SABRETEETH: { TEXT: 'Sabreteeth', TYPE: GeneType.TRAIT, RARITY: 'rare', EXPRESSED_SETS: [['StSt'], ['St']] },
