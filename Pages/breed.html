@@ -1,261 +1,505 @@
-
 <!DOCTYPE html>
-<html>
-  <head>
-    <base target="_top">
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
-    <style>
-      body {
-        padding: 1.5rem;
-        background-color: #f8f9fa;
-        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
-      }
-      .form-label {
-        font-weight: 600;
-        margin-bottom: 0.5rem;
-      }
-      .card {
-        border-radius: 0.5rem;
-        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-      }
-      #results {
-        margin-top: 1.5rem;
-        padding: 1.5rem;
-        border-radius: 0.5rem;
-        background-color: #fff;
-        min-height: 150px;
-      }
-      #loading {
-        display: none;
-        text-align: center;
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <!-- Tailwind CSS for styling -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Google Fonts: Inter -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    /* Custom styles */
+    body {
+      font-family: 'Inter', sans-serif;
+      background-color: #f8fafc; /* gray-50 */
+    }
+    .parent-card {
+      background-color: white;
+      border-radius: 0.75rem; /* rounded-xl */
+      border: 1px solid #e5e7eb; /* gray-200 */
+      padding: 1.5rem;
+      box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+    }
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 0.75rem 1.5rem;
+      border-radius: 0.5rem; /* rounded-lg */
+      font-weight: 600;
+      transition: all 0.2s ease-in-out;
+      cursor: pointer;
+      border: 1px solid transparent;
+    }
+    .btn-primary {
+      background-color: #4f46e5; /* indigo-600 */
+      color: white;
+    }
+    .btn-primary:hover {
+      background-color: #4338ca; /* indigo-700 */
+    }
+    .btn-secondary {
+      background-color: #e5e7eb; /* gray-200 */
+      color: #1f2937; /* gray-800 */
+      border-color: #d1d5db; /* gray-300 */
+    }
+    .btn-secondary:hover {
+      background-color: #d1d5db; /* gray-300 */
+    }
+    .form-input, .form-select {
+      width: 100%;
+      border-radius: 0.5rem; /* rounded-lg */
+      border: 1px solid #d1d5db; /* gray-300 */
+      padding: 0.5rem 0.75rem;
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+    .form-input:focus, .form-select:focus {
+      outline: none;
+      border-color: #4f46e5; /* indigo-600 */
+      box-shadow: 0 0 0 2px #c7d2fe; /* indigo-200 */
+    }
+    .loader {
+      border: 4px solid #f3f3f3; /* gray-200 */
+      border-top: 4px solid #4f46e5; /* indigo-600 */
+      border-radius: 50%;
+      width: 24px;
+      height: 24px;
+      animation: spin 1s linear infinite;
+      margin-right: 8px;
+    }
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+    .result-card {
+        background-color: #f9fafb; /* gray-50 */
+        border: 1px solid #e5e7eb; /* gray-200 */
+        border-radius: 0.5rem; /* rounded-lg */
         padding: 1rem;
-        color: #6c757d;
-      }
-      .celestial-perk-section {
-        display: none;
-      }
-      .form-control, .form-select {
-        border-radius: 0.375rem;
-        transition: border-color 0.2s ease-in-out;
-      }
-      .form-control:focus, .form-select:focus {
-        border-color: #0d6efd;
-        box-shadow: 0 0 0 0.2rem rgba(13, 110, 253, 0.25);
-      }
-      .btn-primary, .btn-secondary {
-        padding: 0.5rem 1.5rem;
-        border-radius: 0.375rem;
-      }
-      .alert {
         margin-top: 1rem;
-      }
-      .tooltip-inner {
-        background-color: #343a40;
-        color: #fff;
-      }
-      @media (max-width: 768px) {
-        .col-md-6 {
-          margin-bottom: 1.5rem;
-        }
-      }
-    </style>
-  </head>
-  <body>
-    <div class="container">
-      <h2 class="mb-4 text-center">Breeding Roller</h2>
-      <div class="row g-4">
-        <!-- Sire Column -->
-        <div class="col-md-6">
-          <div class="card p-3">
-            <h4 class="mb-3">Sire</h4>
-            <div class="mb-3">
-              <label for="sire_breed" class="form-label">Breed</label>
-              <select id="sire_breed" class="form-select" aria-label="Sire Breed">
-                <option value="Thilyarem" selected>Thilyarem</option>
-                <option value="Destrier">Destrier</option>
-                <option value="Cyroas">Cyroas</option>
-              </select>
-            </div>
-            <div class="mb-3">
-              <label for="sire_age" class="form-label">Age</label>
-              <select id="sire_age" class="form-select" onchange="checkCelestial()" aria-label="Sire Age">
-                <option value="Hatchling">Hatchling</option>
-                <option value="Juvenile">Juvenile</option>
-                <option value="Adolescent">Adolescent</option>
-                <option value="Young Adult" selected>Young Adult</option>
-                <option value="Adult">Adult</option>
-                <option value="Elder">Elder</option>
-                <option value="Ancient">Ancient</option>
-                <option value="Celestial">Celestial</option>
-              </select>
-            </div>
-            <div class="mb-3">
-              <label for="sire_mane" class="form-label">Mane</label>
-              <select id="sire_mane" class="form-select" onchange="updatePhenotype('sire')" aria-label="Sire Mane">
-                <option value="Natural" selected>Natural</option>
-                <option value="Curly">Curly</option>
-                <option value="Sphinx">Sphinx</option>
-                <option value="Long">Long</option>
-                <option value="Fiery">Fiery</option>
-              </select>
-            </div>
-            <div class="mb-3">
-              <label for="sire_element" class="form-label">Inborn Element</label>
-              <select id="sire_element" class="form-select" aria-label="Sire Element">
-                <option value="Fire" selected>Fire</option>
-                <option value="Water">Water</option>
-                <option value="Air">Air</option>
-                <option value="Earth">Earth</option>
-                <option value="Metal">Metal</option>
-                <option value="Wood">Wood</option>
-                <option value="Ice">Ice</option>
-                <option value="Lightning">Lightning</option>
-                <option value="Light">Light</option>
-                <option value="Shadow">Shadow</option>
-                <option value="Aether">Aether</option>
-                <option value="Verdant">Verdant</option>
-              </select>
-            </div>
-            <div class="mb-3">
-              <label for="sire_geno" class="form-label">Genotype <span data-bs-toggle="tooltip" data-bs-placement="top" title="Enter alleles (e.g., B+/BA M+/M0 Bt Sp). Use / for pairs or single alleles, space-separated. Valid alleles: B+, BA, BG, BW, M+, MB, M0, K+, KB, Vm, Ja, Vl, Am, Bt, Cl, In, Mnt, Pg, Pt, Ro, Sb, Si, Stn, Ov, Apl, Brn, Dpl, Bng, Mrl, Pnd, Py, Rsc, Sp, Di, Gl, Ir, Pb, Tk, Stm, Sd, Wd, Hr, Fg, St">ℹ️</span></label>
-              <input type="text" id="sire_geno" class="form-control" value="B+/BA M+/M0 K+/K+ Vm Sp" oninput="updatePhenotype('sire')" aria-label="Sire Genotype">
-            </div>
-            <div class="mb-3">
-              <label for="sire_pheno" class="form-label">Phenotype</label>
-              <input type="text" id="sire_pheno" class="form-control" readonly aria-label="Sire Phenotype">
-            </div>
-          </div>
-        </div>
+    }
+    .result-card h5 {
+        font-size: 1.125rem; /* text-lg */
+        font-weight: 600;
+        color: #111827; /* gray-900 */
+        margin-bottom: 0.5rem;
+    }
+    .result-card p {
+        color: #4b5563; /* gray-600 */
+        margin-bottom: 0.25rem;
+    }
+    .result-card strong {
+        color: #374151; /* gray-700 */
+    }
+  </style>
+</head>
+<body class="p-4 md:p-6">
 
-        <!-- Dam Column -->
-        <div class="col-md-6">
-          <div class="card p-3">
-            <h4 class="mb-3">Dam</h4>
-            <div class="mb-3">
-              <label for="dam_breed" class="form-label">Breed</label>
-              <select id="dam_breed" class="form-select" aria-label="Dam Breed">
-                <option value="Thilyarem" selected>Thilyarem</option>
-                <option value="Destrier">Destrier</option>
-                <option value="Cyroas">Cyroas</option>
-              </select>
-            </div>
-            <div class="mb-3">
-              <label for="dam_age" class="form-label">Age</label>
-              <select id="dam_age" class="form-select" onchange="checkCelestial()" aria-label="Dam Age">
-                <option value="Hatchling">Hatchling</option>
-                <option value="Juvenile">Juvenile</option>
-                <option value="Adolescent">Adolescent</option>
-                <option value="Young Adult" selected>Young Adult</option>
-                <option value="Adult">Adult</option>
-                <option value="Elder">Elder</option>
-                <option value="Ancient">Ancient</option>
-                <option value="Celestial">Celestial</option>
-              </select>
-            </div>
-            <div class="mb-3">
-              <label for="dam_mane" class="form-label">Mane</label>
-              <select id="dam_mane" class="form-select" onchange="updatePhenotype('dam')" aria-label="Dam Mane">
-                <option value="Natural" selected>Natural</option>
-                <option value="Curly">Curly</option>
-                <option value="Sphinx">Sphinx</option>
-                <option value="Long">Long</option>
-                <option value="Fiery">Fiery</option>
-              </select>
-            </div>
-            <div class="mb-3">
-              <label for="dam_element" class="form-label">Inborn Element</label>
-              <select id="dam_element" class="form-select" aria-label="Dam Element">
-                <option value="Fire" selected>Fire</option>
-                <option value="Water">Water</option>
-                <option value="Air">Air</option>
-                <option value="Earth">Earth</option>
-                <option value="Metal">Metal</option>
-                <option value="Wood">Wood</option>
-                <option value="Ice">Ice</option>
-                <option value="Lightning">Lightning</option>
-                <option value="Light">Light</option>
-                <option value="Shadow">Shadow</option>
-                <option value="Aether">Aether</option>
-                <option value="Verdant">Verdant</option>
-              </select>
-            </div>
-            <div class="mb-3">
-              <label for="dam_geno" class="form-label">Genotype <span data-bs-toggle="tooltip" data-bs-placement="top" title="Enter alleles (e.g., BA/BA MB/M0 Sp Bt). Use / for pairs or single alleles, space-separated. Valid alleles: B+, BA, BG, BW, M+, MB, M0, K+, KB, Vm, Ja, Vl, Am, Bt, Cl, In, Mnt, Pg, Pt, Ro, Sb, Si, Stn, Ov, Apl, Brn, Dpl, Bng, Mrl, Pnd, Py, Rsc, Sp, Di, Gl, Ir, Pb, Tk, Stm, Sd, Wd, Hr, Fg, St">ℹ️</span></label>
-              <input type="text" id="dam_geno" class="form-control" value="BA/BA MB/MB K+/KB Sp Bt" oninput="updatePhenotype('dam')" aria-label="Dam Genotype">
-            </div>
-            <div class="mb-3">
-              <label for="dam_pheno" class="form-label">Phenotype</label>
-              <input type="text" id="dam_pheno" class="form-control" readonly aria-label="Dam Phenotype">
-            </div>
+  <div class="max-w-7xl mx-auto">
+    <h1 class="text-3xl font-bold text-gray-800 mb-2">Breeding Roller</h1>
+    <p class="text-gray-500 mb-6">Enter the details for the Sire and Dam to calculate breeding possibilities and roll for offspring.</p>
+
+    <!-- Parent Input Section -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+      <!-- Sire Card -->
+      <div id="sire-card" class="parent-card">
+        <h2 class="text-2xl font-bold text-indigo-600 mb-4">Sire</h2>
+        <div class="space-y-4">
+          <div>
+            <label for="sire-species" class="block text-sm font-medium text-gray-700 mb-1">Species</label>
+            <select id="sire-species" class="form-select"></select>
+          </div>
+          <div>
+            <label for="sire-age" class="block text-sm font-medium text-gray-700 mb-1">Age</label>
+            <select id="sire-age" class="form-select"></select>
+          </div>
+          <div>
+            <label for="sire-element" class="block text-sm font-medium text-gray-700 mb-1">Element</label>
+            <select id="sire-element" class="form-select"></select>
+          </div>
+          <div>
+            <label for="sire-mane" class="block text-sm font-medium text-gray-700 mb-1">Mane</label>
+            <select id="sire-mane" class="form-select"></select>
+          </div>
+          <div>
+            <label for="sire-genotype" class="block text-sm font-medium text-gray-700 mb-1">Genotype</label>
+            <textarea id="sire-genotype" rows="3" class="form-input" placeholder="e.g., B+/BA Vm/n Sp/Sp"></textarea>
+            <div id="sire-phenotype" class="mt-2 text-sm text-gray-600 p-2 bg-gray-100 rounded-md min-h-[40px]"></div>
           </div>
         </div>
       </div>
 
-      <hr class="my-4">
-      <h4>Items & Inbreeding</h4>
-      <div class="row g-4">
-        <div class="col-md-6">
-          <div class="card p-3">
-            <div class="form-check mb-2">
-              <input class="form-check-input" type="checkbox" id="crescent_herb" aria-label="Crescent Herb">
-              <label class="form-check-label" for="crescent_herb">Crescent Herb (+2 pups max)</label>
-            </div>
-            <div class="form-check">
-              <input class="form-check-input" type="checkbox" id="moonlit_herb" aria-label="Moonlit Herb">
-              <label class="form-check-label" for="moonlit_herb">Moonlit Herb (+mutations/traits, +2 pups max)</label>
-            </div>
+      <!-- Dam Card -->
+      <div id="dam-card" class="parent-card">
+        <h2 class="text-2xl font-bold text-pink-600 mb-4">Dam</h2>
+        <div class="space-y-4">
+          <div>
+            <label for="dam-species" class="block text-sm font-medium text-gray-700 mb-1">Species</label>
+            <select id="dam-species" class="form-select"></select>
+          </div>
+          <div>
+            <label for="dam-age" class="block text-sm font-medium text-gray-700 mb-1">Age</label>
+            <select id="dam-age" class="form-select"></select>
+          </div>
+          <div>
+            <label for="dam-element" class="block text-sm font-medium text-gray-700 mb-1">Element</label>
+            <select id="dam-element" class="form-select"></select>
+          </div>
+          <div>
+            <label for="dam-mane" class="block text-sm font-medium text-gray-700 mb-1">Mane</label>
+            <select id="dam-mane" class="form-select"></select>
+          </div>
+          <div>
+            <label for="dam-genotype" class="block text-sm font-medium text-gray-700 mb-1">Genotype</label>
+            <textarea id="dam-genotype" rows="3" class="form-input" placeholder="e.g., B+/B+ M0/M0 Pb/n"></textarea>
+            <div id="dam-phenotype" class="mt-2 text-sm text-gray-600 p-2 bg-gray-100 rounded-md min-h-[40px]"></div>
           </div>
         </div>
-        <div class="col-md-6">
-          <div class="card p-3">
-            <label for="coi" class="form-label">Inbreeding Level</label>
-            <select id="coi" class="form-select" aria-label="Inbreeding Level">
-              <option value="None" selected>None</option>
-              <option value="Slight">Slight</option>
-              <option value="Medium">Medium</option>
-              <option value="High">High</option>
-            </select>
-          </div>
-        </div>
-      </div>
-
-      <!-- Celestial Perk Section -->
-      <div id="celestialPerkSection" class="mt-4 celestial-perk-section">
-        <hr class="my-4">
-        <div class="card p-3">
-          <h4 class="mb-3">Celestial Perk</h4>
-          <p class="text-muted mb-2"><small>One parent is Celestial. Please choose ONE hereditary trait.</small></p>
-          <select id="celestial_perk" class="form-select" aria-label="Celestial Perk">
-            <option value="None" selected>None</option>
-            <option value="Divine Blessing">Divine Blessing</option>
-            <option value="Savage Boon">Savage Boon</option>
-            <option value="Prismatic Aura">Prismatic Aura</option>
-          </select>
-        </div>
-      </div>
-
-      <!-- Button Row -->
-      <div class="d-flex justify-content-end mt-4 gap-2">
-        <button id="resetButton" class="btn btn-secondary">Reset</button>
-        <button id="rollButton" class="btn btn-primary">Hatch Time!</button>
-      </div>
-
-      <hr class="my-4">
-      <h4>Results</h4>
-      <div id="loading">
-        <div class="spinner-border text-primary" role="status">
-          <span class="visually-hidden">Calculating...</span>
-        </div>
-        <span class="ms-2">Calculating...</span>
-      </div>
-      <div id="resultsWrapper" style="display: none;">
-        <div id="results" class="card p-3"></div>
       </div>
     </div>
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
-    <script src="breedroller.js"></script>
-  </body>
+    <!-- Items and COI Section -->
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+        <div class="parent-card">
+            <h3 class="text-xl font-semibold text-gray-800 mb-3">Breeding Items & Perks</h3>
+            <div class="space-y-2">
+                <label class="flex items-center">
+                    <input type="checkbox" id="item-crescent-herb" class="h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500">
+                    <span class="ml-2 text-gray-700">Crescent Herb</span>
+                </label>
+                <label class="flex items-center">
+                    <input type="checkbox" id="item-moonlit-herb" class="h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500">
+                    <span class="ml-2 text-gray-700">Moonlit Herb</span>
+                </label>
+                <label class="flex items-center">
+                    <input type="checkbox" id="item-celestial-perk" class="h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500">
+                    <span class="ml-2 text-gray-700">Celestial Perk (Savage Boon)</span>
+                </label>
+            </div>
+        </div>
+        <div class="parent-card">
+            <h3 class="text-xl font-semibold text-gray-800 mb-3">Inbreeding</h3>
+            <div>
+                <label for="coi" class="block text-sm font-medium text-gray-700 mb-1">Coefficient of Inbreeding (COI)</label>
+                <select id="coi" class="form-select">
+                    <option>None</option>
+                    <option>Slight</option>
+                    <option>Medium</option>
+                    <option>High</option>
+                </select>
+            </div>
+        </div>
+    </div>
+
+    <!-- Action Buttons -->
+    <div class="flex items-center justify-center space-x-4 mb-6">
+      <button id="calculate-btn" class="btn btn-primary">
+        <span class="button-text">Calculate Possibilities</span>
+        <div class="loader hidden"></div>
+      </button>
+      <button id="roll-btn" class="btn btn-secondary" disabled>
+        <span class="button-text">Roll Offspring</span>
+        <div class="loader hidden"></div>
+      </button>
+    </div>
+
+    <!-- Results Section -->
+    <div id="results-container" class="space-y-6">
+      <div id="possibilities-output" class="parent-card hidden"></div>
+      <div id="offspring-output" class="parent-card hidden"></div>
+    </div>
+
+  </div>
+
+  <script>
+    let geneticData = null;
+    let breedingPossibilities = null;
+
+    // --- INITIALIZATION ---
+    document.addEventListener('DOMContentLoaded', () => {
+      showSpinner('calculate-btn');
+      google.script.run
+        .withSuccessHandler(data => {
+          geneticData = data;
+          populateDropdowns(data);
+          setupEventListeners();
+          hideSpinner('calculate-btn');
+        })
+        .withFailureHandler(handleError)
+        .getGeneticData();
+    });
+
+    /**
+     * Populates all select dropdowns with data from the backend.
+     * @param {object} data - The genetic data object.
+     */
+    function populateDropdowns(data) {
+      const populate = (elementId, options, defaultKey = null) => {
+        const select = document.getElementById(elementId);
+        select.innerHTML = '';
+        for (const key in options) {
+          const option = document.createElement('option');
+          option.value = options[key];
+          option.textContent = options[key];
+          select.appendChild(option);
+        }
+        if (defaultKey) {
+          select.value = options[defaultKey];
+        }
+      };
+
+      populate('sire-species', data.breeds, 'THIL');
+      populate('dam-species', data.breeds, 'THIL');
+      populate('sire-age', data.ages, 'YOUNG_ADULT');
+      populate('dam-age', data.ages, 'YOUNG_ADULT');
+      populate('sire-element', data.elements, 'FIRE');
+      populate('dam-element', data.elements, 'FIRE');
+      populate('sire-mane', data.manes, 'Natural');
+      populate('dam-mane', data.manes, 'Natural');
+    }
+
+    /**
+     * Sets up all the event listeners for the UI.
+     */
+    function setupEventListeners() {
+      document.getElementById('calculate-btn').addEventListener('click', runCalculations);
+      document.getElementById('roll-btn').addEventListener('click', rollForOffspring);
+
+      // Phenotype calculation on input change
+      const sireGenotype = document.getElementById('sire-genotype');
+      const sireMane = document.getElementById('sire-mane');
+      const damGenotype = document.getElementById('dam-genotype');
+      const damMane = document.getElementById('dam-mane');
+
+      sireGenotype.addEventListener('input', () => updatePhenotype('sire'));
+      sireMane.addEventListener('change', () => updatePhenotype('sire'));
+      damGenotype.addEventListener('input', () => updatePhenotype('dam'));
+      damMane.addEventListener('change', () => updatePhenotype('dam'));
+    }
+
+    // --- PHENOTYPE CALCULATION ---
+    let phenotypeTimeout = null;
+    /**
+     * Updates the phenotype display for a parent after a short delay.
+     * @param {string} parent - 'sire' or 'dam'.
+     */
+    function updatePhenotype(parent) {
+        clearTimeout(phenotypeTimeout);
+        phenotypeTimeout = setTimeout(() => {
+            const genotype = document.getElementById(`${parent}-genotype`).value;
+            const mane = document.getElementById(`${parent}-mane`).value;
+            const phenotypeDiv = document.getElementById(`${parent}-phenotype`);
+
+            if (genotype.trim() === '') {
+                phenotypeDiv.innerHTML = '';
+                return;
+            }
+            
+            phenotypeDiv.innerHTML = '<div class="flex items-center"><div class="loader !w-4 !h-4 !border-2"></div><span>Calculating...</span></div>';
+
+            google.script.run
+                .withSuccessHandler(phenotype => {
+                    phenotypeDiv.textContent = phenotype;
+                })
+                .withFailureHandler(error => {
+                    phenotypeDiv.textContent = `Error: ${error.message}`;
+                })
+                .getPhenotypeForSidebar(genotype, mane);
+        }, 500); // Debounce for 500ms
+    }
+
+    // --- CORE LOGIC ---
+    /**
+     * Gathers all inputs and runs the main breeding calculations.
+     */
+    function runCalculations() {
+      const parentA = getParentData('sire');
+      const parentB = getParentData('dam');
+      const items = getItemsData();
+      const coi = document.getElementById('coi').value;
+
+      if (!parentA.genotype || !parentB.genotype) {
+        alert('Please enter a genotype for both parents.');
+        return;
+      }
+
+      showSpinner('calculate-btn');
+      document.getElementById('roll-btn').disabled = true;
+
+      google.script.run
+        .withSuccessHandler(response => {
+          hideSpinner('calculate-btn');
+          if (response.error) {
+            handleError({ message: response.error });
+            return;
+          }
+          breedingPossibilities = response.possibilities;
+          displayPossibilities(breedingPossibilities);
+          document.getElementById('roll-btn').disabled = false;
+        })
+        .withFailureHandler(handleError)
+        .runBreedingCalculations(parentA, parentB, items, coi);
+    }
+    
+    /**
+     * Rolls for offspring using the previously calculated possibilities.
+     */
+    function rollForOffspring() {
+        const parentA = getParentData('sire');
+        const parentB = getParentData('dam');
+        const items = getItemsData();
+        const coiString = document.getElementById('coi').value;
+        const coiMap = { 'None': 0, 'Slight': 15, 'Medium': 30, 'High': 50 };
+        const coi = coiMap[coiString] || 0;
+
+        showSpinner('roll-btn');
+        google.script.run
+            .withSuccessHandler(html => {
+                hideSpinner('roll-btn');
+                const container = document.getElementById('offspring-output');
+                container.innerHTML = `<h3 class="text-xl font-semibold text-gray-800 mb-3">Rolled Offspring</h3>${html}`;
+                container.classList.remove('hidden');
+            })
+            .withFailureHandler(handleError)
+            .rollOffspring(breedingPossibilities, parentA, parentB, items, coi);
+    }
+
+
+    // --- DATA GATHERING ---
+    /**
+     * Gathers data for a specific parent from the form.
+     * @param {string} parent - 'sire' or 'dam'.
+     * @returns {object} The parent data object.
+     */
+    function getParentData(parent) {
+      return {
+        species: document.getElementById(`${parent}-species`).value,
+        age: document.getElementById(`${parent}-age`).value,
+        element: document.getElementById(`${parent}-element`).value,
+        mane: document.getElementById(`${parent}-mane`).value,
+        genotype: document.getElementById(`${parent}-genotype`).value,
+      };
+    }
+
+    /**
+     * Gathers data for the selected breeding items.
+     * @returns {object} The items data object.
+     */
+    function getItemsData() {
+      return {
+        crescent_herb: document.getElementById('item-crescent-herb').checked,
+        moonlit_herb: document.getElementById('item-moonlit-herb').checked,
+        celestial_perk: document.getElementById('item-celestial-perk').checked ? 'Savage Boon' : null,
+      };
+    }
+
+    // --- UI DISPLAY ---
+    /**
+     * Displays the calculated breeding possibilities.
+     * @param {object} possibilities - The possibilities object from the backend.
+     */
+    function displayPossibilities(possibilities) {
+      const container = document.getElementById('possibilities-output');
+      let html = `<h3 class="text-xl font-semibold text-gray-800 mb-4">Breeding Possibilities</h3>`;
+      
+      html += `<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">`;
+      
+      // Infertility & Clutch
+      html += createPossibilityCard('Infertility & Clutch', `
+        <p><strong>Infertility Chance:</strong> ${possibilities.infertility.toFixed(2)}%</p>
+        <p><strong>Possible Clutch Size:</strong> ${possibilities.clutch}</p>
+      `);
+
+      // Breeds
+      html += createPossibilityCard('Breed Odds', formatOdds(possibilities.breeds));
+
+      // Sex
+      html += createPossibilityCard('Sex Odds', formatOdds(possibilities.sex));
+
+      // Manes
+      html += createPossibilityCard('Mane Odds', formatOdds(possibilities.manes));
+
+      // Elements
+      html += createPossibilityCard('Element Odds', formatOdds(possibilities.elements));
+      
+      // Traits
+      html += createPossibilityCard('Trait Odds', formatOdds(possibilities.traits));
+
+      html += `</div>`; // Close grid
+
+      // Genotype Odds
+      html += `<div class="mt-6">
+        <h4 class="text-lg font-semibold text-gray-700 mb-3">Genotype Odds by Locus</h4>
+        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">`;
+      
+      for (const locus in possibilities.genotypeOdds) {
+        const odds = Object.fromEntries(possibilities.genotypeOdds[locus]);
+        html += createPossibilityCard(locus, formatOdds(odds));
+      }
+
+      html += `</div></div>`; // Close genotype grid and container
+      
+      container.innerHTML = html;
+      container.classList.remove('hidden');
+      document.getElementById('offspring-output').classList.add('hidden');
+    }
+
+    /**
+     * Helper to create a styled card for a possibility category.
+     */
+    function createPossibilityCard(title, content) {
+        return `<div class="result-card"><h5>${title}</h5><div>${content}</div></div>`;
+    }
+
+    /**
+     * Formats an odds object into an HTML string of paragraphs.
+     */
+    function formatOdds(odds) {
+        let content = '';
+        const sortedOdds = Object.entries(odds).sort(([, a], [, b]) => b - a);
+        for (const [key, value] of sortedOdds) {
+            content += `<p><strong>${key}:</strong> ${value.toFixed(2)}%</p>`;
+        }
+        return content;
+    }
+
+    // --- UTILITY FUNCTIONS ---
+    /**
+     * Shows a loading spinner inside a button.
+     * @param {string} buttonId - The ID of the button.
+     */
+    function showSpinner(buttonId) {
+      const button = document.getElementById(buttonId);
+      button.disabled = true;
+      button.querySelector('.button-text').classList.add('hidden');
+      button.querySelector('.loader').classList.remove('hidden');
+    }
+
+    /**
+     * Hides the loading spinner inside a button.
+     * @param {string} buttonId - The ID of the button.
+     */
+    function hideSpinner(buttonId) {
+      const button = document.getElementById(buttonId);
+      button.disabled = false;
+      button.querySelector('.button-text').classList.remove('hidden');
+      button.querySelector('.loader').classList.add('hidden');
+    }
+
+    /**
+     * Handles errors from the backend.
+     * @param {Error} error - The error object.
+     */
+    function handleError(error) {
+      console.error('Breeding Roller Error:', error);
+      alert('An error occurred: ' + error.message);
+      // Hide all spinners
+      hideSpinner('calculate-btn');
+      hideSpinner('roll-btn');
+    }
+
+  </script>
+</body>
 </html>
