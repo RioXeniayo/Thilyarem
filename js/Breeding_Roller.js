@@ -1,8 +1,4 @@
-```
-// breedroller.js
-// Client-side JavaScript for the Breeding Roller Google Apps Script project.
-// Handles DOM interactions, genotype validation, phenotype updates, and breeding calculations.
-// Fixes issues with phenotyping not displaying and "Hatch Time!" button not working.
+
 
 // Valid alleles for genotype validation
 const VALID_ALLELES = [
