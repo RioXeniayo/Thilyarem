@@ -47,13 +47,12 @@
                     <label for="parentA-mane">Mane:</label>
                     <select id="parentA-mane" class="form-select">
                         <option value="Natural" selected>Natural</option>
-                        <option value="Half">Half</option>
-                        <option value="Full">Full</option>
+                        <option value="Razor">Razor</option>
                         <option value="Curly">Curly</option>
-                        <option value="Maneless">Maneless</option>
+                        <option value="Sphinx">Sphinx</option>
+                        <option value="Long">Long</option>
                         <option value="Fiery">Fiery</option>
-                        <option value="Silk">Silk</option>
-                        <option value="Regal">Regal</option>
+                        <option value="Barbary">Barbary</option>
                     </select>
                 </div>
                 <div class="col-md-6">
@@ -75,7 +74,7 @@
                 </div>
             </div>
             <label for="parentA-genotype">Genotype:</label>
-            <input type="text" id="parentA-genotype" class="form-control" placeholder="e.g., B+/BA Sp Mrl/Mrl">
+            <input type="text" id="parentA-genotype" class="form-control" placeholder="e.g., B+/BA M+/M+ K+/KB Spt Mrl/Mrl">
 
             <h3 class="mt-4">Parent B</h3>
             <div class="row">
@@ -106,13 +105,12 @@
                     <label for="parentB-mane">Mane:</label>
                     <select id="parentB-mane" class="form-select">
                         <option value="Natural" selected>Natural</option>
-                        <option value="Half">Half</option>
-                        <option value="Full">Full</option>
+                        <option value="Razor">Razor</option>
                         <option value="Curly">Curly</option>
-                        <option value="Maneless">Maneless</option>
+                        <option value="Sphinx">Sphinx</option>
+                        <option value="Long">Long</option>
                         <option value="Fiery">Fiery</option>
-                        <option value="Silk">Silk</option>
-                        <option value="Regal">Regal</option>
+                        <option value="Barbary">Barbary</option>
                     </select>
                 </div>
                 <div class="col-md-6">
@@ -134,7 +132,7 @@
                 </div>
             </div>
             <label for="parentB-genotype">Genotype:</label>
-            <input type="text" id="parentB-genotype" class="form-control" placeholder="e.g., B+/BA Sp Mrl/Mrl">
+            <input type="text" id="parentB-genotype" class="form-control" placeholder="e.g., B+/BA M+/M+ K+/KB Spt Mrl/Mrl">
 
             <h3 class="mt-4">Breeding Items</h3>
             <div class="row">
@@ -217,6 +215,11 @@
         // Enums and Data
         const Sex = { MALE: 'Male', FEMALE: 'Female' };
         const Breed = { THIL: 'Thilyarem', DEST: 'Destrier', CYROA: 'Cyroas' };
+        const ScientificNames = {
+            [Breed.THIL]: 'Panlongus lykophus pelagius',
+            [Breed.DEST]: 'Panlongus lykophus imperator',
+            [Breed.CYROA]: 'Panlongus murepera scirto'
+        };
         const Age = { 
             HATCHLING: 'Hatchling', 
             JUVENILE: 'Juvenile', 
@@ -270,7 +273,7 @@
         const BreedMix = {
             [`${Breed.THIL}_${Breed.THIL}`]: { [Breed.THIL]: 100 },
             [`${Breed.THIL}_${Breed.DEST}`]: { [Breed.THIL]: 95, [Breed.DEST]: 5 },
-            [`${Breed.DEST}_${Breed.THIL}`]: { [Breed.THIL]: 85, [Breed.DEST]: 15 },
+            [`${Breed.DEST}_${Breed.THIL}`]: { [Breed.DEST]: 15, [Breed.THIL]: 85 },
             [`${Breed.DEST}_${Breed.DEST}`]: { [Breed.THIL]: 65, [Breed.DEST]: 35 },
             [`${Breed.CYROA}_${Breed.CYROA}`]: { [Breed.CYROA]: 100 },
             [`${Breed.THIL}_${Breed.CYROA}`]: { [Breed.THIL]: 50, [Breed.CYROA]: 50 },
@@ -333,13 +336,12 @@
             AXANTHIC_M: { TEXT: 'Axanthic-M', TYPE: GeneType.MUTATION, RARITY: 'rare', EXPRESSED_SETS: [['Axm/Axm'], ['Axm/n']] },
             CHIMERISM: { TEXT: 'Chimerism', TYPE: GeneType.MUTATION, RARITY: 'very rare', EXPRESSED_SETS: [['Cm/Cm'], ['Cm/n']] },
             NATURAL: { TEXT: 'Natural', TYPE: GeneType.MANE, RARITY: 'common' },
-            HALF: { TEXT: 'Half', TYPE: GeneType.MANE, RARITY: 'common' },
-            FULL: { TEXT: 'Full', TYPE: GeneType.MANE, RARITY: 'common' },
+            RAZOR: { TEXT: 'Razor', TYPE: GeneType.MANE, RARITY: 'uncommon' },
             CURLY: { TEXT: 'Curly', TYPE: GeneType.MANE, RARITY: 'uncommon' },
-            MANELESS: { TEXT: 'Maneless', TYPE: GeneType.MANE, RARITY: 'uncommon' },
+            SPHINX: { TEXT: 'Sphinx', TYPE: GeneType.MANE, RARITY: 'rare' },
+            LONG: { TEXT: 'Long', TYPE: GeneType.MANE, RARITY: 'rare' },
             FIERY: { TEXT: 'Fiery', TYPE: GeneType.MANE, RARITY: 'rare' },
-            SILK: { TEXT: 'Silk', TYPE: GeneType.MANE, RARITY: 'rare' },
-            REGAL: { TEXT: 'Regal', TYPE: GeneType.MANE, RARITY: 'rare' },
+            BARBARY: { TEXT: 'Barbary', TYPE: GeneType.MANE, RARITY: 'rare' },
             HORNED: { TEXT: 'Horned', TYPE: GeneType.TRAIT, RARITY: 'uncommon', EXPRESSED_SETS: [['Hr/Hr'], ['Hr/n']] },
             FANGED: { TEXT: 'Fanged', TYPE: GeneType.TRAIT, RARITY: 'uncommon', EXPRESSED_SETS: [['Fg/Fg'], ['Fg/n']] },
             SABRETEETH: { TEXT: 'Sabreteeth', TYPE: GeneType.TRAIT, RARITY: 'rare', EXPRESSED_SETS: [['St/St'], ['St/n']] }
@@ -394,22 +396,22 @@
             { locus: 'Gln', category: 'marking', null_allele: 'n', genes: [{ allele: 'Gln', homozygous_genotype: 'Gln/Gln', heterozygous_genotypes: ['Gln/n'] }] },
             { locus: 'Sf', category: 'marking', null_allele: 'n', genes: [{ allele: 'Sf', homozygous_genotype: 'Sf/Sf', heterozygous_genotypes: ['Sf/n'] }] },
             { locus: 'Wd', category: 'marking', null_allele: 'n', genes: [{ allele: 'Wd', homozygous_genotype: 'Wd/Wd', heterozygous_genotypes: ['Wd/n'] }] },
-            { locus: 'Dmd', category: 'marking', null_allele: 'n', genes: [{ allele: 'Dmd', homozygous_genotype: 'Dmd/Dmd', heterozygous_genotypes: ['Dmd/n'] }] },
-            { locus: 'Spr', category: 'marking', null_allele: 'n', genes: [{ allele: 'Spr', homozygous_genotype: 'Spr/Spr', heterozygous_genotypes: ['Spr/n'] }] },
-            { locus: 'Stm', category: 'marking', null_allele: 'n', genes: [{ allele: 'Stm', homozygous_genotype: 'Stm/Stm', heterozygous_genotypes: ['Stm/n'] }] },
-            { locus: 'Iri', category: 'marking', null_allele: 'n', genes: [{ allele: 'Iri', homozygous_genotype: 'Iri/Iri', heterozygous_genotypes: ['Iri/n'] }] },
+            { locus: 'Dmd', category: 'marking', null_allele: 'n', genes: [{ allele: 'Dmd', homozygous_genotype: 'Dmd/Dmd', heterozygous_genotypes: ['Dmd/n'] ]] },
+            { locus: 'Spr', category: 'marking', null_allele: 'n', genes: [{ allele: 'Spr', homozygous_genotype: 'Spr/Spr', heterozygous_genotypes: ['Spr/n'] ]] },
+            { locus: 'Stm', category: 'marking', null_allele: 'n', genes: [{ allele: 'Stm', homozygous_genotype: 'Stm/Stm', heterozygous_genotypes: ['Stm/n'] ]] },
+            { locus: 'Iri', category: 'marking', null_allele: 'n', genes: [{ allele: 'Iri', homozygous_genotype: 'Iri/Iri', heterozygous_genotypes: ['Iri/n'] ]] },
             { locus: 'Vit', category: 'mutation', null_allele: 'n', genes: [{ allele: 'Vit', homozygous_genotype: 'Vit/Vit', heterozygous_genotypes: ['Vit/n'] }] },
-            { locus: 'Inv', category: 'mutation', null_allele: 'n', genes: [{ allele: 'Inv', homozygous_genotype: 'Inv/Inv', heterozygous_genotypes: ['Inv/n'] }] },
-            { locus: 'Les', category: 'mutation', null_allele: 'n', genes: [{ allele: 'Les', homozygous_genotype: 'Les/Les', heterozygous_genotypes: ['Les/n'] }] },
-            { locus: 'Alb', category: 'mutation', null_allele: 'n', genes: [{ allele: 'Alb', homozygous_genotype: 'Alb/Alb', heterozygous_genotypes: ['Alb/n'] }] },
-            { locus: 'Axg', category: 'mutation', null_allele: 'n', genes: [{ allele: 'Axg', homozygous_genotype: 'Axg/Axg', heterozygous_genotypes: ['Axg/n'] }] },
-            { locus: 'Ery', category: 'mutation', null_allele: 'n', genes: [{ allele: 'Ery', homozygous_genotype: 'Ery/Ery', heterozygous_genotypes: ['Ery/n'] }] },
-            { locus: 'Lva', category: 'mutation', null_allele: 'n', genes: [{ allele: 'Lva', homozygous_genotype: 'Lva/Lva', heterozygous_genotypes: ['Lva/n'] }] },
-            { locus: 'Axm', category: 'mutation', null_allele: 'n', genes: [{ allele: 'Axm', homozygous_genotype: 'Axm/Axm', heterozygous_genotypes: ['Axm/n'] }] },
-            { locus: 'Cm', category: 'mutation', null_allele: 'n', genes: [{ allele: 'Cm', homozygous_genotype: 'Cm/Cm', heterozygous_genotypes: ['Cm/n'] }] },
+            { locus: 'Inv', category: 'mutation', null_allele: 'n', genes: [{ allele: 'Inv', homozygous_genotype: 'Inv/Inv', heterozygous_genotypes: ['Inv/n'] ]] },
+            { locus: 'Les', category: 'mutation', null_allele: 'n', genes: [{ allele: 'Les', homozygous_genotype: 'Les/Les', heterozygous_genotypes: ['Les/n'] ]] },
+            { locus: 'Alb', category: 'mutation', null_allele: 'n', genes: [{ allele: 'Alb', homozygous_genotype: 'Alb/Alb', heterozygous_genotypes: ['Alb/n'] ]] },
+            { locus: 'Axg', category: 'mutation', null_allele: 'n', genes: [{ allele: 'Axg', homozygous_genotype: 'Axg/Axg', heterozygous_genotypes: ['Axg/n'] ]] },
+            { locus: 'Ery', category: 'mutation', null_allele: 'n', genes: [{ allele: 'Ery', homozygous_genotype: 'Ery/Ery', heterozygous_genotypes: ['Ery/n'] ]] },
+            { locus: 'Lva', category: 'mutation', null_allele: 'n', genes: [{ allele: 'Lva', homozygous_genotype: 'Lva/Lva', heterozygous_genotypes: ['Lva/n'] ]] },
+            { locus: 'Axm', category: 'mutation', null_allele: 'n', genes: [{ allele: 'Axm', homozygous_genotype: 'Axm/Axm', heterozygous_genotypes: ['Axm/n'] ]] },
+            { locus: 'Cm', category: 'mutation', null_allele: 'n', genes: [{ allele: 'Cm', homozygous_genotype: 'Cm/Cm', heterozygous_genotypes: ['Cm/n'] ]] },
             { locus: 'Hr', category: 'trait', null_allele: 'n', genes: [{ allele: 'Hr', homozygous_genotype: 'Hr/Hr', heterozygous_genotypes: ['Hr/n'] }] },
             { locus: 'Fg', category: 'trait', null_allele: 'n', genes: [{ allele: 'Fg', homozygous_genotype: 'Fg/Fg', heterozygous_genotypes: ['Fg/n'] }] },
-            { locus: 'St', category: 'trait', null_allele: 'n', genes: [{ allele: 'St', homozygous_genotype: 'St/St', heterozygous_genotypes: ['St/n'] }] }
+            { locus: 'St', category: 'trait', null_allele: 'n', genes: [{ allele: 'St', homozygous_genotype: 'St/St', heterozygous_genotypes: ['St/n'] ]] }
         ];
 
         // Helper Classes
@@ -448,6 +450,11 @@
                                 : [validAlleles.includes(geneOnLocus) ? geneOnLocus : locus.null_allele, locus.null_allele]
                             : [locus.null_allele, locus.null_allele];
                             
+                        // Ensure K locus always has two alleles
+                        if (locus.locus === 'K' && !alleles[locus.locus].some(a => ['K+', 'KB'].includes(a))) {
+                            alleles[locus.locus] = ['K+', 'K+'];
+                        }
+                            
                         if (alleles[locus.locus].length !== 2) {
                             Logger.log(`Invalid allele pair for locus ${locus.locus}: ${alleles[locus.locus]}`);
                             alleles[locus.locus] = [locus.null_allele, locus.null_allele];
@@ -456,7 +463,7 @@
                     return alleles;
                 } catch (e) {
                     ErrorHandler.handle(e, 'getAlleles');
-                    throw new Error('Invalid genotype format: use valid alleles (e.g., B+/BA, Spt).');
+                    throw new Error('Invalid genotype format: use valid alleles (e.g., B+/BA, K+/KB, Spt).');
                 }
             }
         }
@@ -575,7 +582,13 @@
                         const a2 = allelesA[locus.locus]?.[1] || locus.null_allele;
                         const b1 = allelesB[locus.locus]?.[0] || locus.null_allele;
                         const b2 = allelesB[locus.locus]?.[1] || locus.null_allele;
-                        const outcomes = [[a1, b1], [a1, b2], [a2, b1], [a2, b2]].map(pair => pair.sort().join('/'));
+                        const outcomes = [[a1, b1], [a1, b2], [a2, b1], [a2, b2]].map(pair => {
+                            // Ensure K locus always outputs two alleles
+                            if (locus.locus === 'K' && pair.every(a => a === 'n')) {
+                                return ['K+', 'K+'].join('/');
+                            }
+                            return pair.sort().join('/');
+                        });
                         const locusOdds = {};
                         outcomes.forEach(outcome => { locusOdds[outcome] = (locusOdds[outcome] || 0) + 25; });
                         odds[locus.locus] = Object.entries(locusOdds);
@@ -604,22 +617,37 @@
 
         function getManeOdds(maneA, maneB, speciesA, speciesB, celestialPerk) {
             try {
-                const manes = [GeneMap.NATURAL, GeneMap.HALF, GeneMap.FULL, GeneMap.CURLY, GeneMap.MANELESS, GeneMap.FIERY, GeneMap.SILK, GeneMap.REGAL];
+                const manes = [GeneMap.NATURAL, GeneMap.RAZOR, GeneMap.CURLY, GeneMap.SPHINX, GeneMap.LONG, GeneMap.FIERY, GeneMap.BARBARY];
                 const odds = {};
                 const maneRules = {
-                    'Natural_Natural': { 'Natural': 75, 'Half': 20, 'Full': 5 },
-                    'Natural_Half': { 'Natural': 55, 'Half': 43, 'Sphinx': 2 },
-                    'Natural_Full': { 'Natural': 50, 'Full': 45, 'Curly': 5 },
-                    'Natural_Curly': { 'Natural': 40, 'Full': 45, 'Curly': 15 },
-                    'Natural_Maneless': { 'Natural': 40, 'Half': 54, 'Maneless': 6 },
-                    'Natural_Fiery': { 'Natural': 60, 'Full': 10, 'Curly': 25, 'Fiery': 5 },
-                    'Natural_Silk': { 'Natural': 50, 'Full': 25, 'Curly': 20, 'Silk': 5 },
-                    'Natural_Regal': { 'Full': 40, 'Natural': 20, 'Curly': 10, 'Fiery': 25, 'Regal': 5 }
-                    // Add more rules for other combinations as needed
+                    'Natural_Natural': { 'Natural': 94, 'Razor': 5, 'Sphinx': 0, 'Curly': 0, 'Long': 0, 'Fiery': 0, 'Barbary': 0 },
+                    'Natural_Razor': { 'Natural': 74, 'Razor': 20, 'Sphinx': 5, 'Curly': 0, 'Long': 0, 'Fiery': 0, 'Barbary': 0 },
+                    'Natural_Sphinx': { 'Natural': 60, 'Razor': 25, 'Sphinx': 15, 'Curly': 0, 'Long': 0, 'Fiery': 0, 'Barbary': 0 },
+                    'Natural_Curly': { 'Natural': 74, 'Razor': 5, 'Sphinx': 0, 'Curly': 15, 'Long': 5, 'Fiery': 1, 'Barbary': 0 },
+                    'Natural_Long': { 'Natural': 59, 'Razor': 0, 'Sphinx': 0, 'Curly': 20, 'Long': 20, 'Fiery': 1, 'Barbary': 0 },
+                    'Natural_Fiery': { 'Natural': 49, 'Razor': 0, 'Sphinx': 0, 'Curly': 30, 'Long': 15, 'Fiery': 5, 'Barbary': 1 },
+                    'Natural_Barbary': { 'Natural': 39, 'Razor': 0, 'Sphinx': 0, 'Curly': 0, 'Long': 40, 'Fiery': 15, 'Barbary': 5 },
+                    'Razor_Razor': { 'Natural': 65, 'Razor': 30, 'Sphinx': 5, 'Curly': 0, 'Long': 0, 'Fiery': 0, 'Barbary': 0 },
+                    'Razor_Curly': { 'Natural': 75, 'Razor': 15, 'Sphinx': 0, 'Curly': 10, 'Long': 0, 'Fiery': 0, 'Barbary': 0 },
+                    'Razor_Sphinx': { 'Natural': 75, 'Razor': 15, 'Sphinx': 10, 'Curly': 0, 'Long': 0, 'Fiery': 0, 'Barbary': 0 },
+                    'Razor_Long': { 'Natural': 94, 'Razor': 5, 'Sphinx': 0, 'Curly': 0, 'Long': 0, 'Fiery': 0, 'Barbary': 0 },
+                    'Razor_Fiery': { 'Natural': 94, 'Razor': 5, 'Sphinx': 0, 'Curly': 0, 'Long': 0, 'Fiery': 0, 'Barbary': 0 },
+                    'Razor_Barbary': { 'Natural': 94, 'Razor': 5, 'Sphinx': 0, 'Curly': 0, 'Long': 0, 'Fiery': 0, 'Barbary': 0 },
+                    'Curly_Curly': { 'Natural': 0, 'Razor': 0, 'Sphinx': 0, 'Curly': 80, 'Long': 20, 'Fiery': 0, 'Barbary': 0 },
+                    'Curly_Sphinx': { 'Natural': 50, 'Razor': 25, 'Sphinx': 20, 'Curly': 5, 'Long': 0, 'Fiery': 0, 'Barbary': 0 },
+                    'Curly_Long': { 'Natural': 0, 'Razor': 0, 'Sphinx': 0, 'Curly': 30, 'Long': 60, 'Fiery': 10, 'Barbary': 0 },
+                    'Curly_Fiery': { 'Natural': 0, 'Razor': 0, 'Sphinx': 0, 'Curly': 30, 'Long': 50, 'Fiery': 20, 'Barbary': 0 },
+                    'Curly_Barbary': { 'Natural': 0, 'Razor': 0, 'Sphinx': 0, 'Curly': 0, 'Long': 50, 'Fiery': 40, 'Barbary': 10 },
+                    'Long_Long': { 'Natural': 0, 'Razor': 0, 'Sphinx': 0, 'Curly': 15, 'Long': 75, 'Fiery': 9, 'Barbary': 1 },
+                    'Long_Fiery': { 'Natural': 0, 'Razor': 0, 'Sphinx': 0, 'Curly': 0, 'Long': 25, 'Fiery': 60, 'Barbary': 15 },
+                    'Long_Barbary': { 'Natural': 0, 'Razor': 0, 'Sphinx': 0, 'Curly': 50, 'Long': 30, 'Fiery': 15, 'Barbary': 5 },
+                    'Fiery_Fiery': { 'Natural': 0, 'Razor': 0, 'Sphinx': 0, 'Curly': 0, 'Long': 20, 'Fiery': 75, 'Barbary': 5 },
+                    'Fiery_Barbary': { 'Natural': 0, 'Razor': 0, 'Sphinx': 0, 'Curly': 0, 'Long': 0, 'Fiery': 75, 'Barbary': 25 },
+                    'Barbary_Barbary': { 'Natural': 0, 'Razor': 0, 'Sphinx': 0, 'Curly': 0, 'Long': 0, 'Fiery': 15, 'Barbary': 85 }
                 };
 
                 const key = `${maneA}_${maneB}` in maneRules ? `${maneA}_${maneB}` : `${maneB}_${maneA}`;
-                const rule = maneRules[key] || (maneA === maneB ? { [maneA]: 100 } : { [maneA]: 50, [maneB]: 50 });
+                const rule = maneRules[key] || (maneA === maneB ? { [maneA]: 100 } : { [maneA]: 50, [maneB]: 50, 'Natural': 0 });
 
                 manes.forEach(mane => {
                     odds[mane.TEXT] = rule[mane.TEXT] || 0;
@@ -629,7 +657,9 @@
 
                 // Normalize odds to sum to 100
                 let total = Object.values(odds).reduce((sum, val) => sum + val, 0);
-                if (total > 0) {
+                if (total === 0) {
+                    odds['Natural'] = 100; // Default to Natural if no odds are defined
+                } else {
                     Object.keys(odds).forEach(key => {
                         odds[key] = (odds[key] / total) * 100;
                     });
@@ -708,7 +738,7 @@
             }
         }
 
-        function calculatePossibilities(p_a, p_b, items, coi) {
+        function calculatePossibilities(p_a, p_b, items, coiString) {
             try {
                 if (!AgePerks[p_a.age]?.breedable || !AgePerks[p_b.age]?.breedable) {
                     throw new Error('One or both parents are too young to breed.');
@@ -769,6 +799,7 @@
 
                 for (let i = 1; i <= clutchSize; i++) {
                     const rolledBreed = rollFromOdds(possibilities.breeds);
+                    const scientificName = ScientificNames[rolledBreed] || rolledBreed;
                     const rolledSex = rollFromOdds(possibilities.sex);
                     const rolledMane = rollFromOdds(possibilities.manes);
                     const rolledElement = rollFromOdds(possibilities.elements);
@@ -777,9 +808,14 @@
                         const genotype = [];
                         for (const locus in possibilities.genotypeOdds) {
                             const rolledAllelePair = rollFromOdds(Object.fromEntries(possibilities.genotypeOdds[locus]));
-                            if (rolledAllelePair !== 'n/n') {
+                            if (rolledAllelePair !== 'n/n' || locus === 'K') {
                                 const [a1, a2] = rolledAllelePair.split('/');
-                                genotype.push(a1 === a2 && a1 !== 'n' ? a1 : rolledAllelePair);
+                                // Ensure K locus always outputs two alleles
+                                if (locus === 'K' && rolledAllelePair === 'n/n') {
+                                    genotype.push('K+/K+');
+                                } else {
+                                    genotype.push(a1 === a2 && a1 !== 'n' ? a1 : rolledAllelePair);
+                                }
                             }
                         }
                         return genotype;
@@ -813,7 +849,7 @@
 
                     results += `
                         <div class="mb-3 p-3 border rounded bg-light">
-                            <p class="mb-1"><strong>${i}) Species:</strong> ${rolledBreed}</p>
+                            <p class="mb-1"><strong>${i}) Species:</strong> ${scientificName}</p>
                             <p class="mb-1"><strong>Mane Type:</strong> ${rolledMane}</p>
                             <p class="mb-1"><strong>Sex:</strong> ${rolledSex}</p>
                             <p class="mb-1"><strong>Age:</strong> Hatchling</p>
@@ -890,6 +926,10 @@
             } else {
                 document.getElementById('results').innerHTML = result.resultsHtml;
             }
+        });
+    </script>
+</body>
+</html>
         });
     </script>
 </body>
