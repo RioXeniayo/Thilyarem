@@ -1,505 +1,843 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <!-- Tailwind CSS for styling -->
-  <script src="https://cdn.tailwindcss.com"></script>
-  <!-- Google Fonts: Inter -->
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-  <style>
-    /* Custom styles */
-    body {
-      font-family: 'Inter', sans-serif;
-      background-color: #f8fafc; /* gray-50 */
-    }
-    .parent-card {
-      background-color: white;
-      border-radius: 0.75rem; /* rounded-xl */
-      border: 1px solid #e5e7eb; /* gray-200 */
-      padding: 1.5rem;
-      box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
-    }
-    .btn {
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      padding: 0.75rem 1.5rem;
-      border-radius: 0.5rem; /* rounded-lg */
-      font-weight: 600;
-      transition: all 0.2s ease-in-out;
-      cursor: pointer;
-      border: 1px solid transparent;
-    }
-    .btn-primary {
-      background-color: #4f46e5; /* indigo-600 */
-      color: white;
-    }
-    .btn-primary:hover {
-      background-color: #4338ca; /* indigo-700 */
-    }
-    .btn-secondary {
-      background-color: #e5e7eb; /* gray-200 */
-      color: #1f2937; /* gray-800 */
-      border-color: #d1d5db; /* gray-300 */
-    }
-    .btn-secondary:hover {
-      background-color: #d1d5db; /* gray-300 */
-    }
-    .form-input, .form-select {
-      width: 100%;
-      border-radius: 0.5rem; /* rounded-lg */
-      border: 1px solid #d1d5db; /* gray-300 */
-      padding: 0.5rem 0.75rem;
-      transition: border-color 0.2s, box-shadow 0.2s;
-    }
-    .form-input:focus, .form-select:focus {
-      outline: none;
-      border-color: #4f46e5; /* indigo-600 */
-      box-shadow: 0 0 0 2px #c7d2fe; /* indigo-200 */
-    }
-    .loader {
-      border: 4px solid #f3f3f3; /* gray-200 */
-      border-top: 4px solid #4f46e5; /* indigo-600 */
-      border-radius: 50%;
-      width: 24px;
-      height: 24px;
-      animation: spin 1s linear infinite;
-      margin-right: 8px;
-    }
-    @keyframes spin {
-      0% { transform: rotate(0deg); }
-      100% { transform: rotate(360deg); }
-    }
-    .result-card {
-        background-color: #f9fafb; /* gray-50 */
-        border: 1px solid #e5e7eb; /* gray-200 */
-        border-radius: 0.5rem; /* rounded-lg */
-        padding: 1rem;
-        margin-top: 1rem;
-    }
-    .result-card h5 {
-        font-size: 1.125rem; /* text-lg */
-        font-weight: 600;
-        color: #111827; /* gray-900 */
-        margin-bottom: 0.5rem;
-    }
-    .result-card p {
-        color: #4b5563; /* gray-600 */
-        margin-bottom: 0.25rem;
-    }
-    .result-card strong {
-        color: #374151; /* gray-700 */
-    }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Breeding Roller</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body { padding: 20px; background-color: #f8f9fa; }
+        .container { max-width: 1100px; }
+        .form-section { background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+        .results-section { margin-top: 20px; }
+        .form-control, .form-select { margin-bottom: 15px; }
+        .error-message { color: red; display: none; }
+    </style>
 </head>
-<body class="p-4 md:p-6">
-
-  <div class="max-w-7xl mx-auto">
-    <h1 class="text-3xl font-bold text-gray-800 mb-2">Breeding Roller</h1>
-    <p class="text-gray-500 mb-6">Enter the details for the Sire and Dam to calculate breeding possibilities and roll for offspring.</p>
-
-    <!-- Parent Input Section -->
-    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
-      <!-- Sire Card -->
-      <div id="sire-card" class="parent-card">
-        <h2 class="text-2xl font-bold text-indigo-600 mb-4">Sire</h2>
-        <div class="space-y-4">
-          <div>
-            <label for="sire-species" class="block text-sm font-medium text-gray-700 mb-1">Species</label>
-            <select id="sire-species" class="form-select"></select>
-          </div>
-          <div>
-            <label for="sire-age" class="block text-sm font-medium text-gray-700 mb-1">Age</label>
-            <select id="sire-age" class="form-select"></select>
-          </div>
-          <div>
-            <label for="sire-element" class="block text-sm font-medium text-gray-700 mb-1">Element</label>
-            <select id="sire-element" class="form-select"></select>
-          </div>
-          <div>
-            <label for="sire-mane" class="block text-sm font-medium text-gray-700 mb-1">Mane</label>
-            <select id="sire-mane" class="form-select"></select>
-          </div>
-          <div>
-            <label for="sire-genotype" class="block text-sm font-medium text-gray-700 mb-1">Genotype</label>
-            <textarea id="sire-genotype" rows="3" class="form-input" placeholder="e.g., B+/BA Vm/n Sp/Sp"></textarea>
-            <div id="sire-phenotype" class="mt-2 text-sm text-gray-600 p-2 bg-gray-100 rounded-md min-h-[40px]"></div>
-          </div>
-        </div>
-      </div>
-
-      <!-- Dam Card -->
-      <div id="dam-card" class="parent-card">
-        <h2 class="text-2xl font-bold text-pink-600 mb-4">Dam</h2>
-        <div class="space-y-4">
-          <div>
-            <label for="dam-species" class="block text-sm font-medium text-gray-700 mb-1">Species</label>
-            <select id="dam-species" class="form-select"></select>
-          </div>
-          <div>
-            <label for="dam-age" class="block text-sm font-medium text-gray-700 mb-1">Age</label>
-            <select id="dam-age" class="form-select"></select>
-          </div>
-          <div>
-            <label for="dam-element" class="block text-sm font-medium text-gray-700 mb-1">Element</label>
-            <select id="dam-element" class="form-select"></select>
-          </div>
-          <div>
-            <label for="dam-mane" class="block text-sm font-medium text-gray-700 mb-1">Mane</label>
-            <select id="dam-mane" class="form-select"></select>
-          </div>
-          <div>
-            <label for="dam-genotype" class="block text-sm font-medium text-gray-700 mb-1">Genotype</label>
-            <textarea id="dam-genotype" rows="3" class="form-input" placeholder="e.g., B+/B+ M0/M0 Pb/n"></textarea>
-            <div id="dam-phenotype" class="mt-2 text-sm text-gray-600 p-2 bg-gray-100 rounded-md min-h-[40px]"></div>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- Items and COI Section -->
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
-        <div class="parent-card">
-            <h3 class="text-xl font-semibold text-gray-800 mb-3">Breeding Items & Perks</h3>
-            <div class="space-y-2">
-                <label class="flex items-center">
-                    <input type="checkbox" id="item-crescent-herb" class="h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500">
-                    <span class="ml-2 text-gray-700">Crescent Herb</span>
-                </label>
-                <label class="flex items-center">
-                    <input type="checkbox" id="item-moonlit-herb" class="h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500">
-                    <span class="ml-2 text-gray-700">Moonlit Herb</span>
-                </label>
-                <label class="flex items-center">
-                    <input type="checkbox" id="item-celestial-perk" class="h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500">
-                    <span class="ml-2 text-gray-700">Celestial Perk (Savage Boon)</span>
-                </label>
+<body>
+    <div class="container">
+        <h1 class="mb-4">Breeding Roller</h1>
+        <div class="form-section">
+            <h3>Parent A</h3>
+            <div class="row">
+                <div class="col-md-6">
+                    <label for="parentA-species">Species:</label>
+                    <select id="parentA-species" class="form-select">
+                        <option value="Thilyarem">Thilyarem</option>
+                        <option value="Destrier">Destrier</option>
+                        <option value="Cyroas">Cyroas</option>
+                    </select>
+                </div>
+                <div class="col-md-6">
+                    <label for="parentA-age">Age:</label>
+                    <select id="parentA-age" class="form-select">
+                        <option value="Hatchling">Hatchling</option>
+                        <option value="Juvenile">Juvenile</option>
+                        <option value="Adolescent">Adolescent</option>
+                        <option value="Young Adult" selected>Young Adult</option>
+                        <option value="Adult">Adult</option>
+                        <option value="Elder">Elder</option>
+                        <option value="Ancient">Ancient</option>
+                        <option value="Celestial">Celestial</option>
+                    </select>
+                </div>
             </div>
-        </div>
-        <div class="parent-card">
-            <h3 class="text-xl font-semibold text-gray-800 mb-3">Inbreeding</h3>
-            <div>
-                <label for="coi" class="block text-sm font-medium text-gray-700 mb-1">Coefficient of Inbreeding (COI)</label>
-                <select id="coi" class="form-select">
-                    <option>None</option>
-                    <option>Slight</option>
-                    <option>Medium</option>
-                    <option>High</option>
-                </select>
+            <div class="row">
+                <div class="col-md-6">
+                    <label for="parentA-mane">Mane:</label>
+                    <select id="parentA-mane" class="form-select">
+                        <option value="Natural" selected>Natural</option>
+                        <option value="Curly">Curly</option>
+                        <option value="Sphinx">Sphinx</option>
+                        <option value="Long">Long</option>
+                        <option value="Fiery">Fiery</option>
+                    </select>
+                </div>
+                <div class="col-md-6">
+                    <label for="parentA-element">Element:</label>
+                    <select id="parentA-element" class="form-select">
+                        <option value="Fire" selected>Fire</option>
+                        <option value="Water">Water</option>
+                        <option value="Air">Air</option>
+                        <option value="Earth">Earth</option>
+                        <option value="Metal">Metal</option>
+                        <option value="Wood">Wood</option>
+                        <option value="Ice">Ice</option>
+                        <option value="Lightning">Lightning</option>
+                        <option value="Light">Light</option>
+                        <option value="Shadow">Shadow</option>
+                        <option value="Aether">Aether</option>
+                        <option value="Verdant">Verdant</option>
+                    </select>
+                </div>
             </div>
+            <label for="parentA-genotype">Genotype:</label>
+            <input type="text" id="parentA-genotype" class="form-control" placeholder="e.g., B+/BA Sp Mrl/Mrl">
+
+            <h3 class="mt-4">Parent B</h3>
+            <div class="row">
+                <div class="col-md-6">
+                    <label for="parentB-species">Species:</label>
+                    <select id="parentB-species" class="form-select">
+                        <option value="Thilyarem">Thilyarem</option>
+                        <option value="Destrier">Destrier</option>
+                        <option value="Cyroas">Cyroas</option>
+                    </select>
+                </div>
+                <div class="col-md-6">
+                    <label for="parentB-age">Age:</label>
+                    <select id="parentB-age" class="form-select">
+                        <option value="Hatchling">Hatchling</option>
+                        <option value="Juvenile">Juvenile</option>
+                        <option value="Adolescent">Adolescent</option>
+                        <option value="Young Adult" selected>Young Adult</option>
+                        <option value="Adult">Adult</option>
+                        <option value="Elder">Elder</option>
+                        <option value="Ancient">Ancient</option>
+                        <option value="Celestial">Celestial</option>
+                    </select>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-6">
+                    <label for="parentB-mane">Mane:</label>
+                    <select id="parentB-mane" class="form-select">
+                        <option value="Natural" selected>Natural</option>
+                        <option value="Curly">Curly</option>
+                        <option value="Sphinx">Sphinx</option>
+                        <option value="Long">Long</option>
+                        <option value="Fiery">Fiery</option>
+                    </select>
+                </div>
+                <div class="col-md-6">
+                    <label for="parentB-element">Element:</label>
+                    <select id="parentB-element" class="form-select">
+                        <option value="Fire" selected>Fire</option>
+                        <option value="Water">Water</option>
+                        <option value="Air">Air</option>
+                        <option value="Earth">Earth</option>
+                        <option value="Metal">Metal</option>
+                        <option value="Wood">Wood</option>
+                        <option value="Ice">Ice</option>
+                        <option value="Lightning">Lightning</option>
+                        <option value="Light">Light</option>
+                        <option value="Shadow">Shadow</option>
+                        <option value="Aether">Aether</option>
+                        <option value="Verdant">Verdant</option>
+                    </select>
+                </div>
+            </div>
+            <label for="parentB-genotype">Genotype:</label>
+            <input type="text" id="parentB-genotype" class="form-control" placeholder="e.g., B+/BA Sp Mrl/Mrl">
+
+            <h3 class="mt-4">Breeding Items</h3>
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="form-check">
+                        <input type="checkbox" id="crescent-herb" class="form-check-input">
+                        <label for="crescent-herb" class="form-check-label">Crescent Herb</label>
+                    </div>
+                    <div class="form-check">
+                        <input type="checkbox" id="moonlit-herb" class="form-check-input">
+                        <label for="moonlit-herb" class="form-check-label">Moonlit Herb</label>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <label for="celestial-perk">Celestial Perk:</label>
+                    <select id="celestial-perk" class="form-select">
+                        <option value="None">None</option>
+                        <option value="Savage Boon">Savage Boon</option>
+                    </select>
+                </div>
+            </div>
+
+            <label for="coi">Coefficient of Inbreeding:</label>
+            <select id="coi" class="form-select">
+                <option value="None">None</option>
+                <option value="Slight">Slight</option>
+                <option value="Medium">Medium</option>
+                <option value="High">High</option>
+            </select>
+
+            <button id="calculate-btn" class="btn btn-primary mt-3">Calculate Breeding</button>
+            <div id="error-message" class="error-message mt-2"></div>
         </div>
+
+        <div id="results" class="results-section"></div>
     </div>
 
-    <!-- Action Buttons -->
-    <div class="flex items-center justify-center space-x-4 mb-6">
-      <button id="calculate-btn" class="btn btn-primary">
-        <span class="button-text">Calculate Possibilities</span>
-        <div class="loader hidden"></div>
-      </button>
-      <button id="roll-btn" class="btn btn-secondary" disabled>
-        <span class="button-text">Roll Offspring</span>
-        <div class="loader hidden"></div>
-      </button>
-    </div>
-
-    <!-- Results Section -->
-    <div id="results-container" class="space-y-6">
-      <div id="possibilities-output" class="parent-card hidden"></div>
-      <div id="offspring-output" class="parent-card hidden"></div>
-    </div>
-
-  </div>
-
-  <script>
-    let geneticData = null;
-    let breedingPossibilities = null;
-
-    // --- INITIALIZATION ---
-    document.addEventListener('DOMContentLoaded', () => {
-      showSpinner('calculate-btn');
-      google.script.run
-        .withSuccessHandler(data => {
-          geneticData = data;
-          populateDropdowns(data);
-          setupEventListeners();
-          hideSpinner('calculate-btn');
-        })
-        .withFailureHandler(handleError)
-        .getGeneticData();
-    });
-
-    /**
-     * Populates all select dropdowns with data from the backend.
-     * @param {object} data - The genetic data object.
-     */
-    function populateDropdowns(data) {
-      const populate = (elementId, options, defaultKey = null) => {
-        const select = document.getElementById(elementId);
-        select.innerHTML = '';
-        for (const key in options) {
-          const option = document.createElement('option');
-          option.value = options[key];
-          option.textContent = options[key];
-          select.appendChild(option);
-        }
-        if (defaultKey) {
-          select.value = options[defaultKey];
-        }
-      };
-
-      populate('sire-species', data.breeds, 'THIL');
-      populate('dam-species', data.breeds, 'THIL');
-      populate('sire-age', data.ages, 'YOUNG_ADULT');
-      populate('dam-age', data.ages, 'YOUNG_ADULT');
-      populate('sire-element', data.elements, 'FIRE');
-      populate('dam-element', data.elements, 'FIRE');
-      populate('sire-mane', data.manes, 'Natural');
-      populate('dam-mane', data.manes, 'Natural');
-    }
-
-    /**
-     * Sets up all the event listeners for the UI.
-     */
-    function setupEventListeners() {
-      document.getElementById('calculate-btn').addEventListener('click', runCalculations);
-      document.getElementById('roll-btn').addEventListener('click', rollForOffspring);
-
-      // Phenotype calculation on input change
-      const sireGenotype = document.getElementById('sire-genotype');
-      const sireMane = document.getElementById('sire-mane');
-      const damGenotype = document.getElementById('dam-genotype');
-      const damMane = document.getElementById('dam-mane');
-
-      sireGenotype.addEventListener('input', () => updatePhenotype('sire'));
-      sireMane.addEventListener('change', () => updatePhenotype('sire'));
-      damGenotype.addEventListener('input', () => updatePhenotype('dam'));
-      damMane.addEventListener('change', () => updatePhenotype('dam'));
-    }
-
-    // --- PHENOTYPE CALCULATION ---
-    let phenotypeTimeout = null;
-    /**
-     * Updates the phenotype display for a parent after a short delay.
-     * @param {string} parent - 'sire' or 'dam'.
-     */
-    function updatePhenotype(parent) {
-        clearTimeout(phenotypeTimeout);
-        phenotypeTimeout = setTimeout(() => {
-            const genotype = document.getElementById(`${parent}-genotype`).value;
-            const mane = document.getElementById(`${parent}-mane`).value;
-            const phenotypeDiv = document.getElementById(`${parent}-phenotype`);
-
-            if (genotype.trim() === '') {
-                phenotypeDiv.innerHTML = '';
-                return;
+    <script>
+        // Configuration constants
+        const CONFIG = {
+            UI: {
+                DIALOG_WIDTH: 1100,
+                DIALOG_HEIGHT: 800,
+                MENU_NAME: 'Breeding Roller',
+                HTML_FILE: 'breedroller'
+            },
+            BREEDING: {
+                DEFAULT_CLUTCH: '1 - 3 eggs',
+                DEFAULT_MANE: 'Natural',
+                DEFAULT_ELEMENT: 'Fire'
+            },
+            LOGGING: {
+                ENABLED: true,
+                PREFIX: '[BreedingRoller]'
             }
-            
-            phenotypeDiv.innerHTML = '<div class="flex items-center"><div class="loader !w-4 !h-4 !border-2"></div><span>Calculating...</span></div>';
+        };
 
-            google.script.run
-                .withSuccessHandler(phenotype => {
-                    phenotypeDiv.textContent = phenotype;
-                })
-                .withFailureHandler(error => {
-                    phenotypeDiv.textContent = `Error: ${error.message}`;
-                })
-                .getPhenotypeForSidebar(genotype, mane);
-        }, 500); // Debounce for 500ms
-    }
+        // Simple logger replacement for browser
+        const Logger = {
+            log: (message) => {
+                if (CONFIG.LOGGING.ENABLED) {
+                    console.log(message);
+                }
+            }
+        };
 
-    // --- CORE LOGIC ---
-    /**
-     * Gathers all inputs and runs the main breeding calculations.
-     */
-    function runCalculations() {
-      const parentA = getParentData('sire');
-      const parentB = getParentData('dam');
-      const items = getItemsData();
-      const coi = document.getElementById('coi').value;
-
-      if (!parentA.genotype || !parentB.genotype) {
-        alert('Please enter a genotype for both parents.');
-        return;
-      }
-
-      showSpinner('calculate-btn');
-      document.getElementById('roll-btn').disabled = true;
-
-      google.script.run
-        .withSuccessHandler(response => {
-          hideSpinner('calculate-btn');
-          if (response.error) {
-            handleError({ message: response.error });
-            return;
-          }
-          breedingPossibilities = response.possibilities;
-          displayPossibilities(breedingPossibilities);
-          document.getElementById('roll-btn').disabled = false;
-        })
-        .withFailureHandler(handleError)
-        .runBreedingCalculations(parentA, parentB, items, coi);
-    }
-    
-    /**
-     * Rolls for offspring using the previously calculated possibilities.
-     */
-    function rollForOffspring() {
-        const parentA = getParentData('sire');
-        const parentB = getParentData('dam');
-        const items = getItemsData();
-        const coiString = document.getElementById('coi').value;
-        const coiMap = { 'None': 0, 'Slight': 15, 'Medium': 30, 'High': 50 };
-        const coi = coiMap[coiString] || 0;
-
-        showSpinner('roll-btn');
-        google.script.run
-            .withSuccessHandler(html => {
-                hideSpinner('roll-btn');
-                const container = document.getElementById('offspring-output');
-                container.innerHTML = `<h3 class="text-xl font-semibold text-gray-800 mb-3">Rolled Offspring</h3>${html}`;
-                container.classList.remove('hidden');
-            })
-            .withFailureHandler(handleError)
-            .rollOffspring(breedingPossibilities, parentA, parentB, items, coi);
-    }
-
-
-    // --- DATA GATHERING ---
-    /**
-     * Gathers data for a specific parent from the form.
-     * @param {string} parent - 'sire' or 'dam'.
-     * @returns {object} The parent data object.
-     */
-    function getParentData(parent) {
-      return {
-        species: document.getElementById(`${parent}-species`).value,
-        age: document.getElementById(`${parent}-age`).value,
-        element: document.getElementById(`${parent}-element`).value,
-        mane: document.getElementById(`${parent}-mane`).value,
-        genotype: document.getElementById(`${parent}-genotype`).value,
-      };
-    }
-
-    /**
-     * Gathers data for the selected breeding items.
-     * @returns {object} The items data object.
-     */
-    function getItemsData() {
-      return {
-        crescent_herb: document.getElementById('item-crescent-herb').checked,
-        moonlit_herb: document.getElementById('item-moonlit-herb').checked,
-        celestial_perk: document.getElementById('item-celestial-perk').checked ? 'Savage Boon' : null,
-      };
-    }
-
-    // --- UI DISPLAY ---
-    /**
-     * Displays the calculated breeding possibilities.
-     * @param {object} possibilities - The possibilities object from the backend.
-     */
-    function displayPossibilities(possibilities) {
-      const container = document.getElementById('possibilities-output');
-      let html = `<h3 class="text-xl font-semibold text-gray-800 mb-4">Breeding Possibilities</h3>`;
-      
-      html += `<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">`;
-      
-      // Infertility & Clutch
-      html += createPossibilityCard('Infertility & Clutch', `
-        <p><strong>Infertility Chance:</strong> ${possibilities.infertility.toFixed(2)}%</p>
-        <p><strong>Possible Clutch Size:</strong> ${possibilities.clutch}</p>
-      `);
-
-      // Breeds
-      html += createPossibilityCard('Breed Odds', formatOdds(possibilities.breeds));
-
-      // Sex
-      html += createPossibilityCard('Sex Odds', formatOdds(possibilities.sex));
-
-      // Manes
-      html += createPossibilityCard('Mane Odds', formatOdds(possibilities.manes));
-
-      // Elements
-      html += createPossibilityCard('Element Odds', formatOdds(possibilities.elements));
-      
-      // Traits
-      html += createPossibilityCard('Trait Odds', formatOdds(possibilities.traits));
-
-      html += `</div>`; // Close grid
-
-      // Genotype Odds
-      html += `<div class="mt-6">
-        <h4 class="text-lg font-semibold text-gray-700 mb-3">Genotype Odds by Locus</h4>
-        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">`;
-      
-      for (const locus in possibilities.genotypeOdds) {
-        const odds = Object.fromEntries(possibilities.genotypeOdds[locus]);
-        html += createPossibilityCard(locus, formatOdds(odds));
-      }
-
-      html += `</div></div>`; // Close genotype grid and container
-      
-      container.innerHTML = html;
-      container.classList.remove('hidden');
-      document.getElementById('offspring-output').classList.add('hidden');
-    }
-
-    /**
-     * Helper to create a styled card for a possibility category.
-     */
-    function createPossibilityCard(title, content) {
-        return `<div class="result-card"><h5>${title}</h5><div>${content}</div></div>`;
-    }
-
-    /**
-     * Formats an odds object into an HTML string of paragraphs.
-     */
-    function formatOdds(odds) {
-        let content = '';
-        const sortedOdds = Object.entries(odds).sort(([, a], [, b]) => b - a);
-        for (const [key, value] of sortedOdds) {
-            content += `<p><strong>${key}:</strong> ${value.toFixed(2)}%</p>`;
+        // Error Handler
+        class ErrorHandler {
+            static handle(error, context, ui = null) {
+                const message = `${CONFIG.LOGGING.PREFIX} Error in ${context}: ${error.message}\nStack: ${error.stack}`;
+                if (CONFIG.LOGGING.ENABLED) Logger.log(message);
+                if (ui) {
+                    document.getElementById('error-message').style.display = 'block';
+                    document.getElementById('error-message').innerText = `Error in ${context}: Please check input or try again.`;
+                }
+                return message;
+            }
         }
-        return content;
-    }
 
-    // --- UTILITY FUNCTIONS ---
-    /**
-     * Shows a loading spinner inside a button.
-     * @param {string} buttonId - The ID of the button.
-     */
-    function showSpinner(buttonId) {
-      const button = document.getElementById(buttonId);
-      button.disabled = true;
-      button.querySelector('.button-text').classList.add('hidden');
-      button.querySelector('.loader').classList.remove('hidden');
-    }
+        // Enums and Data
+        const Sex = { MALE: 'Male', FEMALE: 'Female' };
+        const Breed = { THIL: 'Thilyarem', DEST: 'Destrier', CYROA: 'Cyroas' };
+        const Age = { 
+            HATCHLING: 'Hatchling', 
+            JUVENILE: 'Juvenile', 
+            ADOLESCENT: 'Adolescent', 
+            YOUNG_ADULT: 'Young Adult', 
+            ADULT: 'Adult', 
+            ELDER: 'Elder', 
+            ANCIENT: 'Ancient', 
+            CELESTIAL: 'Celestial' 
+        };
+        const Element = { 
+            FIRE: 'Fire', 
+            WATER: 'Water', 
+            AIR: 'Air', 
+            EARTH: 'Earth', 
+            METAL: 'Metal', 
+            WOOD: 'Wood', 
+            ICE: 'Ice', 
+            LIGHTNING: 'Lightning', 
+            LIGHT: 'Light', 
+            SHADOW: 'Shadow', 
+            AETHER: 'Aether', 
+            VERDANT: 'Verdant' 
+        };
+        const GeneType = { 
+            BASE: 0, 
+            MARKING: 1, 
+            MUTATION: 2, 
+            MANE: 3, 
+            TRAIT: 4, 
+            MODIFIER: 5 
+        };
+        const Defects = {
+            Common: ['Sterility (Rarely)', 'Low Fertility', 'Deafness', 'Blindness', 'Anosmia'],
+            Uncommon: ['Malformation: Slight', 'Malformation: Medium', 'Malformation: Severe'],
+            Rare: ['Lameness', 'Hip Dysplasia', 'Heart Disease', 'Spinal Defect', 'Epilepsy']
+        };
 
-    /**
-     * Hides the loading spinner inside a button.
-     * @param {string} buttonId - The ID of the button.
-     */
-    function hideSpinner(buttonId) {
-      const button = document.getElementById(buttonId);
-      button.disabled = false;
-      button.querySelector('.button-text').classList.remove('hidden');
-      button.querySelector('.loader').classList.add('hidden');
-    }
+        const AgePerks = {
+            [Age.HATCHLING]: { breedable: false },
+            [Age.JUVENILE]: { breedable: false },
+            [Age.ADOLESCENT]: { breedable: true, clutch_min: 0, clutch_max: 2, trait_pass_bonus: 0, mutation_bonus: 0, rare_marking_bonus: 0 },
+            [Age.YOUNG_ADULT]: { breedable: true, clutch_min: 1, clutch_max: 3, trait_pass_bonus: 0, mutation_bonus: 0, rare_marking_bonus: 0 },
+            [Age.ADULT]: { breedable: true, clutch_min: 1, clutch_max: 5, trait_pass_bonus: 0, mutation_bonus: 0, rare_marking_bonus: 0 },
+            [Age.ELDER]: { breedable: true, clutch_min: 2, clutch_max: 4, trait_pass_bonus: 5, mutation_bonus: 10, rare_marking_bonus: 0 },
+            [Age.ANCIENT]: { breedable: true, clutch_min: 2, clutch_max: 3, trait_pass_bonus: 10, mutation_bonus: 15, rare_marking_bonus: 5 },
+            [Age.CELESTIAL]: { breedable: true, clutch_min: 2, clutch_max: 2, trait_pass_bonus: 15, mutation_bonus: 20, rare_marking_bonus: 10 }
+        };
 
-    /**
-     * Handles errors from the backend.
-     * @param {Error} error - The error object.
-     */
-    function handleError(error) {
-      console.error('Breeding Roller Error:', error);
-      alert('An error occurred: ' + error.message);
-      // Hide all spinners
-      hideSpinner('calculate-btn');
-      hideSpinner('roll-btn');
-    }
+        const BreedMix = {
+            [`${Breed.THIL}_${Breed.THIL}`]: { [Breed.THIL]: 100 },
+            [`${Breed.THIL}_${Breed.DEST}`]: { [Breed.THIL]: 95, [Breed.DEST]: 5 },
+            [`${Breed.DEST}_${Breed.THIL}`]: { [Breed.THIL]: 85, [Breed.DEST]: 15 },
+            [`${Breed.DEST}_${Breed.DEST}`]: { [Breed.THIL]: 65, [Breed.DEST]: 35 },
+            [`${Breed.CYROA}_${Breed.CYROA}`]: { [Breed.CYROA]: 100 },
+            [`${Breed.THIL}_${Breed.CYROA}`]: { [Breed.THIL]: 50, [Breed.CYROA]: 50 },
+            [`${Breed.CYROA}_${Breed.THIL}`]: { [Breed.CYROA]: 50, [Breed.THIL]: 50 },
+            [`${Breed.CYROA}_${Breed.DEST}`]: { [Breed.CYROA]: 95, [Breed.DEST]: 5 }
+        };
 
-  </script>
+        const GeneMap = {
+            TAN: { TEXT: 'Tan', TYPE: GeneType.BASE, EXPRESSED_SETS: [['B+']] },
+            CREAM: { TEXT: 'Cream', TYPE: GeneType.BASE, EXPRESSED_SETS: [['B+', 'M0/M0']] },
+            BROWN: { TEXT: 'Brown', TYPE: GeneType.BASE, EXPRESSED_SETS: [['BA']] },
+            LILAC: { TEXT: 'Lilac', TYPE: GeneType.BASE, EXPRESSED_SETS: [['BA', 'M0/M0']] },
+            GREEN: { TEXT: 'Green', TYPE: GeneType.BASE, EXPRESSED_SETS: [['BG']] },
+            SEAGREEN: { TEXT: 'Seagreen', TYPE: GeneType.BASE, EXPRESSED_SETS: [['BG', 'MB/MB']] },
+            SEAFOAM: { TEXT: 'Seafoam', TYPE: GeneType.BASE, EXPRESSED_SETS: [['BG', 'M0/M0']] },
+            SLATE: { TEXT: 'Slate', TYPE: GeneType.BASE, EXPRESSED_SETS: [['BW/BW']] },
+            BLUE: { TEXT: 'Blue', TYPE: GeneType.BASE, EXPRESSED_SETS: [['BW/BW', 'MB/MB']] },
+            WHITE: { TEXT: 'White', TYPE: GeneType.BASE, EXPRESSED_SETS: [['BW/BW', 'M0/M0']] },
+            BLACK: { TEXT: 'Black', TYPE: GeneType.BASE, EXPRESSED_SETS: [['KB/KB']] },
+            VERMILLION: { TEXT: 'Vermillion', TYPE: GeneType.MODIFIER, EXPRESSED_SETS: [['Vm/Vm']], CARRIED_SETS: [['Vm/n']] },
+            JADE: { TEXT: 'Jade', TYPE: GeneType.MODIFIER, EXPRESSED_SETS: [['Ja/Ja']], CARRIED_SETS: [['Ja/n']] },
+            VIOLET: { TEXT: 'Violet', TYPE: GeneType.MODIFIER, EXPRESSED_SETS: [['Vl/Vl']], CARRIED_SETS: [['Vl/n']] },
+            AMBER: { TEXT: 'Amber', TYPE: GeneType.MODIFIER, EXPRESSED_SETS: [['Am/Am']], CARRIED_SETS: [['Am/n']] },
+            BELLYTONE: { TEXT: 'Bellytone', TYPE: GeneType.MARKING, EXPRESSED_SETS: [['Bt/Bt'], ['Bt/n']] },
+            COLLAR: { TEXT: 'Collar', TYPE: GeneType.MARKING, EXPRESSED_SETS: [['Cl/Cl'], ['Cl/n']] },
+            INKED: { TEXT: 'Inked', TYPE: GeneType.MARKING, EXPRESSED_SETS: [['In/In'], ['In/n']] },
+            MANTLE: { TEXT: 'Mantle', TYPE: GeneType.MARKING, EXPRESSED_SETS: [['Mnt/Mnt'], ['Mnt/n']] },
+            PANGARE: { TEXT: 'Pangare', TYPE: GeneType.MARKING, EXPRESSED_SETS: [['Pg/Pg'], ['Pg/n']] },
+            POINTS: { TEXT: 'Points', TYPE: GeneType.MARKING, EXPRESSED_SETS: [['Pt/Pt'], ['Pt/n']] },
+            ROAN: { TEXT: 'Roan', TYPE: GeneType.MARKING, EXPRESSED_SETS: [['Ro/Ro'], ['Ro/n']] },
+            SABLE: { TEXT: 'Sable', TYPE: GeneType.MARKING, EXPRESSED_SETS: [['Sb/Sb'], ['Sb/n']] },
+            SIAMESE: { TEXT: 'Siamese', TYPE: GeneType.MARKING, EXPRESSED_SETS: [['Si/Si'], ['Si/n']] },
+            STAINED: { TEXT: 'Stained', TYPE: GeneType.MARKING, EXPRESSED_SETS: [['Stn/Stn'], ['Stn/n']] },
+            OVERO: { TEXT: 'Overo', TYPE: GeneType.MARKING, EXPRESSED_SETS: [['Ov/Ov'], ['Ov/n']] },
+            APPALOOSA: { TEXT: 'Appaloosa', TYPE: GeneType.MARKING, EXPRESSED_SETS: [['Apl/Apl'], ['Apl/n']] },
+            BARRING: { TEXT: 'Barring', TYPE: GeneType.MARKING, EXPRESSED_SETS: [['Brn/Brn'], ['Brn/n']] },
+            DAPPLES: { TEXT: 'Dapples', TYPE: GeneType.MARKING, EXPRESSED_SETS: [['Dpl/Dpl'], ['Dpl/n']] },
+            BENGAL: { TEXT: 'Bengal', TYPE: GeneType.MARKING, EXPRESSED_SETS: [['Bng/Bng'], ['Bng/n']] },
+            MERLE: { TEXT: 'Merle', TYPE: GeneType.MARKING, EXPRESSED_SETS: [['Mrl/Mrl'], ['Mrl/n']] },
+            PANDA: { TEXT: 'Panda', TYPE: GeneType.MARKING, EXPRESSED_SETS: [['Pnd/Pnd'], ['Pnd/n']] },
+            PYTHON: { TEXT: 'Python', TYPE: GeneType.MARKING, EXPRESSED_SETS: [['Py/Py'], ['Py/n']] },
+            RORSCHACH: { TEXT: 'Rorschach', TYPE: GeneType.MARKING, EXPRESSED_SETS: [['Rsc/Rsc'], ['Rsc/n']] },
+            SPOTTED: { TEXT: 'Spotted', TYPE: GeneType.MARKING, EXPRESSED_SETS: [['Sp/Sp'], ['Sp/n']] },
+            DIAMOND: { TEXT: 'Diamond', TYPE: GeneType.MARKING, RARITY: 'rare', EXPRESSED_SETS: [['Di/Di']], CARRIED_SETS: [['Di/n']] },
+            GLINT: { TEXT: 'Glint', TYPE: GeneType.MARKING, RARITY: 'rare', EXPRESSED_SETS: [['Gl/Gl']], CARRIED_SETS: [['Gl/n']] },
+            IRIDESCENT: { TEXT: 'Iridescent', TYPE: GeneType.MARKING, RARITY: 'rare', EXPRESSED_SETS: [['Ir/Ir']], CARRIED_SETS: [['Ir/n']] },
+            PIEBALD: { TEXT: 'Piebald', TYPE: GeneType.MARKING, RARITY: 'rare', EXPRESSED_SETS: [['Pb/Pb']], CARRIED_SETS: [['Pb/n']] },
+            TICKING: { TEXT: 'Ticking', TYPE: GeneType.MARKING, RARITY: 'rare', EXPRESSED_SETS: [['Tk/Tk']], CARRIED_SETS: [['Tk/n']] },
+            SPECTRUM: { TEXT: 'Spectrum', TYPE: GeneType.MARKING, RARITY: 'rare', EXPRESSED_SETS: [['Stm/Stm']], CARRIED_SETS: [['Stm/n']] },
+            SPIDER: { TEXT: 'Spider', TYPE: GeneType.MARKING, RARITY: 'rare', EXPRESSED_SETS: [['Sd/Sd']], CARRIED_SETS: [['Sd/n']] },
+            WIDOW: { TEXT: 'Widow', TYPE: GeneType.MARKING, RARITY: 'rare', EXPRESSED_SETS: [['Wd/Wd']], CARRIED_SETS: [['Wd/n']] },
+            PAINTED: { TEXT: 'Painted', TYPE: GeneType.MARKING, RARITY: 'rare' },
+            ALBINISM: { TEXT: 'Albinism', TYPE: GeneType.MUTATION, RARITY: 'rare', EXPRESSED_SETS: [['Alb/Alb']], CARRIED_SETS: [['Alb/n']] },
+            CHIMERISM: { TEXT: 'Chimerism', TYPE: GeneType.MUTATION, RARITY: 'rare', EXPRESSED_SETS: [['Cm/Cm']], CARRIED_SETS: [['Cm/n']] },
+            NATURAL: { TEXT: 'Natural', TYPE: GeneType.MANE, RARITY: 'common' },
+            CURLY: { TEXT: 'Curly', TYPE: GeneType.MANE, RARITY: 'uncommon' },
+            SPHINX: { TEXT: 'Sphinx', TYPE: GeneType.MANE, RARITY: 'uncommon' },
+            LONG: { TEXT: 'Long', TYPE: GeneType.MANE, RARITY: 'rare' },
+            FIERY: { TEXT: 'Fiery', TYPE: GeneType.MANE, RARITY: 'rare' },
+            HORNED: { TEXT: 'Horned', TYPE: GeneType.TRAIT, RARITY: 'uncommon', EXPRESSED_SETS: [['Hr/Hr'], ['Hr/n']] },
+            FANGED: { TEXT: 'Fanged', TYPE: GeneType.TRAIT, RARITY: 'uncommon', EXPRESSED_SETS: [['Fg/Fg'], ['Fg/n']] },
+            SABRETEETH: { TEXT: 'Sabreteeth', TYPE: GeneType.TRAIT, RARITY: 'rare', EXPRESSED_SETS: [['St/St']], CARRIED_SETS: [['St/n']] }
+        };
+
+        const OverrideRules = [
+            { result: 'Painted', requires: ['Pb/Pb', 'Wd/Wd'], removes: ['Piebald', 'Widow'] }
+        ];
+
+        const loci = [
+            { locus: 'B', category: 'base', null_allele: 'n', genes: [
+                { allele: 'B+', homozygous_genotype: 'B+/B+', heterozygous_genotypes: ['B+/BA', 'B+/BG', 'B+/BW'] },
+                { allele: 'BA', homozygous_genotype: 'BA/BA', heterozygous_genotypes: ['BA/BG', 'BA/BW'] },
+                { allele: 'BG', homozygous_genotype: 'BG/BG', heterozygous_genotypes: ['BG/BW'] },
+                { allele: 'BW', homozygous_genotype: 'BW/BW', heterozygous_genotypes: [] }
+            ]},
+            { locus: 'M', category: 'base', null_allele: 'n', genes: [
+                { allele: 'M+', homozygous_genotype: 'M+/M+', heterozygous_genotypes: ['M+/MB', 'M+/M0'] },
+                { allele: 'MB', homozygous_genotype: 'MB/MB', heterozygous_genotypes: ['MB/M0'] },
+                { allele: 'M0', homozygous_genotype: 'M0/M0', heterozygous_genotypes: [] }
+            ]},
+            { locus: 'K', category: 'base', null_allele: 'n', genes: [
+                { allele: 'K+', homozygous_genotype: 'K+/K+', heterozygous_genotypes: ['K+/KB'] },
+                { allele: 'KB', homozygous_genotype: 'KB/KB', heterozygous_genotypes: [] }
+            ]},
+            { locus: 'Vm', category: 'modifier', null_allele: 'n', genes: [{ allele: 'Vm', homozygous_genotype: 'Vm/Vm', heterozygous_genotypes: ['Vm/n'] }] },
+            { locus: 'Ja', category: 'modifier', null_allele: 'n', genes: [{ allele: 'Ja', homozygous_genotype: 'Ja/Ja', heterozygous_genotypes: ['Ja/n'] }] },
+            { locus: 'Vl', category: 'modifier', null_allele: 'n', genes: [{ allele: 'Vl', homozygous_genotype: 'Vl/Vl', heterozygous_genotypes: ['Vl/n'] }] },
+            { locus: 'Am', category: 'modifier', null_allele: 'n', genes: [{ allele: 'Am', homozygous_genotype: 'Am/Am', heterozygous_genotypes: ['Am/n'] }] },
+            { locus: 'Bt', category: 'marking', null_allele: 'n', genes: [{ allele: 'Bt', homozygous_genotype: 'Bt/Bt', heterozygous_genotypes: ['Bt/n'] }] },
+            { locus: 'Cl', category: 'marking', null_allele: 'n', genes: [{ allele: 'Cl', homozygous_genotype: 'Cl/Cl', heterozygous_genotypes: ['Cl/n'] }] },
+            { locus: 'In', category: 'marking', null_allele: 'n', genes: [{ allele: 'In', homozygous_genotype: 'In/In', heterozygous_genotypes: ['In/n'] }] },
+            { locus: 'Mnt', category: 'marking', null_allele: 'n', genes: [{ allele: 'Mnt', homozygous_genotype: 'Mnt/Mnt', heterozygous_genotypes: ['Mnt/n'] }] },
+            { locus: 'Pg', category: 'marking', null_allele: 'n', genes: [{ allele: 'Pg', homozygous_genotype: 'Pg/Pg', heterozygous_genotypes: ['Pg/n'] }] },
+            { locus: 'Pt', category: 'marking', null_allele: 'n', genes: [{ allele: 'Pt', homozygous_genotype: 'Pt/Pt', heterozygous_genotypes: ['Pt/n'] }] },
+            { locus: 'Ro', category: 'marking', null_allele: 'n', genes: [{ allele: 'Ro', homozygous_genotype: 'Ro/Ro', heterozygous_genotypes: ['Ro/n'] }] },
+            { locus: 'Sb', category: 'marking', null_allele: 'n', genes: [{ allele: 'Sb', homozygous_genotype: 'Sb/Sb', heterozygous_genotypes: ['Sb/n'] }] },
+            { locus: 'Si', category: 'marking', null_allele: 'n', genes: [{ allele: 'Si', homozygous_genotype: 'Si/Si', heterozygous_genotypes: ['Si/n'] }] },
+            { locus: 'Stn', category: 'marking', null_allele: 'n', genes: [{ allele: 'Stn', homozygous_genotype: 'Stn/Stn', heterozygous_genotypes: ['Stn/n'] }] },
+            { locus: 'Ov', category: 'marking', null_allele: 'n', genes: [{ allele: 'Ov', homozygous_genotype: 'Ov/Ov', heterozygous_genotypes: ['Ov/n'] }] },
+            { locus: 'Apl', category: 'marking', null_allele: 'n', genes: [{ allele: 'Apl', homozygous_genotype: 'Apl/Apl', heterozygous_genotypes: ['Apl/n'] }] },
+            { locus: 'Brn', category: 'marking', null_allele: 'n', genes: [{ allele: 'Brn', homozygous_genotype: 'Brn/Brn', heterozygous_genotypes: ['Brn/n'] }] },
+            { locus: 'Dpl', category: 'marking', null_allele: 'n', genes: [{ allele: 'Dpl', homozygous_genotype: 'Dpl/Dpl', heterozygous_genotypes: ['Dpl/n'] }] },
+            { locus: 'Bng', category: 'marking', null_allele: 'n', genes: [{ allele: 'Bng', homozygous_genotype: 'Bng/Bng', heterozygous_genotypes: ['Bng/n'] }] },
+            { locus: 'Mrl', category: 'marking', null_allele: 'n', genes: [{ allele: 'Mrl', homozygous_genotype: 'Mrl/Mrl', heterozygous_genotypes: ['Mrl/n'] }] },
+            { locus: 'Pnd', category: 'marking', null_allele: 'n', genes: [{ allele: 'Pnd', homozygous_genotype: 'Pnd/Pnd', heterozygous_genotypes: ['Pnd/n'] }] },
+            { locus: 'Py', category: 'marking', null_allele: 'n', genes: [{ allele: 'Py', homozygous_genotype: 'Py/Py', heterozygous_genotypes: ['Py/n'] }] },
+            { locus: 'Rsc', category: 'marking', null_allele: 'n', genes: [{ allele: 'Rsc', homozygous_genotype: 'Rsc/Rsc', heterozygous_genotypes: ['Rsc/n'] }] },
+            { locus: 'Sp', category: 'marking', null_allele: 'n', genes: [{ allele: 'Sp', homozygous_genotype: 'Sp/Sp', heterozygous_genotypes: ['Sp/n'] }] },
+            { locus: 'Di', category: 'marking', null_allele: 'n', genes: [{ allele: 'Di', homozygous_genotype: 'Di/Di', heterozygous_genotypes: ['Di/n'] }] },
+            { locus: 'Gl', category: 'marking', null_allele: 'n', genes: [{ allele: 'Gl', homozygous_genotype: 'Gl/Gl', heterozygous_genotypes: ['Gl/n'] }] },
+            { locus: 'Ir', category: 'marking', null_allele: 'n', genes: [{ allele: 'Ir', homozygous_genotype: 'Ir/Ir', heterozygous_genotypes: ['Ir/n'] }] },
+            { locus: 'Pb', category: 'marking', null_allele: 'n', genes: [{ allele: 'Pb', homozygous_genotype: 'Pb/Pb', heterozygous_genotypes: ['Pb/n'] }] },
+            { locus: 'Tk', category: 'marking', null_allele: 'n', genes: [{ allele: 'Tk', homozygous_genotype: 'Tk/Tk', heterozygous_genotypes: ['Tk/n'] }] },
+            { locus: 'Stm', category: 'marking', null_allele: 'n', genes: [{ allele: 'Stm', homozygous_genotype: 'Stm/Stm', heterozygous_genotypes: ['Stm/n'] }] },
+            { locus: 'Sd', category: 'marking', null_allele: 'n', genes: [{ allele: 'Sd', homozygous_genotype: 'Sd/Sd', heterozygous_genotypes: ['Sd/n'] ]] },
+            { locus: 'Wd', category: 'marking', null_allele: 'n', genes: [{ allele: 'Wd', homozygous_genotype: 'Wd/Wd', heterozygous_genotypes: ['Wd/n'] ]] },
+            { locus: 'Alb', category: 'mutation', null_allele: 'n', genes: [{ allele: 'Alb', homozygous_genotype: 'Alb/Alb', heterozygous_genotypes: ['Alb/n'] }] },
+            { locus: 'Cm', category: 'mutation', null_allele: 'n', genes: [{ allele: 'Cm', homozygous_genotype: 'Cm/Cm', heterozygous_genotypes: ['Cm/n'] }] },
+            { locus: 'Hr', category: 'trait', null_allele: 'n', genes: [{ allele: 'Hr', homozygous_genotype: 'Hr/Hr', heterozygous_genotypes: ['Hr/n'] }] },
+            { locus: 'Fg', category: 'trait', null_allele: 'n', genes: [{ allele: 'Fg', homozygous_genotype: 'Fg/Fg', heterozygous_genotypes: ['Fg/n'] }] },
+            { locus: 'St', category: 'trait', null_allele: 'n', genes: [{ allele: 'St', homozygous_genotype: 'St/St', heterozygous_genotypes: ['St/n'] }] }
+        ];
+
+        // Helper Classes
+        class GenotypeHelper {
+            static sliceGenotype(genotype) {
+                try {
+                    if (!genotype || typeof genotype !== 'string') {
+                        throw new Error(`Invalid genotype input: ${genotype}`);
+                    }
+                    return genotype.split(' ').filter(g => g && g.trim());
+                } catch (e) {
+                    ErrorHandler.handle(e, 'sliceGenotype');
+                    return [];
+                }
+            }
+
+            static getAlleles(genes, loci_data) {
+                try {
+                    if (!Array.isArray(genes) || !Array.isArray(loci_data)) {
+                        throw new Error('Invalid input types');
+                    }
+                    
+                    const alleles = {};
+                    const validAlleles = loci_data.flatMap(l => l.genes.map(g => g.allele)).concat('n');
+                    
+                    for (const locus of loci_data) {
+                        const geneOnLocus = genes.find(g => {
+                            if (!g) return false;
+                            const allelesInGene = g.includes('/') ? g.split('/') : [g];
+                            return allelesInGene.some(a => locus.genes.some(lg => lg.allele === a));
+                        });
+                        
+                        alleles[locus.locus] = geneOnLocus
+                            ? geneOnLocus.includes('/')
+                                ? geneOnLocus.split('/').map(a => validAlleles.includes(a) ? a : locus.null_allele).slice(0, 2)
+                                : [validAlleles.includes(geneOnLocus) ? geneOnLocus : locus.null_allele, locus.null_allele]
+                            : [locus.null_allele, locus.null_allele];
+                            
+                        if (alleles[locus.locus].length !== 2) {
+                            Logger.log(`Invalid allele pair for locus ${locus.locus}: ${alleles[locus.locus]}`);
+                            alleles[locus.locus] = [locus.null_allele, locus.null_allele];
+                        }
+                    }
+                    return alleles;
+                } catch (e) {
+                    ErrorHandler.handle(e, 'getAlleles');
+                    throw new Error('Invalid genotype format: use valid alleles (e.g., B+/BA, Sp).');
+                }
+            }
+        }
+
+        class PhenotypeHelper {
+            static phenotypeCache = new Map();
+
+            static getPhenotype(genes, phenotypeData, mane) {
+                try {
+                    if (!Array.isArray(genes) || !Array.isArray(phenotypeData) || !mane) {
+                        throw new Error(`Invalid input: genes=${JSON.stringify(genes)}, mane=${mane}`);
+                    }
+
+                    const cacheKey = `${genes.join('|')}|${mane}`;
+                    if (this.phenotypeCache.has(cacheKey)) {
+                        return this.phenotypeCache.get(cacheKey);
+                    }
+
+                    const has = (allele) => genes.some(g => g === allele || g.includes(`/${allele}`) || g.includes(`${allele}/`));
+                    
+                    let baseCoat = 'Tan';
+                    if (has('Vm/Vm')) baseCoat = 'Vermillion';
+                    else if (has('Ja/Ja')) baseCoat = 'Jade';
+                    else if (has('Vl/Vl')) baseCoat = 'Violet';
+                    else if (has('Am/Am')) baseCoat = 'Amber';
+                    else if (has('KB/KB') && !has('M+/MB') && !has('MB/M0')) baseCoat = 'Black';
+                    else if (has('BW/BW')) baseCoat = has('M0/M0') ? 'White' : has('MB/MB') ? 'Blue' : 'Slate';
+                    else if (has('BG/BG') || has('BG/n') || has('B+/BG') || has('BA/BG') || has('BG/BW')) {
+                        baseCoat = has('M0/M0') ? 'Seafoam' : has('MB/MB') ? 'Seagreen' : 'Green';
+                    }
+                    else if (has('BA/BA') || has('BA/n') || has('B+/BA') || has('BA/BG') || has('BA/BW')) {
+                        baseCoat = has('M0/M0') ? 'Lilac' : 'Brown';
+                    }
+                    else if (has('B+/B+') || has('B+/n') || has('B+/BA') || has('B+/BG') || has('B+/BW')) {
+                        baseCoat = has('M0/M0') ? 'Cream' : 'Tan';
+                    }
+
+                    let expressed = [];
+                    const carried = [];
+                    for (const pheno of phenotypeData) {
+                        if (pheno.TYPE !== GeneType.BASE && pheno.TYPE !== GeneType.MANE) {
+                            if (pheno.EXPRESSED_SETS?.some(set => set.every(gene => has(gene)))) {
+                                expressed.push(pheno.TEXT);
+                            } else if (pheno.CARRIED_SETS?.some(set => set.every(gene => has(gene)))) {
+                                carried.push(`Carries ${pheno.TEXT}`);
+                            }
+                        }
+                    }
+
+                    for (const rule of OverrideRules) {
+                        if (rule.requires.every(req => has(req))) {
+                            expressed = expressed.filter(p => !rule.removes.includes(p));
+                            expressed.push(rule.result);
+                        }
+                    }
+
+                    let phenoString = `${baseCoat} with ${mane} Mane`;
+                    const markings = expressed.filter(p => GeneMap[p.toUpperCase()]?.TYPE === GeneType.MARKING);
+                    if (markings.length) phenoString += ` / ${markings.join(' / ')}`;
+                    const traits = expressed.filter(p => GeneMap[p.toUpperCase()]?.TYPE === GeneType.TRAIT);
+                    if (traits.length) phenoString += ` [${traits.join(', ')}]`;
+                    if (carried.length) phenoString += ` (${carried.join(', ')})`;
+
+                    this.phenotypeCache.set(cacheKey, phenoString);
+                    return phenoString;
+                } catch (e) {
+                    ErrorHandler.handle(e, 'getPhenotype');
+                    return 'Error calculating phenotype';
+                }
+            }
+        }
+
+        class PunnettHelper {
+            static getPossibleClutchSize(p_a, p_b, items) {
+                try {
+                    const perkA = AgePerks[p_a.age] || AgePerks[Age.YOUNG_ADULT];
+                    const perkB = AgePerks[p_b.age] || AgePerks[Age.YOUNG_ADULT];
+                    let min = Math.min(perkA.clutch_min, perkB.clutch_min);
+                    let max = Math.max(perkA.clutch_max, perkB.clutch_max) + 
+                              (items.crescent_herb ? 2 : 0) + 
+                              (items.moonlit_herb ? 2 : 0);
+                    return min === max ? `${min} ${min === 1 ? 'egg' : 'eggs'}` : `${min} - ${max} eggs`;
+                } catch (e) {
+                    ErrorHandler.handle(e, 'getPossibleClutchSize');
+                    return CONFIG.BREEDING.DEFAULT_CLUTCH;
+                }
+            }
+
+            static getSexOdds() {
+                try {
+                    return { [Sex.MALE]: 50, [Sex.FEMALE]: 50 };
+                } catch (e) {
+                    ErrorHandler.handle(e, 'getSexOdds');
+                    return { [Sex.MALE]: 50, [Sex.FEMALE]: 50 };
+                }
+            }
+
+            static getBreedOdds(a, b) {
+                try {
+                    return BreedMix[`${a}_${b}`] || BreedMix[`${b}_${a}`] || (a === b ? { [a]: 100 } : { [a]: 50, [b]: 50 });
+                } catch (e) {
+                    ErrorHandler.handle(e, 'getBreedOdds');
+                    return { [Breed.THIL]: 100 };
+                }
+            }
+
+            static getPunnettOdds(allelesA, allelesB) {
+                try {
+                    const odds = {};
+                    for (const locus of loci) {
+                        const a1 = allelesA[locus.locus]?.[0] || locus.null_allele;
+                        const a2 = allelesA[locus.locus]?.[1] || locus.null_allele;
+                        const b1 = allelesB[locus.locus]?.[0] || locus.null_allele;
+                        const b2 = allelesB[locus.locus]?.[1] || locus.null_allele;
+                        const outcomes = [[a1, b1], [a1, b2], [a2, b1], [a2, b2]].map(pair => pair.sort().join('/'));
+                        const locusOdds = {};
+                        outcomes.forEach(outcome => { locusOdds[outcome] = (locusOdds[outcome] || 0) + 25; });
+                        odds[locus.locus] = Object.entries(locusOdds);
+                    }
+                    return odds;
+                } catch (e) {
+                    ErrorHandler.handle(e, 'getPunnettOdds');
+                    throw new Error('Error calculating genotype odds');
+                }
+            }
+        }
+
+        class GeneticsService {
+            static loci = [];
+            static phenotypes = [];
+
+            static load() {
+                try {
+                    this.loci = loci;
+                    this.phenotypes = Object.values(GeneMap);
+                } catch (e) {
+                    ErrorHandler.handle(e, 'GeneticsService.load');
+                }
+            }
+        }
+
+        function getManeOdds(maneA, maneB, speciesA, speciesB, celestialPerk) {
+            try {
+                const manes = [GeneMap.NATURAL, GeneMap.CURLY, GeneMap.SPHINX, GeneMap.LONG, GeneMap.FIERY];
+                const odds = {};
+                manes.forEach(mane => {
+                    odds[mane.TEXT] = mane.TEXT === maneA || mane.TEXT === maneB ? 40 : 5;
+                });
+                if (celestialPerk === 'Savage Boon') odds[GeneMap.FIERY.TEXT] += 20;
+                return odds;
+            } catch (e) {
+                ErrorHandler.handle(e, 'getManeOdds');
+                return { [CONFIG.BREEDING.DEFAULT_MANE]: 100 };
+            }
+        }
+
+        function getTraitOdds(items, parentA, parentB) {
+            try {
+                const odds = {};
+                const traits = [GeneMap.HORNED, GeneMap.FANGED, GeneMap.SABRETEETH];
+                const perkA = AgePerks[parentA.age] || AgePerks[Age.YOUNG_ADULT];
+                const perkB = AgePerks[parentB.age] || AgePerks[Age.YOUNG_ADULT];
+                const bonus = Math.max(perkA.trait_pass_bonus, perkB.trait_pass_bonus) + (items.moonlit_herb ? 10 : 0);
+                
+                traits.forEach(trait => {
+                    const hasTrait = parentA.genotype.includes(trait.TEXT[0]) || parentB.genotype.includes(trait.TEXT[0]);
+                    odds[trait.TEXT] = hasTrait ? 50 + bonus : 10 + bonus;
+                });
+                return odds;
+            } catch (e) {
+                ErrorHandler.handle(e, 'getTraitOdds');
+                return { Horned: 10, Fanged: 10, Sabreteeth: 10 };
+            }
+        }
+
+        function getElementOdds(elementA, elementB) {
+            try {
+                const odds = {};
+                Object.values(Element).forEach(elem => {
+                    odds[elem] = elem === elementA || elem === elementB ? 40 : 5;
+                });
+                return odds;
+            } catch (e) {
+                ErrorHandler.handle(e, 'getElementOdds');
+                return { [CONFIG.BREEDING.DEFAULT_ELEMENT]: 100 };
+            }
+        }
+
+        function calculateInfertility(parentA, parentB, coi) {
+            try {
+                let infertility = coi;
+                if (parentA.age === Age.ADOLESCENT || parentB.age === Age.ADOLESCENT) infertility += 20;
+                return Math.min(infertility, 100);
+            } catch (e) {
+                ErrorHandler.handle(e, 'calculateInfertility');
+                return coi;
+            }
+        }
+
+        function getPhenotypeForSidebar(genotype, mane) {
+            try {
+                if (!genotype || !mane) {
+                    throw new Error('Missing genotype or mane');
+                }
+                
+                GeneticsService.load();
+                const genes = GenotypeHelper.sliceGenotype(genotype);
+                if (!genes.length) {
+                    throw new Error('Empty genotype array');
+                }
+                
+                const phenotype = PhenotypeHelper.getPhenotype(genes, GeneticsService.phenotypes, mane);
+                if (CONFIG.LOGGING.ENABLED) {
+                    Logger.log(`${CONFIG.LOGGING.PREFIX} Phenotype calculated: ${phenotype}`);
+                }
+                return phenotype;
+            } catch (e) {
+                ErrorHandler.handle(e, 'getPhenotypeForSidebar');
+                return 'Error calculating phenotype';
+            }
+        }
+
+        function calculatePossibilities(p_a, p_b, items, coi) {
+            try {
+                if (!AgePerks[p_a.age]?.breedable || !AgePerks[p_b.age]?.breedable) {
+                    throw new Error('One or both parents are too young to breed.');
+                }
+                
+                const pA_alleles = GenotypeHelper.getAlleles(GenotypeHelper.sliceGenotype(p_a.genotype), GeneticsService.loci);
+                const pB_alleles = GenotypeHelper.getAlleles(GenotypeHelper.sliceGenotype(p_b.genotype), GeneticsService.loci);
+                
+                return {
+                    infertility: calculateInfertility(p_a, p_b, coi),
+                    clutch: PunnettHelper.getPossibleClutchSize(p_a, p_b, items),
+                    breeds: PunnettHelper.getBreedOdds(p_a.species, p_b.species),
+                    sex: PunnettHelper.getSexOdds(),
+                    manes: getManeOdds(p_a.mane, p_b.mane, p_a.species, p_b.species, items.celestial_perk),
+                    traits: getTraitOdds(items, p_a, p_b),
+                    elements: getElementOdds(p_a.element, p_b.element),
+                    genotypeOdds: PunnettHelper.getPunnettOdds(pA_alleles, pB_alleles)
+                };
+            } catch (e) {
+                ErrorHandler.handle(e, 'calculatePossibilities');
+                throw new Error(`Failed to calculate possibilities: ${e.message}`);
+            }
+        }
+
+        function rollOffspring(possibilities, parentA, parentB, items, coi) {
+            try {
+                if (parentA.age === Age.ADOLESCENT || parentB.age === Age.ADOLESCENT) {
+                    if (Math.random() < 0.2) {
+                        return '<h4>Breeding Failed!</h4><p>The offspring were stillborn due to the parents’ young age.</p>';
+                    }
+                }
+
+                const clutchParts = possibilities.clutch.replace(/ eggs?/, '').split(' - ');
+                const min = parseInt(clutchParts[0], 10);
+                const max = parseInt(clutchParts[1] || clutchParts[0], 10);
+                let clutchSize = Math.floor(Math.random() * (max - min + 1)) + min;
+
+                const infertility = possibilities.infertility || 0;
+                if (Math.random() * 100 < infertility) clutchSize = Math.floor(clutchSize / 2);
+                if (clutchSize < 1 && infertility < 100) clutchSize = 1;
+                if (infertility >= 100) clutchSize = 0;
+
+                if (clutchSize === 0) {
+                    return `<h4>Breeding Failed! (Infertility: ${infertility.toFixed(2)}%)</h4><p>No offspring were produced.</p>`;
+                }
+
+                let results = `<h4>Rolled a clutch of ${clutchSize}! (Infertility: ${infertility.toFixed(2)}%)</h4>`;
+                
+                const rollFromOdds = (odds) => {
+                    const rand = Math.random() * 100;
+                    let cumulative = 0;
+                    for (const [key, value] of Object.entries(odds)) {
+                        cumulative += value;
+                        if (rand < cumulative) return key;
+                    }
+                    return Object.keys(odds)[0];
+                };
+
+                for (let i = 1; i <= clutchSize; i++) {
+                    const rolledBreed = rollFromOdds(possibilities.breeds);
+                    const rolledSex = rollFromOdds(possibilities.sex);
+                    const rolledMane = rollFromOdds(possibilities.manes);
+                    const rolledElement = rollFromOdds(possibilities.elements);
+
+                    const rollGenotype = () => {
+                        const genotype = [];
+                        for (const locus in possibilities.genotypeOdds) {
+                            const rolledAllelePair = rollFromOdds(Object.fromEntries(possibilities.genotypeOdds[locus]));
+                            if (rolledAllelePair !== 'n/n') {
+                                const [a1, a2] = rolledAllelePair.split('/');
+                                genotype.push(a1 === a2 && a1 !== 'n' ? a1 : rolledAllelePair);
+                            }
+                        }
+                        return genotype;
+                    };
+
+                    let offspringGenotype = rollGenotype();
+                    let phenotypeString = PhenotypeHelper.getPhenotype(offspringGenotype, GeneticsService.phenotypes, rolledMane);
+                    
+                    if (offspringGenotype.includes('Cm/Cm')) {
+                        const secondGenotype = rollGenotype();
+                        const secondPhenotype = PhenotypeHelper.getPhenotype(secondGenotype, GeneticsService.phenotypes, rolledMane);
+                        offspringGenotype = offspringGenotype.concat(['//'], secondGenotype);
+                        phenotypeString += ` // ${secondPhenotype}`;
+                    }
+                    
+                    const genotypeString = offspringGenotype.join(' ') || 'None';
+
+                    const rolledTraits = Object.entries(possibilities.traits)
+                        .filter(([_, chance]) => Math.random() * 100 < chance)
+                        .map(([trait]) => trait);
+                    const finalTraits = rolledTraits.length ? rolledTraits.join(', ') : 'None';
+
+                    let defect = 'None';
+                    if (coi > 10 && Math.random() * 100 < coi) {
+                        const defectRoll = Math.random() * 100;
+                        defect = defectRoll < 5 + (coi / 2)
+                            ? Defects.Rare[Math.floor(Math.random() * Defects.Rare.length)]
+                            : defectRoll < 20 + (coi / 3)
+                                ? Defects.Uncommon[Math.floor(Math.random() * Defects.Uncommon.length)]
+                                : Defects.Common[Math.floor(Math.random() * Defects.Common.length)];
+                    }
+
+                    results += `
+                        <div class="mb-3 p-3 border rounded bg-light">
+                            <p class="mb-1"><strong>${i}) Species:</strong> ${rolledBreed}</p>
+                            <p class="mb-1"><strong>Mane Type:</strong> ${rolledMane}</p>
+                            <p class="mb-1"><strong>Sex:</strong> ${rolledSex}</p>
+                            <p class="mb-1"><strong>Age:</strong> Hatchling</p>
+                            <p class="mb-1"><strong>Inborn Element:</strong> ${rolledElement}</p>
+                            <p class="mb-1"><strong>Genotype:</strong> ${genotypeString}</p>
+                            <p class="mb-1"><strong>Phenotype:</strong> ${phenotypeString}</p>
+                            <p class="mb-1"><strong>Traits:</strong> ${finalTraits}</p>
+                            <p class="mb-1"><strong>Defects:</strong> ${defect}</p>
+                        </div>`;
+                }
+                return results;
+            } catch (e) {
+                ErrorHandler.handle(e, 'rollOffspring');
+                return `<h4>Error!</h4><p>Failed to roll offspring: ${e.message}</p>`;
+            }
+        }
+
+        function runBreedingCalculations(parentA, parentB, items, coiString) {
+            try {
+                if (!parentA || !parentB || !items || !coiString) {
+                    throw new Error('Missing required parameters');
+                }
+                
+                GeneticsService.load();
+                const coiMap = { 'None': 0, 'Slight': 15, 'Medium': 30, 'High': 50 };
+                const coi = coiMap[coiString] || 0;
+                const possibilities = calculatePossibilities(parentA, parentB, items, coi);
+                const results = rollOffspring(possibilities, parentA, parentB, items, coi);
+                
+                if (CONFIG.LOGGING.ENABLED) {
+                    Logger.log(`${CONFIG.LOGGING.PREFIX} Breeding calculations completed: clutch=${possibilities.clutch}`);
+                }
+                
+                return { possibilities, resultsHtml: results };
+            } catch (e) {
+                ErrorHandler.handle(e, 'runBreedingCalculations');
+                return { error: `Breeding calculation failed: ${e.message}` };
+            }
+        }
+
+        // Event Listener for Calculate Button
+        document.getElementById('calculate-btn').addEventListener('click', () => {
+            document.getElementById('error-message').style.display = 'none';
+            
+            const parentA = {
+                species: document.getElementById('parentA-species').value,
+                age: document.getElementById('parentA-age').value,
+                mane: document.getElementById('parentA-mane').value,
+                element: document.getElementById('parentA-element').value,
+                genotype: document.getElementById('parentA-genotype').value
+            };
+
+            const parentB = {
+                species: document.getElementById('parentB-species').value,
+                age: document.getElementById('parentB-age').value,
+                mane: document.getElementById('parentB-mane').value,
+                element: document.getElementById('parentB-element').value,
+                genotype: document.getElementById('parentB-genotype').value
+            };
+
+            const items = {
+                crescent_herb: document.getElementById('crescent-herb').checked,
+                moonlit_herb: document.getElementById('moonlit-herb').checked,
+                celestial_perk: document.getElementById('celestial-perk').value
+            };
+
+            const coi = document.getElementById('coi').value;
+
+            const result = runBreedingCalculations(parentA, parentB, items, coi);
+            if (result.error) {
+                document.getElementById('error-message').style.display = 'block';
+                document.getElementById('error-message').innerText = result.error;
+                document.getElementById('results').innerHTML = '';
+            } else {
+                document.getElementById('results').innerHTML = result.resultsHtml;
+            }
+        });
+    </script>
 </body>
 </html>
