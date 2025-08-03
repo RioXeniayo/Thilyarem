@@ -47,10 +47,13 @@
                     <label for="parentA-mane">Mane:</label>
                     <select id="parentA-mane" class="form-select">
                         <option value="Natural" selected>Natural</option>
+                        <option value="Half">Half</option>
+                        <option value="Full">Full</option>
                         <option value="Curly">Curly</option>
-                        <option value="Sphinx">Sphinx</option>
-                        <option value="Long">Long</option>
+                        <option value="Maneless">Maneless</option>
                         <option value="Fiery">Fiery</option>
+                        <option value="Silk">Silk</option>
+                        <option value="Regal">Regal</option>
                     </select>
                 </div>
                 <div class="col-md-6">
@@ -103,10 +106,13 @@
                     <label for="parentB-mane">Mane:</label>
                     <select id="parentB-mane" class="form-select">
                         <option value="Natural" selected>Natural</option>
+                        <option value="Half">Half</option>
+                        <option value="Full">Full</option>
                         <option value="Curly">Curly</option>
-                        <option value="Sphinx">Sphinx</option>
-                        <option value="Long">Long</option>
+                        <option value="Maneless">Maneless</option>
                         <option value="Fiery">Fiery</option>
+                        <option value="Silk">Silk</option>
+                        <option value="Regal">Regal</option>
                     </select>
                 </div>
                 <div class="col-md-6">
@@ -244,9 +250,10 @@
             MODIFIER: 5 
         };
         const Defects = {
-            Common: ['Sterility (Rarely)', 'Low Fertility', 'Deafness', 'Blindness', 'Anosmia'],
-            Uncommon: ['Malformation: Slight', 'Malformation: Medium', 'Malformation: Severe'],
-            Rare: ['Lameness', 'Hip Dysplasia', 'Heart Disease', 'Spinal Defect', 'Epilepsy']
+            Common: ['Deafness', 'Blindness', 'Anosmia'],
+            Uncommon: ['Slug Egg', 'Lameness', 'Hip Dysplasia'],
+            Rare: ['Infertile', 'Malformed Tail', 'Malformed Limbs', 'Heart Disease'],
+            VeryRare: ['Stillborn', 'Underdeveloped', 'Spinal Defect', 'Epilepsy']
         };
 
         const AgePerks = {
@@ -272,60 +279,70 @@
         };
 
         const GeneMap = {
-            TAN: { TEXT: 'Tan', TYPE: GeneType.BASE, EXPRESSED_SETS: [['B+']] },
-            CREAM: { TEXT: 'Cream', TYPE: GeneType.BASE, EXPRESSED_SETS: [['B+', 'M0/M0']] },
-            BROWN: { TEXT: 'Brown', TYPE: GeneType.BASE, EXPRESSED_SETS: [['BA']] },
-            LILAC: { TEXT: 'Lilac', TYPE: GeneType.BASE, EXPRESSED_SETS: [['BA', 'M0/M0']] },
-            GREEN: { TEXT: 'Green', TYPE: GeneType.BASE, EXPRESSED_SETS: [['BG']] },
-            SEAGREEN: { TEXT: 'Seagreen', TYPE: GeneType.BASE, EXPRESSED_SETS: [['BG', 'MB/MB']] },
-            SEAFOAM: { TEXT: 'Seafoam', TYPE: GeneType.BASE, EXPRESSED_SETS: [['BG', 'M0/M0']] },
-            SLATE: { TEXT: 'Slate', TYPE: GeneType.BASE, EXPRESSED_SETS: [['BW/BW']] },
+            TAN: { TEXT: 'Tan', TYPE: GeneType.BASE, EXPRESSED_SETS: [['B+/B+', 'M+/M+'], ['B+/B+', 'M+/MB'], ['B+/B+', 'M+/M0'], ['B+/B+', 'MB/MB'], ['B+/B+', 'MB/M0'], ['B+/BA', 'M+/M+'], ['B+/BA', 'M+/MB'], ['B+/BA', 'M+/M0'], ['B+/BA', 'MB/MB'], ['B+/BA', 'MB/M0'], ['B+/BG', 'M+/M+'], ['B+/BG', 'M+/MB'], ['B+/BG', 'M+/M0'], ['B+/BG', 'MB/MB'], ['B+/BG', 'MB/M0'], ['B+/BW', 'M+/M+'], ['B+/BW', 'M+/MB'], ['B+/BW', 'M+/M0'], ['B+/BW', 'MB/MB'], ['B+/BW', 'MB/M0']] },
+            CREAM: { TEXT: 'Cream', TYPE: GeneType.BASE, EXPRESSED_SETS: [['B+/B+', 'M0/M0'], ['B+/BA', 'M0/M0'], ['B+/BG', 'M0/M0'], ['B+/BW', 'M0/M0']] },
+            BROWN: { TEXT: 'Brown', TYPE: GeneType.BASE, EXPRESSED_SETS: [['BA/BA', 'M+/M+'], ['BA/BA', 'M+/MB'], ['BA/BA', 'M+/M0'], ['BA/BA', 'MB/MB'], ['BA/BA', 'MB/M0'], ['BA/BG', 'M+/M+'], ['BA/BG', 'M+/MB'], ['BA/BG', 'M+/M0'], ['BA/BG', 'MB/MB'], ['BA/BG', 'MB/M0'], ['BA/BW', 'M+/M+'], ['BA/BW', 'M+/MB'], ['BA/BW', 'M+/M0'], ['BA/BW', 'MB/MB'], ['BA/BW', 'MB/M0']] },
+            LILAC: { TEXT: 'Lilac', TYPE: GeneType.BASE, EXPRESSED_SETS: [['BA/BA', 'M0/M0'], ['BA/BG', 'M0/M0'], ['BA/BW', 'M0/M0']] },
+            GREEN: { TEXT: 'Green', TYPE: GeneType.BASE, EXPRESSED_SETS: [['BG/BG', 'M+/M+'], ['BG/BG', 'M+/MB'], ['BG/BG', 'M+/M0'], ['BG/BG', 'MB/M0'], ['BG/BW', 'M+/M+'], ['BG/BW', 'M+/MB'], ['BG/BW', 'M+/M0'], ['BG/BW', 'MB/M0']] },
+            SEAGREEN: { TEXT: 'Seagreen', TYPE: GeneType.BASE, EXPRESSED_SETS: [['BG/BG', 'MB/MB'], ['BG/BW', 'MB/MB']] },
+            SEAFOAM: { TEXT: 'Seafoam', TYPE: GeneType.BASE, EXPRESSED_SETS: [['BG/BG', 'M0/M0'], ['BG/BW', 'M0/M0']] },
+            SLATE: { TEXT: 'Slate', TYPE: GeneType.BASE, EXPRESSED_SETS: [['BW/BW', 'M+/M+'], ['BW/BW', 'M+/MB'], ['BW/BW', 'M+/M0'], ['BW/BW', 'MB/M0']] },
             BLUE: { TEXT: 'Blue', TYPE: GeneType.BASE, EXPRESSED_SETS: [['BW/BW', 'MB/MB']] },
             WHITE: { TEXT: 'White', TYPE: GeneType.BASE, EXPRESSED_SETS: [['BW/BW', 'M0/M0']] },
-            BLACK: { TEXT: 'Black', TYPE: GeneType.BASE, EXPRESSED_SETS: [['KB/KB']] },
-            VERMILLION: { TEXT: 'Vermillion', TYPE: GeneType.MODIFIER, EXPRESSED_SETS: [['Vm/Vm']], CARRIED_SETS: [['Vm/n']] },
-            JADE: { TEXT: 'Jade', TYPE: GeneType.MODIFIER, EXPRESSED_SETS: [['Ja/Ja']], CARRIED_SETS: [['Ja/n']] },
-            VIOLET: { TEXT: 'Violet', TYPE: GeneType.MODIFIER, EXPRESSED_SETS: [['Vl/Vl']], CARRIED_SETS: [['Vl/n']] },
-            AMBER: { TEXT: 'Amber', TYPE: GeneType.MODIFIER, EXPRESSED_SETS: [['Am/Am']], CARRIED_SETS: [['Am/n']] },
-            BELLYTONE: { TEXT: 'Bellytone', TYPE: GeneType.MARKING, EXPRESSED_SETS: [['Bt/Bt'], ['Bt/n']] },
-            COLLAR: { TEXT: 'Collar', TYPE: GeneType.MARKING, EXPRESSED_SETS: [['Cl/Cl'], ['Cl/n']] },
-            INKED: { TEXT: 'Inked', TYPE: GeneType.MARKING, EXPRESSED_SETS: [['In/In'], ['In/n']] },
-            MANTLE: { TEXT: 'Mantle', TYPE: GeneType.MARKING, EXPRESSED_SETS: [['Mnt/Mnt'], ['Mnt/n']] },
-            PANGARE: { TEXT: 'Pangare', TYPE: GeneType.MARKING, EXPRESSED_SETS: [['Pg/Pg'], ['Pg/n']] },
-            POINTS: { TEXT: 'Points', TYPE: GeneType.MARKING, EXPRESSED_SETS: [['Pt/Pt'], ['Pt/n']] },
-            ROAN: { TEXT: 'Roan', TYPE: GeneType.MARKING, EXPRESSED_SETS: [['Ro/Ro'], ['Ro/n']] },
-            SABLE: { TEXT: 'Sable', TYPE: GeneType.MARKING, EXPRESSED_SETS: [['Sb/Sb'], ['Sb/n']] },
-            SIAMESE: { TEXT: 'Siamese', TYPE: GeneType.MARKING, EXPRESSED_SETS: [['Si/Si'], ['Si/n']] },
-            STAINED: { TEXT: 'Stained', TYPE: GeneType.MARKING, EXPRESSED_SETS: [['Stn/Stn'], ['Stn/n']] },
-            OVERO: { TEXT: 'Overo', TYPE: GeneType.MARKING, EXPRESSED_SETS: [['Ov/Ov'], ['Ov/n']] },
-            APPALOOSA: { TEXT: 'Appaloosa', TYPE: GeneType.MARKING, EXPRESSED_SETS: [['Apl/Apl'], ['Apl/n']] },
-            BARRING: { TEXT: 'Barring', TYPE: GeneType.MARKING, EXPRESSED_SETS: [['Brn/Brn'], ['Brn/n']] },
-            DAPPLES: { TEXT: 'Dapples', TYPE: GeneType.MARKING, EXPRESSED_SETS: [['Dpl/Dpl'], ['Dpl/n']] },
-            BENGAL: { TEXT: 'Bengal', TYPE: GeneType.MARKING, EXPRESSED_SETS: [['Bng/Bng'], ['Bng/n']] },
-            MERLE: { TEXT: 'Merle', TYPE: GeneType.MARKING, EXPRESSED_SETS: [['Mrl/Mrl'], ['Mrl/n']] },
-            PANDA: { TEXT: 'Panda', TYPE: GeneType.MARKING, EXPRESSED_SETS: [['Pnd/Pnd'], ['Pnd/n']] },
-            PYTHON: { TEXT: 'Python', TYPE: GeneType.MARKING, EXPRESSED_SETS: [['Py/Py'], ['Py/n']] },
-            RORSCHACH: { TEXT: 'Rorschach', TYPE: GeneType.MARKING, EXPRESSED_SETS: [['Rsc/Rsc'], ['Rsc/n']] },
-            SPOTTED: { TEXT: 'Spotted', TYPE: GeneType.MARKING, EXPRESSED_SETS: [['Sp/Sp'], ['Sp/n']] },
-            DIAMOND: { TEXT: 'Diamond', TYPE: GeneType.MARKING, RARITY: 'rare', EXPRESSED_SETS: [['Di/Di']], CARRIED_SETS: [['Di/n']] },
-            GLINT: { TEXT: 'Glint', TYPE: GeneType.MARKING, RARITY: 'rare', EXPRESSED_SETS: [['Gl/Gl']], CARRIED_SETS: [['Gl/n']] },
-            IRIDESCENT: { TEXT: 'Iridescent', TYPE: GeneType.MARKING, RARITY: 'rare', EXPRESSED_SETS: [['Ir/Ir']], CARRIED_SETS: [['Ir/n']] },
-            PIEBALD: { TEXT: 'Piebald', TYPE: GeneType.MARKING, RARITY: 'rare', EXPRESSED_SETS: [['Pb/Pb']], CARRIED_SETS: [['Pb/n']] },
-            TICKING: { TEXT: 'Ticking', TYPE: GeneType.MARKING, RARITY: 'rare', EXPRESSED_SETS: [['Tk/Tk']], CARRIED_SETS: [['Tk/n']] },
-            SPECTRUM: { TEXT: 'Spectrum', TYPE: GeneType.MARKING, RARITY: 'rare', EXPRESSED_SETS: [['Stm/Stm']], CARRIED_SETS: [['Stm/n']] },
-            SPIDER: { TEXT: 'Spider', TYPE: GeneType.MARKING, RARITY: 'rare', EXPRESSED_SETS: [['Sd/Sd']], CARRIED_SETS: [['Sd/n']] },
-            WIDOW: { TEXT: 'Widow', TYPE: GeneType.MARKING, RARITY: 'rare', EXPRESSED_SETS: [['Wd/Wd']], CARRIED_SETS: [['Wd/n']] },
-            PAINTED: { TEXT: 'Painted', TYPE: GeneType.MARKING, RARITY: 'rare' },
-            ALBINISM: { TEXT: 'Albinism', TYPE: GeneType.MUTATION, RARITY: 'rare', EXPRESSED_SETS: [['Alb/Alb']], CARRIED_SETS: [['Alb/n']] },
-            CHIMERISM: { TEXT: 'Chimerism', TYPE: GeneType.MUTATION, RARITY: 'rare', EXPRESSED_SETS: [['Cm/Cm']], CARRIED_SETS: [['Cm/n']] },
+            BLACK: { TEXT: 'Black', TYPE: GeneType.BASE, EXPRESSED_SETS: [['B+/B+', 'KB/KB'], ['B+/BA', 'KB/KB'], ['B+/BG', 'KB/KB'], ['B+/BW', 'KB/KB'], ['BA/BA', 'KB/KB'], ['BA/BG', 'KB/KB'], ['BA/BW', 'KB/KB'], ['BG/BG', 'KB/KB'], ['BG/BW', 'KB/KB'], ['BW/BW', 'KB/KB']] },
+            VERMILLION: { TEXT: 'Vermillion', TYPE: GeneType.MODIFIER, EXPRESSED_SETS: [['R/R']], CARRIED_SETS: [['R/n']] },
+            JADE: { TEXT: 'Jade', TYPE: GeneType.MODIFIER, EXPRESSED_SETS: [['J/J']], CARRIED_SETS: [['J/n']] },
+            AMBER: { TEXT: 'Amber', TYPE: GeneType.MODIFIER, EXPRESSED_SETS: [['C/C']], CARRIED_SETS: [['C/n']] },
+            PEARL: { TEXT: 'Pearl', TYPE: GeneType.MODIFIER, EXPRESSED_SETS: [['P/P']], CARRIED_SETS: [['P/n']] },
+            DAPPLES: { TEXT: 'Dapples', TYPE: GeneType.MARKING, RARITY: 'common', EXPRESSED_SETS: [['Dpl/Dpl'], ['Dpl/n']] },
+            BELLYTONE: { TEXT: 'Bellytone', TYPE: GeneType.MARKING, RARITY: 'common', EXPRESSED_SETS: [['Bt/Bt'], ['Bt/n']] },
+            MANTLE: { TEXT: 'Mantle', TYPE: GeneType.MARKING, RARITY: 'common', EXPRESSED_SETS: [['Mtl/Mtl'], ['Mtl/n']] },
+            COLLAR: { TEXT: 'Collar', TYPE: GeneType.MARKING, RARITY: 'common', EXPRESSED_SETS: [['Clr/Clr'], ['Clr/n']] },
+            INKED: { TEXT: 'Inked', TYPE: GeneType.MARKING, RARITY: 'common', EXPRESSED_SETS: [['Ikd/Ikd'], ['Ikd/n']] },
+            SIAMESE: { TEXT: 'Siamese', TYPE: GeneType.MARKING, RARITY: 'common', EXPRESSED_SETS: [['Sia/Sia'], ['Sia/n']] },
+            POINTS: { TEXT: 'Points', TYPE: GeneType.MARKING, RARITY: 'common', EXPRESSED_SETS: [['Pnt/Pnt'], ['Pnt/n']] },
+            STAINED: { TEXT: 'Stained', TYPE: GeneType.MARKING, RARITY: 'common', EXPRESSED_SETS: [['Stn/Stn'], ['Stn/n']] },
+            ROAN: { TEXT: 'Roan', TYPE: GeneType.MARKING, RARITY: 'common', EXPRESSED_SETS: [['Rn/Rn'], ['Rn/n']] },
+            TABBY: { TEXT: 'Tabby', TYPE: GeneType.MARKING, RARITY: 'common', EXPRESSED_SETS: [['Tby/Tby'], ['Tby/n']] },
+            SPOTTED: { TEXT: 'Spotted', TYPE: GeneType.MARKING, RARITY: 'common', EXPRESSED_SETS: [['Spt/Spt'], ['Spt/n']] },
+            APPALOOSA: { TEXT: 'Appaloosa', TYPE: GeneType.MARKING, RARITY: 'uncommon', EXPRESSED_SETS: [['Apl/Apl'], ['Apl/n']] },
+            MERLE: { TEXT: 'Merle', TYPE: GeneType.MARKING, RARITY: 'uncommon', EXPRESSED_SETS: [['Mrl/Mrl'], ['Mrl/n']] },
+            BARRING: { TEXT: 'Barring', TYPE: GeneType.MARKING, RARITY: 'uncommon', EXPRESSED_SETS: [['Brn/Brn'], ['Brn/n']] },
+            DUN: { TEXT: 'Dun', TYPE: GeneType.MARKING, RARITY: 'uncommon', EXPRESSED_SETS: [['Dn/Dn'], ['Dn/n']] },
+            PYTHON: { TEXT: 'Python', TYPE: GeneType.MARKING, RARITY: 'uncommon', EXPRESSED_SETS: [['Pyn/Pyn'], ['Pyn/n']] },
+            STREAKS: { TEXT: 'Streaks', TYPE: GeneType.MARKING, RARITY: 'uncommon', EXPRESSED_SETS: [['Stk/Stk'], ['Stk/n']] },
+            OVERO: { TEXT: 'Overo', TYPE: GeneType.MARKING, RARITY: 'uncommon', EXPRESSED_SETS: [['Ovr/Ovr'], ['Ovr/n']] },
+            RORSCHACH: { TEXT: 'Rorschach', TYPE: GeneType.MARKING, RARITY: 'uncommon', EXPRESSED_SETS: [['Rsc/Rsc'], ['Rsc/n']] },
+            PANGARE: { TEXT: 'Pangare', TYPE: GeneType.MARKING, RARITY: 'uncommon', EXPRESSED_SETS: [['Pg/Pg'], ['Pg/n']] },
+            SABLE: { TEXT: 'Sable', TYPE: GeneType.MARKING, RARITY: 'uncommon', EXPRESSED_SETS: [['Sb/Sb'], ['Sb/n']] },
+            PIEBALD: { TEXT: 'Piebald', TYPE: GeneType.MARKING, RARITY: 'rare', EXPRESSED_SETS: [['Pb/Pb'], ['Pb/n']] },
+            GLINT: { TEXT: 'Glint', TYPE: GeneType.MARKING, RARITY: 'rare', EXPRESSED_SETS: [['Gln/Gln'], ['Gln/n']] },
+            SNOWFALL: { TEXT: 'Snowfall', TYPE: GeneType.MARKING, RARITY: 'rare', EXPRESSED_SETS: [['Sf/Sf'], ['Sf/n']] },
+            WIDOW: { TEXT: 'Widow', TYPE: GeneType.MARKING, RARITY: 'rare', EXPRESSED_SETS: [['Wd/Wd'], ['Wd/n']] },
+            DIAMOND: { TEXT: 'Diamond', TYPE: GeneType.MARKING, RARITY: 'rare', EXPRESSED_SETS: [['Dmd/Dmd'], ['Dmd/n']] },
+            SPIDER: { TEXT: 'Spider', TYPE: GeneType.MARKING, RARITY: 'rare', EXPRESSED_SETS: [['Spr/Spr'], ['Spr/n']] },
+            SPECTRUM: { TEXT: 'Spectrum', TYPE: GeneType.MARKING, RARITY: 'rare', EXPRESSED_SETS: [['Stm/Stm'], ['Stm/n']] },
+            IRIDESCENT: { TEXT: 'Iridescent', TYPE: GeneType.MARKING, RARITY: 'rare', EXPRESSED_SETS: [['Iri/Iri'], ['Iri/n']] },
+            VITILIGO: { TEXT: 'Vitiligo', TYPE: GeneType.MUTATION, RARITY: 'common', EXPRESSED_SETS: [['Vit/Vit'], ['Vit/n']] },
+            INVERSA: { TEXT: 'Inversa', TYPE: GeneType.MUTATION, RARITY: 'uncommon', EXPRESSED_SETS: [['Inv/Inv'], ['Inv/n']] },
+            LEUCISTIC: { TEXT: 'Leucistic', TYPE: GeneType.MUTATION, RARITY: 'uncommon', EXPRESSED_SETS: [['Les/Les'], ['Les/n']] },
+            ALBINO: { TEXT: 'Albino', TYPE: GeneType.MUTATION, RARITY: 'uncommon', EXPRESSED_SETS: [['Alb/Alb'], ['Alb/n']] },
+            AXANTHIC_G: { TEXT: 'Axanthic-G', TYPE: GeneType.MUTATION, RARITY: 'uncommon', EXPRESSED_SETS: [['Axg/Axg'], ['Axg/n']] },
+            ERYTHRISTIC: { TEXT: 'Erythristic', TYPE: GeneType.MUTATION, RARITY: 'rare', EXPRESSED_SETS: [['Ery/Ery'], ['Ery/n']] },
+            LAVENDER_ALBINO: { TEXT: 'Lavender Albino', TYPE: GeneType.MUTATION, RARITY: 'rare', EXPRESSED_SETS: [['Lva/Lva'], ['Lva/n']] },
+            AXANTHIC_M: { TEXT: 'Axanthic-M', TYPE: GeneType.MUTATION, RARITY: 'rare', EXPRESSED_SETS: [['Axm/Axm'], ['Axm/n']] },
+            CHIMERISM: { TEXT: 'Chimerism', TYPE: GeneType.MUTATION, RARITY: 'very rare', EXPRESSED_SETS: [['Cm/Cm'], ['Cm/n']] },
             NATURAL: { TEXT: 'Natural', TYPE: GeneType.MANE, RARITY: 'common' },
+            HALF: { TEXT: 'Half', TYPE: GeneType.MANE, RARITY: 'common' },
+            FULL: { TEXT: 'Full', TYPE: GeneType.MANE, RARITY: 'common' },
             CURLY: { TEXT: 'Curly', TYPE: GeneType.MANE, RARITY: 'uncommon' },
-            SPHINX: { TEXT: 'Sphinx', TYPE: GeneType.MANE, RARITY: 'uncommon' },
-            LONG: { TEXT: 'Long', TYPE: GeneType.MANE, RARITY: 'rare' },
+            MANELESS: { TEXT: 'Maneless', TYPE: GeneType.MANE, RARITY: 'uncommon' },
             FIERY: { TEXT: 'Fiery', TYPE: GeneType.MANE, RARITY: 'rare' },
+            SILK: { TEXT: 'Silk', TYPE: GeneType.MANE, RARITY: 'rare' },
+            REGAL: { TEXT: 'Regal', TYPE: GeneType.MANE, RARITY: 'rare' },
             HORNED: { TEXT: 'Horned', TYPE: GeneType.TRAIT, RARITY: 'uncommon', EXPRESSED_SETS: [['Hr/Hr'], ['Hr/n']] },
             FANGED: { TEXT: 'Fanged', TYPE: GeneType.TRAIT, RARITY: 'uncommon', EXPRESSED_SETS: [['Fg/Fg'], ['Fg/n']] },
-            SABRETEETH: { TEXT: 'Sabreteeth', TYPE: GeneType.TRAIT, RARITY: 'rare', EXPRESSED_SETS: [['St/St']], CARRIED_SETS: [['St/n']] }
+            SABRETEETH: { TEXT: 'Sabreteeth', TYPE: GeneType.TRAIT, RARITY: 'rare', EXPRESSED_SETS: [['St/St'], ['St/n']] }
         };
 
         const OverrideRules = [
@@ -348,39 +365,47 @@
                 { allele: 'K+', homozygous_genotype: 'K+/K+', heterozygous_genotypes: ['K+/KB'] },
                 { allele: 'KB', homozygous_genotype: 'KB/KB', heterozygous_genotypes: [] }
             ]},
-            { locus: 'Vm', category: 'modifier', null_allele: 'n', genes: [{ allele: 'Vm', homozygous_genotype: 'Vm/Vm', heterozygous_genotypes: ['Vm/n'] }] },
-            { locus: 'Ja', category: 'modifier', null_allele: 'n', genes: [{ allele: 'Ja', homozygous_genotype: 'Ja/Ja', heterozygous_genotypes: ['Ja/n'] }] },
-            { locus: 'Vl', category: 'modifier', null_allele: 'n', genes: [{ allele: 'Vl', homozygous_genotype: 'Vl/Vl', heterozygous_genotypes: ['Vl/n'] }] },
-            { locus: 'Am', category: 'modifier', null_allele: 'n', genes: [{ allele: 'Am', homozygous_genotype: 'Am/Am', heterozygous_genotypes: ['Am/n'] }] },
-            { locus: 'Bt', category: 'marking', null_allele: 'n', genes: [{ allele: 'Bt', homozygous_genotype: 'Bt/Bt', heterozygous_genotypes: ['Bt/n'] }] },
-            { locus: 'Cl', category: 'marking', null_allele: 'n', genes: [{ allele: 'Cl', homozygous_genotype: 'Cl/Cl', heterozygous_genotypes: ['Cl/n'] }] },
-            { locus: 'In', category: 'marking', null_allele: 'n', genes: [{ allele: 'In', homozygous_genotype: 'In/In', heterozygous_genotypes: ['In/n'] }] },
-            { locus: 'Mnt', category: 'marking', null_allele: 'n', genes: [{ allele: 'Mnt', homozygous_genotype: 'Mnt/Mnt', heterozygous_genotypes: ['Mnt/n'] }] },
-            { locus: 'Pg', category: 'marking', null_allele: 'n', genes: [{ allele: 'Pg', homozygous_genotype: 'Pg/Pg', heterozygous_genotypes: ['Pg/n'] }] },
-            { locus: 'Pt', category: 'marking', null_allele: 'n', genes: [{ allele: 'Pt', homozygous_genotype: 'Pt/Pt', heterozygous_genotypes: ['Pt/n'] }] },
-            { locus: 'Ro', category: 'marking', null_allele: 'n', genes: [{ allele: 'Ro', homozygous_genotype: 'Ro/Ro', heterozygous_genotypes: ['Ro/n'] }] },
-            { locus: 'Sb', category: 'marking', null_allele: 'n', genes: [{ allele: 'Sb', homozygous_genotype: 'Sb/Sb', heterozygous_genotypes: ['Sb/n'] }] },
-            { locus: 'Si', category: 'marking', null_allele: 'n', genes: [{ allele: 'Si', homozygous_genotype: 'Si/Si', heterozygous_genotypes: ['Si/n'] }] },
-            { locus: 'Stn', category: 'marking', null_allele: 'n', genes: [{ allele: 'Stn', homozygous_genotype: 'Stn/Stn', heterozygous_genotypes: ['Stn/n'] }] },
-            { locus: 'Ov', category: 'marking', null_allele: 'n', genes: [{ allele: 'Ov', homozygous_genotype: 'Ov/Ov', heterozygous_genotypes: ['Ov/n'] }] },
-            { locus: 'Apl', category: 'marking', null_allele: 'n', genes: [{ allele: 'Apl', homozygous_genotype: 'Apl/Apl', heterozygous_genotypes: ['Apl/n'] }] },
-            { locus: 'Brn', category: 'marking', null_allele: 'n', genes: [{ allele: 'Brn', homozygous_genotype: 'Brn/Brn', heterozygous_genotypes: ['Brn/n'] }] },
+            { locus: 'R', category: 'modifier', null_allele: 'n', genes: [{ allele: 'R', homozygous_genotype: 'R/R', heterozygous_genotypes: ['R/n'] }] },
+            { locus: 'J', category: 'modifier', null_allele: 'n', genes: [{ allele: 'J', homozygous_genotype: 'J/J', heterozygous_genotypes: ['J/n'] }] },
+            { locus: 'C', category: 'modifier', null_allele: 'n', genes: [{ allele: 'C', homozygous_genotype: 'C/C', heterozygous_genotypes: ['C/n'] }] },
+            { locus: 'P', category: 'modifier', null_allele: 'n', genes: [{ allele: 'P', homozygous_genotype: 'P/P', heterozygous_genotypes: ['P/n'] }] },
             { locus: 'Dpl', category: 'marking', null_allele: 'n', genes: [{ allele: 'Dpl', homozygous_genotype: 'Dpl/Dpl', heterozygous_genotypes: ['Dpl/n'] }] },
-            { locus: 'Bng', category: 'marking', null_allele: 'n', genes: [{ allele: 'Bng', homozygous_genotype: 'Bng/Bng', heterozygous_genotypes: ['Bng/n'] }] },
+            { locus: 'Bt', category: 'marking', null_allele: 'n', genes: [{ allele: 'Bt', homozygous_genotype: 'Bt/Bt', heterozygous_genotypes: ['Bt/n'] }] },
+            { locus: 'Mtl', category: 'marking', null_allele: 'n', genes: [{ allele: 'Mtl', homozygous_genotype: 'Mtl/Mtl', heterozygous_genotypes: ['Mtl/n'] }] },
+            { locus: 'Clr', category: 'marking', null_allele: 'n', genes: [{ allele: 'Clr', homozygous_genotype: 'Clr/Clr', heterozygous_genotypes: ['Clr/n'] }] },
+            { locus: 'Ikd', category: 'marking', null_allele: 'n', genes: [{ allele: 'Ikd', homozygous_genotype: 'Ikd/Ikd', heterozygous_genotypes: ['Ikd/n'] }] },
+            { locus: 'Sia', category: 'marking', null_allele: 'n', genes: [{ allele: 'Sia', homozygous_genotype: 'Sia/Sia', heterozygous_genotypes: ['Sia/n'] }] },
+            { locus: 'Pnt', category: 'marking', null_allele: 'n', genes: [{ allele: 'Pnt', homozygous_genotype: 'Pnt/Pnt', heterozygous_genotypes: ['Pnt/n'] }] },
+            { locus: 'Stn', category: 'marking', null_allele: 'n', genes: [{ allele: 'Stn', homozygous_genotype: 'Stn/Stn', heterozygous_genotypes: ['Stn/n'] }] },
+            { locus: 'Rn', category: 'marking', null_allele: 'n', genes: [{ allele: 'Rn', homozygous_genotype: 'Rn/Rn', heterozygous_genotypes: ['Rn/n'] }] },
+            { locus: 'Tby', category: 'marking', null_allele: 'n', genes: [{ allele: 'Tby', homozygous_genotype: 'Tby/Tby', heterozygous_genotypes: ['Tby/n'] }] },
+            { locus: 'Spt', category: 'marking', null_allele: 'n', genes: [{ allele: 'Spt', homozygous_genotype: 'Spt/Spt', heterozygous_genotypes: ['Spt/n'] }] },
+            { locus: 'Apl', category: 'marking', null_allele: 'n', genes: [{ allele: 'Apl', homozygous_genotype: 'Apl/Apl', heterozygous_genotypes: ['Apl/n'] }] },
             { locus: 'Mrl', category: 'marking', null_allele: 'n', genes: [{ allele: 'Mrl', homozygous_genotype: 'Mrl/Mrl', heterozygous_genotypes: ['Mrl/n'] }] },
-            { locus: 'Pnd', category: 'marking', null_allele: 'n', genes: [{ allele: 'Pnd', homozygous_genotype: 'Pnd/Pnd', heterozygous_genotypes: ['Pnd/n'] }] },
-            { locus: 'Py', category: 'marking', null_allele: 'n', genes: [{ allele: 'Py', homozygous_genotype: 'Py/Py', heterozygous_genotypes: ['Py/n'] }] },
+            { locus: 'Brn', category: 'marking', null_allele: 'n', genes: [{ allele: 'Brn', homozygous_genotype: 'Brn/Brn', heterozygous_genotypes: ['Brn/n'] }] },
+            { locus: 'Dn', category: 'marking', null_allele: 'n', genes: [{ allele: 'Dn', homozygous_genotype: 'Dn/Dn', heterozygous_genotypes: ['Dn/n'] }] },
+            { locus: 'Pyn', category: 'marking', null_allele: 'n', genes: [{ allele: 'Pyn', homozygous_genotype: 'Pyn/Pyn', heterozygous_genotypes: ['Pyn/n'] }] },
+            { locus: 'Stk', category: 'marking', null_allele: 'n', genes: [{ allele: 'Stk', homozygous_genotype: 'Stk/Stk', heterozygous_genotypes: ['Stk/n'] }] },
+            { locus: 'Ovr', category: 'marking', null_allele: 'n', genes: [{ allele: 'Ovr', homozygous_genotype: 'Ovr/Ovr', heterozygous_genotypes: ['Ovr/n'] }] },
             { locus: 'Rsc', category: 'marking', null_allele: 'n', genes: [{ allele: 'Rsc', homozygous_genotype: 'Rsc/Rsc', heterozygous_genotypes: ['Rsc/n'] }] },
-            { locus: 'Sp', category: 'marking', null_allele: 'n', genes: [{ allele: 'Sp', homozygous_genotype: 'Sp/Sp', heterozygous_genotypes: ['Sp/n'] }] },
-            { locus: 'Di', category: 'marking', null_allele: 'n', genes: [{ allele: 'Di', homozygous_genotype: 'Di/Di', heterozygous_genotypes: ['Di/n'] }] },
-            { locus: 'Gl', category: 'marking', null_allele: 'n', genes: [{ allele: 'Gl', homozygous_genotype: 'Gl/Gl', heterozygous_genotypes: ['Gl/n'] }] },
-            { locus: 'Ir', category: 'marking', null_allele: 'n', genes: [{ allele: 'Ir', homozygous_genotype: 'Ir/Ir', heterozygous_genotypes: ['Ir/n'] }] },
+            { locus: 'Pg', category: 'marking', null_allele: 'n', genes: [{ allele: 'Pg', homozygous_genotype: 'Pg/Pg', heterozygous_genotypes: ['Pg/n'] }] },
+            { locus: 'Sb', category: 'marking', null_allele: 'n', genes: [{ allele: 'Sb', homozygous_genotype: 'Sb/Sb', heterozygous_genotypes: ['Sb/n'] }] },
             { locus: 'Pb', category: 'marking', null_allele: 'n', genes: [{ allele: 'Pb', homozygous_genotype: 'Pb/Pb', heterozygous_genotypes: ['Pb/n'] }] },
-            { locus: 'Tk', category: 'marking', null_allele: 'n', genes: [{ allele: 'Tk', homozygous_genotype: 'Tk/Tk', heterozygous_genotypes: ['Tk/n'] }] },
+            { locus: 'Gln', category: 'marking', null_allele: 'n', genes: [{ allele: 'Gln', homozygous_genotype: 'Gln/Gln', heterozygous_genotypes: ['Gln/n'] }] },
+            { locus: 'Sf', category: 'marking', null_allele: 'n', genes: [{ allele: 'Sf', homozygous_genotype: 'Sf/Sf', heterozygous_genotypes: ['Sf/n'] }] },
+            { locus: 'Wd', category: 'marking', null_allele: 'n', genes: [{ allele: 'Wd', homozygous_genotype: 'Wd/Wd', heterozygous_genotypes: ['Wd/n'] }] },
+            { locus: 'Dmd', category: 'marking', null_allele: 'n', genes: [{ allele: 'Dmd', homozygous_genotype: 'Dmd/Dmd', heterozygous_genotypes: ['Dmd/n'] }] },
+            { locus: 'Spr', category: 'marking', null_allele: 'n', genes: [{ allele: 'Spr', homozygous_genotype: 'Spr/Spr', heterozygous_genotypes: ['Spr/n'] }] },
             { locus: 'Stm', category: 'marking', null_allele: 'n', genes: [{ allele: 'Stm', homozygous_genotype: 'Stm/Stm', heterozygous_genotypes: ['Stm/n'] }] },
-            { locus: 'Sd', category: 'marking', null_allele: 'n', genes: [{ allele: 'Sd', homozygous_genotype: 'Sd/Sd', heterozygous_genotypes: ['Sd/n'] ]] },
-            { locus: 'Wd', category: 'marking', null_allele: 'n', genes: [{ allele: 'Wd', homozygous_genotype: 'Wd/Wd', heterozygous_genotypes: ['Wd/n'] ]] },
+            { locus: 'Iri', category: 'marking', null_allele: 'n', genes: [{ allele: 'Iri', homozygous_genotype: 'Iri/Iri', heterozygous_genotypes: ['Iri/n'] }] },
+            { locus: 'Vit', category: 'mutation', null_allele: 'n', genes: [{ allele: 'Vit', homozygous_genotype: 'Vit/Vit', heterozygous_genotypes: ['Vit/n'] }] },
+            { locus: 'Inv', category: 'mutation', null_allele: 'n', genes: [{ allele: 'Inv', homozygous_genotype: 'Inv/Inv', heterozygous_genotypes: ['Inv/n'] }] },
+            { locus: 'Les', category: 'mutation', null_allele: 'n', genes: [{ allele: 'Les', homozygous_genotype: 'Les/Les', heterozygous_genotypes: ['Les/n'] }] },
             { locus: 'Alb', category: 'mutation', null_allele: 'n', genes: [{ allele: 'Alb', homozygous_genotype: 'Alb/Alb', heterozygous_genotypes: ['Alb/n'] }] },
+            { locus: 'Axg', category: 'mutation', null_allele: 'n', genes: [{ allele: 'Axg', homozygous_genotype: 'Axg/Axg', heterozygous_genotypes: ['Axg/n'] }] },
+            { locus: 'Ery', category: 'mutation', null_allele: 'n', genes: [{ allele: 'Ery', homozygous_genotype: 'Ery/Ery', heterozygous_genotypes: ['Ery/n'] }] },
+            { locus: 'Lva', category: 'mutation', null_allele: 'n', genes: [{ allele: 'Lva', homozygous_genotype: 'Lva/Lva', heterozygous_genotypes: ['Lva/n'] }] },
+            { locus: 'Axm', category: 'mutation', null_allele: 'n', genes: [{ allele: 'Axm', homozygous_genotype: 'Axm/Axm', heterozygous_genotypes: ['Axm/n'] }] },
             { locus: 'Cm', category: 'mutation', null_allele: 'n', genes: [{ allele: 'Cm', homozygous_genotype: 'Cm/Cm', heterozygous_genotypes: ['Cm/n'] }] },
             { locus: 'Hr', category: 'trait', null_allele: 'n', genes: [{ allele: 'Hr', homozygous_genotype: 'Hr/Hr', heterozygous_genotypes: ['Hr/n'] }] },
             { locus: 'Fg', category: 'trait', null_allele: 'n', genes: [{ allele: 'Fg', homozygous_genotype: 'Fg/Fg', heterozygous_genotypes: ['Fg/n'] }] },
@@ -431,7 +456,7 @@
                     return alleles;
                 } catch (e) {
                     ErrorHandler.handle(e, 'getAlleles');
-                    throw new Error('Invalid genotype format: use valid alleles (e.g., B+/BA, Sp).');
+                    throw new Error('Invalid genotype format: use valid alleles (e.g., B+/BA, Spt).');
                 }
             }
         }
@@ -453,19 +478,21 @@
                     const has = (allele) => genes.some(g => g === allele || g.includes(`/${allele}`) || g.includes(`${allele}/`));
                     
                     let baseCoat = 'Tan';
-                    if (has('Vm/Vm')) baseCoat = 'Vermillion';
-                    else if (has('Ja/Ja')) baseCoat = 'Jade';
-                    else if (has('Vl/Vl')) baseCoat = 'Violet';
-                    else if (has('Am/Am')) baseCoat = 'Amber';
-                    else if (has('KB/KB') && !has('M+/MB') && !has('MB/M0')) baseCoat = 'Black';
-                    else if (has('BW/BW')) baseCoat = has('M0/M0') ? 'White' : has('MB/MB') ? 'Blue' : 'Slate';
-                    else if (has('BG/BG') || has('BG/n') || has('B+/BG') || has('BA/BG') || has('BG/BW')) {
+                    if (has('R/R')) baseCoat = 'Vermillion';
+                    else if (has('J/J')) baseCoat = 'Jade';
+                    else if (has('C/C')) baseCoat = 'Amber';
+                    else if (has('P/P')) baseCoat = 'Pearl';
+                    else if (has('KB/KB')) {
+                        if (has('B+/B+') || has('B+/BA') || has('B+/BG') || has('B+/BW') || 
+                            has('BA/BA') || has('BA/BG') || has('BA/BW') || 
+                            has('BG/BG') || has('BG/BW') || has('BW/BW')) baseCoat = 'Black';
+                    } else if (has('BW/BW')) {
+                        baseCoat = has('M0/M0') ? 'White' : has('MB/MB') ? 'Blue' : 'Slate';
+                    } else if (has('BG/BG') || has('BG/BW')) {
                         baseCoat = has('M0/M0') ? 'Seafoam' : has('MB/MB') ? 'Seagreen' : 'Green';
-                    }
-                    else if (has('BA/BA') || has('BA/n') || has('B+/BA') || has('BA/BG') || has('BA/BW')) {
+                    } else if (has('BA/BA') || has('BA/BG') || has('BA/BW')) {
                         baseCoat = has('M0/M0') ? 'Lilac' : 'Brown';
-                    }
-                    else if (has('B+/B+') || has('B+/n') || has('B+/BA') || has('B+/BG') || has('B+/BW')) {
+                    } else if (has('B+/B+') || has('B+/BA') || has('B+/BG') || has('B+/BW')) {
                         baseCoat = has('M0/M0') ? 'Cream' : 'Tan';
                     }
 
@@ -493,6 +520,8 @@
                     if (markings.length) phenoString += ` / ${markings.join(' / ')}`;
                     const traits = expressed.filter(p => GeneMap[p.toUpperCase()]?.TYPE === GeneType.TRAIT);
                     if (traits.length) phenoString += ` [${traits.join(', ')}]`;
+                    const mutations = expressed.filter(p => GeneMap[p.toUpperCase()]?.TYPE === GeneType.MUTATION);
+                    if (mutations.length) phenoString += ` {${mutations.join(', ')}}`;
                     if (carried.length) phenoString += ` (${carried.join(', ')})`;
 
                     this.phenotypeCache.set(cacheKey, phenoString);
@@ -575,12 +604,37 @@
 
         function getManeOdds(maneA, maneB, speciesA, speciesB, celestialPerk) {
             try {
-                const manes = [GeneMap.NATURAL, GeneMap.CURLY, GeneMap.SPHINX, GeneMap.LONG, GeneMap.FIERY];
+                const manes = [GeneMap.NATURAL, GeneMap.HALF, GeneMap.FULL, GeneMap.CURLY, GeneMap.MANELESS, GeneMap.FIERY, GeneMap.SILK, GeneMap.REGAL];
                 const odds = {};
+                const maneRules = {
+                    'Natural_Natural': { 'Natural': 75, 'Half': 20, 'Full': 5 },
+                    'Natural_Half': { 'Natural': 55, 'Half': 43, 'Sphinx': 2 },
+                    'Natural_Full': { 'Natural': 50, 'Full': 45, 'Curly': 5 },
+                    'Natural_Curly': { 'Natural': 40, 'Full': 45, 'Curly': 15 },
+                    'Natural_Maneless': { 'Natural': 40, 'Half': 54, 'Maneless': 6 },
+                    'Natural_Fiery': { 'Natural': 60, 'Full': 10, 'Curly': 25, 'Fiery': 5 },
+                    'Natural_Silk': { 'Natural': 50, 'Full': 25, 'Curly': 20, 'Silk': 5 },
+                    'Natural_Regal': { 'Full': 40, 'Natural': 20, 'Curly': 10, 'Fiery': 25, 'Regal': 5 }
+                    // Add more rules for other combinations as needed
+                };
+
+                const key = `${maneA}_${maneB}` in maneRules ? `${maneA}_${maneB}` : `${maneB}_${maneA}`;
+                const rule = maneRules[key] || (maneA === maneB ? { [maneA]: 100 } : { [maneA]: 50, [maneB]: 50 });
+
                 manes.forEach(mane => {
-                    odds[mane.TEXT] = mane.TEXT === maneA || mane.TEXT === maneB ? 40 : 5;
+                    odds[mane.TEXT] = rule[mane.TEXT] || 0;
                 });
-                if (celestialPerk === 'Savage Boon') odds[GeneMap.FIERY.TEXT] += 20;
+
+                if (celestialPerk === 'Savage Boon') odds[GeneMap.FIERY.TEXT] = (odds[GeneMap.FIERY.TEXT] || 0) + 20;
+
+                // Normalize odds to sum to 100
+                let total = Object.values(odds).reduce((sum, val) => sum + val, 0);
+                if (total > 0) {
+                    Object.keys(odds).forEach(key => {
+                        odds[key] = (odds[key] / total) * 100;
+                    });
+                }
+
                 return odds;
             } catch (e) {
                 ErrorHandler.handle(e, 'getManeOdds');
@@ -751,11 +805,10 @@
                     let defect = 'None';
                     if (coi > 10 && Math.random() * 100 < coi) {
                         const defectRoll = Math.random() * 100;
-                        defect = defectRoll < 5 + (coi / 2)
-                            ? Defects.Rare[Math.floor(Math.random() * Defects.Rare.length)]
-                            : defectRoll < 20 + (coi / 3)
-                                ? Defects.Uncommon[Math.floor(Math.random() * Defects.Uncommon.length)]
-                                : Defects.Common[Math.floor(Math.random() * Defects.Common.length)];
+                        defect = defectRoll < 5 ? Defects.VeryRare[Math.floor(Math.random() * Defects.VeryRare.length)] :
+                                 defectRoll < 15 ? Defects.Rare[Math.floor(Math.random() * Defects.Rare.length)] :
+                                 defectRoll < 30 ? Defects.Uncommon[Math.floor(Math.random() * Defects.Uncommon.length)] :
+                                 Defects.Common[Math.floor(Math.random() * Defects.Common.length)];
                     }
 
                     results += `
