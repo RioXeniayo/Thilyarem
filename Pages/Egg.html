@@ -3,496 +3,246 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Random Egg Generator</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <title>Dragon Egg Generator</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <style>
-        body { padding: 20px; background-color: #f8f9fa; }
-        .container { max-width: 600px; }
-        .form-section { background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
-        .results-section { margin-top: 20px; }
-        .form-select, .btn { margin-bottom: 15px; }
-        .error-message { color: red; display: none; }
+        body {
+            background-color: #f0f2f5;
+            padding-top: 2rem;
+            padding-bottom: 2rem;
+        }
+        .container {
+            max-width: 800px;
+        }
+        .card {
+            margin-bottom: 1.5rem;
+        }
+        #results-output {
+            white-space: pre-wrap;
+            font-family: monospace;
+            background-color: #e9ecef;
+            border-radius: .375rem;
+            padding: 1rem;
+            min-height: 300px;
+        }
+        h1 {
+            text-align: center;
+            margin-bottom: 1.5rem;
+        }
     </style>
 </head>
 <body>
-    <div class="container">
-        <h1 class="mb-4">Random Egg Generator</h1>
-        <div class="form-section">
-            <label for="egg-type">Egg Type:</label>
-            <select id="egg-type" class="form-select">
-                <option value="Common">Common</option>
-                <option value="Uncommon">Uncommon</option>
-                <option value="Rare">Rare</option>
-                <option value="Destrier">Destrier</option>
-                <option value="Mystery">Mystery</option>
-                <option value="Cyroas" disabled>Cyroas (Coming Soon)</option>
-            </select>
-            <button id="roll-btn" class="btn btn-primary me-2">Roll</button>
-            <button id="reset-btn" class="btn btn-secondary">Reset</button>
-            <div id="error-message" class="error-message mt-2"></div>
+
+<div class="container">
+    <h1>Dragon Egg Generator 🥚</h1>
+
+    <div class="card">
+        <div class="card-body">
+            <div class="row align-items-end">
+                <div class="col-md-8">
+                    <label for="egg-type-select" class="form-label">Select Egg Type:</label>
+                    <select class="form-select" id="egg-type-select">
+                        <option value="Common" selected>Common (Thilyarem/Cyroa)</option>
+                        <option value="Uncommon">Uncommon (Thilyarem/Cyroa)</option>
+                        <option value="Rare">Rare (Thilyarem/Cyroa)</option>
+                        <option value="Destrier">Destrier (Common Stats)</option>
+                        <option value="Mystery">Mystery (Completely Random)</option>
+                    </select>
+                </div>
+                <div class="col-md-4 mt-3 mt-md-0">
+                    <button id="generate-btn" class="btn btn-primary w-100">Generate Egg</button>
+                </div>
+            </div>
         </div>
-        <div id="results" class="results-section"></div>
+    </div>
+    
+    <div class="card">
+        <div class="card-header">
+            Generated Dragon
+        </div>
+        <div class="card-body">
+            <div id="results-output">Select an egg type and click "Generate Egg" to see the results.</div>
+        </div>
     </div>
 
-    <script>
-        try {
-            // Configuration constants
-            const CONFIG = {
-                LOGGING: {
-                    ENABLED: true,
-                    PREFIX: '[EggGenerator]'
-                }
-            };
+</div> <script>
+document.addEventListener('DOMContentLoaded', function() {
 
-            // Simple logger
-            const Logger = {
-                log: (message) => {
-                    if (CONFIG.LOGGING.ENABLED) {
-                        console.log(message);
-                    }
-                }
-            };
+    // --- DATA DEFINITIONS (Ported from Breeding Roller) ---
+    const GENOTYPES = {
+        'Tan': ["B+/B+ M+/M+ K+/K+", "B+/B+ M+/MB K+/K+", "B+/B+ M+/M0 K+/K+", "B+/B+ MB/MB K+/K+", "B+/B+ MB/M0 K+/K+", "B+/B+ M+/M+ K+/KB", "B+/B+ M+/MB K+/KB", "B+/B+ M+/M0 K+/KB", "B+/B+ MB/MB K+/KB", "B+/B+ MB/M0 K+/KB", "B+/B+ M+/M+ KB/KB", "B+/B+ M+/MB KB/KB", "B+/B+ M+/M0 KB/KB", "B+/B+ MB/MB KB/KB", "B+/B+ MB/M0 KB/KB", "B+/BA M+/M+ K+/K+", "B+/BA M+/MB K+/K+", "B+/BA M+/M0 K+/K+", "B+/BA MB/MB K+/K+", "B+/BA MB/M0 K+/K+", "B+/BA M+/M+ K+/KB", "B+/BA M+/MB K+/KB", "B+/BA M+/M0 K+/KB", "B+/BA MB/MB K+/KB", "B+/BA MB/M0 K+/KB", "B+/BA M+/M+ KB/KB", "B+/BA M+/MB KB/KB", "B+/BA M+/M0 KB/KB", "B+/BA MB/MB KB/KB", "B+/BA MB/M0 KB/KB", "B+/BG M+/M+ K+/K+", "B+/BG M+/MB K+/K+", "B+/BG M+/M0 K+/K+", "B+/BG MB/MB K+/K+", "B+/BG MB/M0 K+/K+", "B+/BG M+/M+ K+/KB", "B+/BG M+/MB K+/KB", "B+/BG M+/M0 K+/KB", "B+/BG MB/MB K+/KB", "B+/BG MB/M0 K+/KB", "B+/BG M+/M+ KB/KB", "B+/BG M+/MB KB/KB", "B+/BG M+/M0 KB/KB", "B+/BG MB/MB KB/KB", "B+/BG MB/M0 KB/KB", "B+/BW M+/M+ K+/K+", "B+/BW M+/MB K+/K+", "B+/BW M+/M0 K+/K+", "B+/BW MB/MB K+/K+", "B+/BW MB/M0 K+/K+", "B+/BW M+/M+ K+/KB", "B+/BW M+/MB K+/KB", "B+/BW M+/M0 K+/KB", "B+/BW MB/MB K+/KB", "B+/BW MB/M0 K+/KB", "B+/BW M+/M+ KB/KB", "B+/BW M+/MB KB/KB", "B+/BW M+/M0 KB/KB", "B+/BW MB/MB KB/KB", "B+/BW MB/M0 KB/KB"],
+        'Brown': ["BA/BA M+/M+ K+/K+", "BA/BA M+/MB K+/K+", "BA/BA M+/M0 K+/K+", "BA/BA MB/MB K+/K+", "BA/BA MB/M0 K+/K+", "BA/BA M+/M+ K+/KB", "BA/BA M+/MB K+/KB", "BA/BA M+/M0 K+/KB", "BA/BA MB/MB K+/KB", "BA/BA MB/M0 K+/KB", "BA/BA M+/M+ KB/KB", "BA/BA M+/MB KB/KB", "BA/BA M+/M0 KB/KB", "BA/BA MB/MB KB/KB", "BA/BA MB/M0 KB/KB", "BA/BG M+/M+ K+/K+", "BA/BG M+/MB K+/K+", "BA/BG M+/M0 K+/K+", "BA/BG MB/MB K+/K+", "BA/BG MB/M0 K+/K+", "BA/BG M+/M+ K+/KB", "BA/BG M+/MB K+/KB", "BA/BG M+/M0 K+/KB", "BA/BG MB/MB K+/KB", "BA/BG MB/M0 K+/KB", "BA/BG M+/M+ KB/KB", "BA/BG M+/MB KB/KB", "BA/BG M+/M0 KB/KB", "BA/BG MB/MB KB/KB", "BA/BG MB/M0 KB/KB", "BA/BW M+/M+ K+/K+", "BA/BW M+/MB K+/K+", "BA/BW M+/M0 K+/K+", "BA/BW MB/MB K+/K+", "BA/BW MB/M0 K+/K+", "BA/BW M+/M+ K+/KB", "BA/BW M+/MB K+/KB", "BA/BW M+/M0 K+/KB", "BA/BW MB/MB K+/KB", "BA/BW MB/M0 K+/KB", "BA/BW M+/M+ KB/KB", "BA/BW M+/MB KB/KB", "BA/BW M+/M0 KB/KB", "BA/BW MB/MB KB/KB", "BA/BW MB/M0 KB/KB"],
+        'Green': ["BG/BG M+/M+ K+/K+", "BG/BG M+/MB K+/K+", "BG/BG M+/M0 K+/K+", "BG/BG MB/M0 K+/K+", "BG/BG M+/M+ K+/KB", "BG/BG M+/MB K+/KB", "BG/BG M+/M0 K+/KB", "BG/BG MB/M0 K+/KB", "BG/BG M+/M+ KB/KB", "BG/BG M+/MB KB/KB", "BG/BG M+/M0 KB/KB", "BG/BG MB/M0 KB/KB", "BG/BW M+/M+ K+/K+", "BG/BW M+/MB K+/K+", "BG/BW M+/M0 K+/K+", "BG/BW MB/M0 K+/K+", "BG/BW M+/M+ K+/KB", "BG/BW M+/MB K+/KB", "BG/BW M+/M0 K+/KB", "BG/BW MB/M0 K+/KB", "BG/BW M+/M+ KB/KB", "BG/BW M+/MB KB/KB", "BG/BW M+/M0 KB/KB", "BG/BW MB/M0 KB/KB"],
+        'White': ["BW/BW M0/M0 K+/K+", "BW/BW M0/M0 K+/KB", "BW/BW M0/M0 KB/KB"],
+        'Black': ["B+/B+ M+/M+ KB/KB", "B+/BA M+/M+ KB/KB", "B+/BG M+/M+ KB/KB", "B+/BW M+/M+ KB/KB", "BA/BA M+/M+ KB/KB", "BA/BG M+/M+ KB/KB", "BA/BW M+/M+ KB/KB", "BG/BG M+/M+ KB/KB", "BG/BW M+/M+ KB/KB", "BW/BW M+/M+ KB/KB"],
+        'Cream': ["B+/B+ M0/M0 K+/K+", "B+/B+ M0/M0 K+/KB", "B+/B+ M0/M0 KB/KB", "B+/BA M0/M0 K+/K+", "B+/BA M0/M0 K+/KB", "B+/BA M0/M0 KB/KB", "B+/BG M0/M0 K+/K+", "B+/BG M0/M0 K+/KB", "B+/BG M0/M0 KB/KB", "B+/BW M0/M0 K+/K+", "B+/BW M0/M0 K+/KB", "B+/BW M0/M0 KB/KB"],
+        'Lilac': ["BA/BA M0/M0 K+/K+", "BA/BA M0/M0 K+/KB", "BA/BA M0/M0 KB/KB", "BA/BG M0/M0 K+/K+", "BA/BG M0/M0 K+/KB", "BA/BG M0/M0 KB/KB", "BA/BW M0/M0 K+/K+", "BA/BW M0/M0 K+/KB", "BA/BW M0/M0 KB/KB"],
+        'Seagreen': ["BG/BG MB/MB K+/K+", "BG/BG MB/MB K+/KB", "BG/BG MB/MB KB/KB", "BG/BW MB/MB K+/K+", "BG/BW MB/MB K+/KB", "BG/BW MB/MB KB/KB"],
+        'Seafoam': ["BG/BG M0/M0 K+/K+", "BG/BG M0/M0 K+/KB", "BG/BG M0/M0 KB/KB", "BG/BW M0/M0 K+/K+", "BG/BW M0/M0 K+/KB", "BG/BW M0/M0 KB/KB"],
+        'Slate': ["BW/BW M+/M+ K+/K+", "BW/BW M+/MB K+/K+", "BW/BW M+/M0 K+/K+", "BW/BW MB/M0 K+/K+", "BW/BW M+/M+ K+/KB", "BW/BW M+/MB K+/KB", "BW/BW M+/M0 K+/KB", "BW/BW MB/M0 K+/KB", "BW/BW M+/M+ KB/KB", "BW/BW M+/MB KB/KB", "BW/BW M+/M0 KB/KB", "BW/BW MB/M0 KB/KB"],
+        'Blue': ["BW/BW MB/MB K+/K+", "BW/BW MB/MB K+/KB", "BW/BW MB/MB KB/KB"],
+    };
+    const GENE_LIBRARY = {
+        Markings: { Dpl: { name: 'Dapples', rarity: 'Common' }, Bt: { name: 'Bellytone', rarity: 'Common' }, Mtl: { name: 'Mantle', rarity: 'Common' }, Clr: { name: 'Collar', rarity: 'Common' }, Ikd: { name: 'Inked', rarity: 'Common' }, Sia: { name: 'Siamese', rarity: 'Common' }, Pnt: { name: 'Points', rarity: 'Common' }, Stn: { name: 'Stained', rarity: 'Common' }, Rn: { name: 'Roan', rarity: 'Common' }, Tby: { name: 'Tabby', rarity: 'Common' }, Spt: { name: 'Spotted', rarity: 'Common' }, Apl: { name: 'Appalosa', rarity: 'Uncommon' }, Mrl: { name: 'Merle', rarity: 'Uncommon' }, Brn: { name: 'Barring', rarity: 'Uncommon' }, Dn: { name: 'Dun', rarity: 'Uncommon' }, Pyn: { name: 'Python', rarity: 'Uncommon' }, Stk: { name: 'Streaks', rarity: 'Uncommon' }, Ovr: { name: 'Overo', rarity: 'Uncommon' }, Rsc: { name: 'Rorscach', rarity: 'Uncommon' }, Pg: { name: 'Pangare', rarity: 'Uncommon' }, Sb: { name: 'Sable', rarity: 'Uncommon' }, Pb: { name: 'Piebald', rarity: 'Rare' }, Gnt: { name: 'Glint', rarity: 'Rare' }, Sf: { name: 'Snowfall', rarity: 'Rare' }, Wd: { name: 'Widow', rarity: 'Rare' }, Dmd: { name: 'Diamond', rarity: 'Rare' }, Spr: { name: 'Spider', rarity: 'Rare' }, Stm: { name: 'Spectrum', rarity: 'Rare' }, Iri: { name: 'Iridescent', rarity: 'Rare' } },
+        Mutations: { Vit: { name: 'Vitiligo', rarity: 'Common' }, Inv: { name: 'Inversa', rarity: 'Uncommon' }, Les: { name: 'Leucistic', rarity: 'Uncommon' }, Alb: { name: 'Albino', rarity: 'Uncommon' }, Axg: { name: 'Axanthic -G', rarity: 'Uncommon' }, Ery: { name: 'Erythristic', rarity: 'Rare' }, Lva: { name: 'Lavender Albino', rarity: 'Rare' }, Axm: { name: 'Axanthic-M', rarity: 'Rare' } },
+        Traits: { Ho: { name: 'Horns', rarity: 'Uncommon' }, Fg: { name: 'Fangs', rarity: 'Uncommon' }, Sp: { name: 'Spines', rarity: 'Rare' } },
+        Abilities: { Unbent: { name: 'Unbent'}, Cunning: { name: 'Cunning'}, Strike: { name: 'Strike'}, Bold: { name: 'Bold'}, Swift: { name: 'Swift'}, Skillful_Hunter: { name: 'Skillful Hunter'}, Completionist: { name: 'Completionist'}, Ocean_Champion: { name: 'Ocean Champion'}, Fish_Wrangler: { name: 'Fish Wrangler'}, Charismatic: { name: 'Charismatic'}, Shaman: { name: 'Shaman'}, Foraging_Maestro: { name: 'Foraging Maestro'} }
+    };
+    const ELEMENTS = ['Fire', 'Water', 'Air', 'Earth', 'Metal', 'Wood', 'Ice', 'Lightning', 'Light', 'Shadow', 'Aether', 'Verdant', 'Unknown'];
+    const MANETYPES = ['Natural', 'Razor', 'Sphinx', 'Curly', 'Long', 'Fiery', 'Barbary'];
 
-            // Error Handler
-            class ErrorHandler {
-                static handle(error, context) {
-                    const message = `${CONFIG.LOGGING.PREFIX} Error in ${context}: ${error.message}\nStack: ${error.stack}`;
-                    Logger.log(message);
-                    document.getElementById('error-message').style.display = 'block';
-                    document.getElementById('error-message').innerText = `Error: ${error.message}`;
-                    return message;
-                }
-            }
+    const getRandom = (arr) => arr[Math.floor(Math.random() * arr.length)];
+    const roll = (chance) => Math.random() < chance;
 
-            // Enums and Data
-            const Sex = { MALE: 'Male', FEMALE: 'Female' };
-            const Breed = { THIL: 'Thilyarem', DEST: 'Destrier', CYROA: 'Cyroas' };
-            const ScientificNames = {
-                [Breed.THIL]: 'Panlongus lykophus pelagius',
-                [Breed.DEST]: 'Panlongus lykophus imperator',
-                [Breed.CYROA]: 'Panlongus murepera scirto'
-            };
-            const Element = { 
-                FIRE: 'Fire', WATER: 'Water', AIR: 'Air', EARTH: 'Earth', METAL: 'Metal',
-                WOOD: 'Wood', ICE: 'Ice', LIGHTNING: 'Lightning', LIGHT: 'Light',
-                SHADOW: 'Shadow', AETHER: 'Aether', VERDANT: 'Verdant'
-            };
-            const GeneType = { BASE: 0, MARKING: 1, MUTATION: 2, MANE: 3, TRAIT: 4 };
+    const resultsOutput = document.getElementById('results-output');
+    const generateBtn = document.getElementById('generate-btn');
+    const eggTypeSelect = document.getElementById('egg-type-select');
 
-            // GeneMap with a subset of genes
-            const GeneMap = { // Start GeneMap
-                TAN: { 
-                    TEXT: 'Tan', 
-                    TYPE: GeneType.BASE, 
-                    RARITY: 'common', 
-                    EXPRESSED_SETS: [ // Start EXPRESSED_SETS
-                        ['B+/B+', 'M+/M+'], 
-                        ['B+/B+', 'M+/M0'], 
-                        ['B+/BA', 'M+/M+'], 
-                        ['B+/BA', 'M+/M0']
-                    ] // End EXPRESSED_SETS
-                },
-                CREAM: { 
-                    TEXT: 'Cream', 
-                    TYPE: GeneType.BASE, 
-                    RARITY: 'common', 
-                    EXPRESSED_SETS: [ // Start EXPRESSED_SETS
-                        ['B+/B+', 'M0/M0'], 
-                        ['B+/BA', 'M0/M0']
-                    ] // End EXPRESSED_SETS
-                },
-                GREEN: { 
-                    TEXT: 'Green', 
-                    TYPE: GeneType.BASE, 
-                    RARITY: 'uncommon', 
-                    EXPRESSED_SETS: [ // Start EXPRESSED_SETS
-                        ['BG/BG', 'M+/M+'], 
-                        ['BG/BG', 'M+/M0']
-                    ] // End EXPRESSED_SETS
-                },
-                DAPPLES: { 
-                    TEXT: 'Dapples', 
-                    TYPE: GeneType.MARKING, 
-                    RARITY: 'common', 
-                    EXPRESSED_SETS: [ // Start EXPRESSED_SETS
-                        ['Dpl/Dpl'], 
-                        ['Dpl/n']
-                    ] // End EXPRESSED_SETS
-                },
-                VITILIGO: { 
-                    TEXT: 'Vitiligo', 
-                    TYPE: GeneType.MUTATION, 
-                    RARITY: 'common', 
-                    EXPRESSED_SETS: [ // Start EXPRESSED_SETS
-                        ['Vit/Vit'], 
-                        ['Vit/n']
-                    ] // End EXPRESSED_SETS
-                },
-                NATURAL: { 
-                    TEXT: 'Natural', 
-                    TYPE: GeneType.MANE, 
-                    RARITY: 'common' 
-                },
-                HORNED: { 
-                    TEXT: 'Horned', 
-                    TYPE: GeneType.TRAIT, 
-                    RARITY: 'uncommon', 
-                    EXPRESSED_SETS: [ // Start EXPRESSED_SETS
-                        ['Hr/Hr'], 
-                        ['Hr/n']
-                    ] // End EXPRESSED_SETS
-                }
-            }; // End GeneMap
-
-            // Loci with corresponding loci
-            const loci = [ // Start loci
-                { 
-                    locus: 'B', 
-                    category: 'base', 
-                    null_allele: 'n', 
-                    genes: [ // Start genes
-                        { allele: 'B+', homozygous_genotype: 'B+/B+', heterozygous_genotypes: ['B+/BA', 'B+/BG'] },
-                        { allele: 'BA', homozygous_genotype: 'BA/BA', heterozygous_genotypes: [] },
-                        { allele: 'BG', homozygous_genotype: 'BG/BG', heterozygous_genotypes: [] }
-                    ] // End genes
-                },
-                { 
-                    locus: 'M', 
-                    category: 'base', 
-                    null_allele: 'n', 
-                    genes: [ // Start genes
-                        { allele: 'M+', homozygous_genotype: 'M+/M+', heterozygous_genotypes: ['M+/M0'] },
-                        { allele: 'M0', homozygous_genotype: 'M0/M0', heterozygous_genotypes: [] }
-                    ] // End genes
-                },
-                { 
-                    locus: 'Dpl', 
-                    category: 'marking', 
-                    null_allele: 'n', 
-                    genes: [ // Start genes
-                        { allele: 'Dpl', homozygous_genotype: 'Dpl/Dpl', heterozygous_genotypes: ['Dpl/n'] }
-                    ] // End genes
-                },
-                { 
-                    locus: 'Vit', 
-                    category: 'mutation', 
-                    null_allele: 'n', 
-                    genes: [ // Start genes
-                        { allele: 'Vit', homozygous_genotype: 'Vit/Vit', heterozygous_genotypes: ['Vit/n'] }
-                    ] // End genes
-                },
-                { 
-                    locus: 'Hr', 
-                    category: 'trait', 
-                    null_allele: 'n', 
-                    genes: [ // Start genes
-                        { allele: 'Hr', homozygous_genotype: 'Hr/Hr', heterozygous_genotypes: ['Hr/n'] }
-                    ] // End genes
-                }
-            ]; // End loci
-
-            // EggRules with all egg types
-            const EggRules = { // Start EggRules
-                Common: {
-                    species: { [Breed.THIL]: 100 },
-                    baseColors: ['Tan', 'Cream'],
-                    manes: { Natural: 100 },
-                    markings: ['Dapples'],
-                    markingCount: [1, 2],
-                    mutations: { Vitiligo: 20 },
-                    traits: { Horned: 10 },
-                    modifiers: {}
-                },
-                Uncommon: {
-                    species: { [Breed.THIL]: 100 },
-                    baseColors: ['Green'],
-                    manes: { Natural: 100 },
-                    markings: ['Dapples'],
-                    markingCount: [1, 2],
-                    mutations: { Vitiligo: 25 },
-                    traits: { Horned: 15 },
-                    modifiers: {}
-                },
-                Rare: {
-                    species: { [Breed.THIL]: 100 },
-                    baseColors: ['Green'],
-                    manes: { Natural: 100 },
-                    markings: ['Dapples'],
-                    markingCount: [1, 3],
-                    mutations: { Vitiligo: 30 },
-                    traits: { Horned: 20 },
-                    modifiers: {}
-                },
-                Destrier: {
-                    species: { [Breed.DEST]: 100 },
-                    baseColors: ['Tan', 'Cream'],
-                    manes: { Natural: 100 },
-                    markings: ['Dapples'],
-                    markingCount: [1, 2],
-                    mutations: { Vitiligo: 25 },
-                    traits: { Horned: 15 },
-                    modifiers: {}
-                },
-                Mystery: {
-                    species: { [Breed.THIL]: 95, [Breed.DEST]: 5 },
-                    baseColors: ['Tan', 'Cream', 'Green'],
-                    manes: {
-                        [Breed.THIL]: { Natural: 100 },
-                        [Breed.DEST]: { Natural: 100 }
-                    },
-                    markings: ['Dapples'],
-                    markingCount: [1, 3],
-                    mutations: { Vitiligo: 25 },
-                    traits: { Horned: 15 },
-                    modifiers: {}
-                }
-            }; // End EggRules
-
-            // Helper Classes
-            class PhenotypeHelper {
-                static phenotypeCache = new Map();
-
-                static getPhenotype(genes, phenotypeData, mane) {
-                    try {
-                        Logger.log(`${CONFIG.LOGGING.PREFIX} Calculating phenotype for genes: ${genes.join(', ')}, mane: ${mane}`);
-                        if (!Array.isArray(genes) || !Array.isArray(phenotypeData) || !mane) {
-                            throw new Error(`Invalid input: genes=${JSON.stringify(genes)}, mane=${mane}`);
-                        }
-
-                        const cacheKey = `${genes.join('|')}|${mane}`;
-                        if (this.phenotypeCache.has(cacheKey)) {
-                            Logger.log(`${CONFIG.LOGGING.PREFIX} Using cached phenotype: ${cacheKey}`);
-                            return this.phenotypeCache.get(cacheKey);
-                        }
-
-                        const has = (allele) => genes.some(g => g === allele || g.includes(`/${allele}`) || g.includes(`${allele}/`));
-                        
-                        let baseCoat = 'Tan';
-                        if (has('BG/BG')) {
-                            baseCoat = 'Green';
-                        } else if (has('B+/B+') || has('B+/BA')) {
-                            baseCoat = has('M0/M0') ? 'Cream' : 'Tan';
-                        }
-
-                        let expressed = [];
-                        for (const pheno of phenotypeData) {
-                            if (pheno.TYPE !== GeneType.BASE && pheno.TYPE !== GeneType.MANE) {
-                                if (pheno.EXPRESSED_SETS?.some(set => set.every(gene => has(gene)))) {
-                                    expressed.push(pheno.TEXT);
-                                }
-                            }
-                        }
-
-                        let phenoString = `${baseCoat} with ${mane} Mane`;
-                        const markings = expressed.filter(p => GeneMap[p.toUpperCase()]?.TYPE === GeneType.MARKING);
-                        if (markings.length) phenoString += ` / ${markings.join(' / ')}`;
-                        const traits = expressed.filter(p => GeneMap[p.toUpperCase()]?.TYPE === GeneType.TRAIT);
-                        if (traits.length) phenoString += ` [${traits.join(', ')}]`;
-                        const mutations = expressed.filter(p => GeneMap[p.toUpperCase()]?.TYPE === GeneType.MUTATION);
-                        if (mutations.length) phenoString += ` {${mutations.join(', ')}}`;
-
-                        this.phenotypeCache.set(cacheKey, phenoString);
-                        Logger.log(`${CONFIG.LOGGING.PREFIX} Phenotype calculated: ${phenoString}`);
-                        return phenoString;
-                    } catch (e) {
-                        ErrorHandler.handle(e, 'getPhenotype');
-                        return 'Error calculating phenotype';
-                    }
-                }
-            }
-
-            class GeneticsService {
-                static loci = [];
-                static phenotypes = [];
-
-                static load() {
-                    try {
-                        Logger.log(`${CONFIG.LOGGING.PREFIX} Loading GeneticsService`);
-                        this.loci = loci;
-                        this.phenotypes = Object.values(GeneMap);
-                        Logger.log(`${CONFIG.LOGGING.PREFIX} GeneticsService loaded: ${this.loci.length} loci, ${this.phenotypes.length} phenotypes`);
-                    } catch (e) {
-                        ErrorHandler.handle(e, 'GeneticsService.load');
-                    }
-                }
-            }
-
-            function rollFromOdds(odds) {
-                try {
-                    Logger.log(`${CONFIG.LOGGING.PREFIX} Rolling from odds: ${JSON.stringify(odds)}`);
-                    const rand = Math.random() * 100;
-                    let cumulative = 0;
-                    for (const [key, value] of Object.entries(odds)) {
-                        cumulative += value;
-                        if (rand < cumulative) {
-                            Logger.log(`${CONFIG.LOGGING.PREFIX} Selected: ${key}`);
-                            return key;
-                        }
-                    }
-                    const defaultKey = Object.keys(odds)[0];
-                    Logger.log(`${CONFIG.LOGGING.PREFIX} Defaulting to: ${defaultKey}`);
-                    return defaultKey;
-                } catch (e) {
-                    ErrorHandler.handle(e, 'rollFromOdds');
-                    return Object.keys(odds)[0];
-                }
-            }
-
-            function getRandomElement() {
-                const elements = Object.values(Element);
-                const selected = elements[Math.floor(Math.random() * elements.length)];
-                Logger.log(`${CONFIG.LOGGING.PREFIX} Random element: ${selected}`);
-                return selected;
-            }
-
-            function getRandomMarkings(availableMarkings, minCount, maxCount) {
-                try {
-                    Logger.log(`${CONFIG.LOGGING.PREFIX} Generating markings: ${availableMarkings.join(', ')}, min: ${minCount}, max: ${maxCount}`);
-                    const count = Math.floor(Math.random() * (maxCount - minCount + 1)) + minCount;
-                    const shuffled = availableMarkings.sort(() => Math.random() - 0.5);
-                    const selected = shuffled.slice(0, count).map(m => {
-                        const gene = GeneMap[m.toUpperCase()];
-                        if (!gene) throw new Error(`Invalid marking: ${m}`);
-                        const isHomozygous = Math.random() < 0.5;
-                        const set = gene.EXPRESSED_SETS[isHomozygous ? 0 : 1][0];
-                        Logger.log(`${CONFIG.LOGGING.PREFIX} Selected marking: ${m} -> ${set}`);
-                        return set;
-                    });
-                    Logger.log(`${CONFIG.LOGGING.PREFIX} Markings selected: ${selected.join(', ')}`);
-                    return selected;
-                } catch (e) {
-                    ErrorHandler.handle(e, 'getRandomMarkings');
-                    return [];
-                }
-            }
-
-            function getRandomGenotype(rules, rolledSpecies) {
-                try {
-                    Logger.log(`${CONFIG.LOGGING.PREFIX} Generating genotype for species: ${rolledSpecies}`);
-                    const genotype = [];
-                    const baseLoci = loci.filter(l => l.category === 'base');
-                    const markingLoci = loci.filter(l => l.category === 'marking' && rules.markings.includes(GeneMap[l.locus]?.TEXT));
-                    const mutationLoci = loci.filter(l => l.category === 'mutation' && rules.mutations[GeneMap[l.locus]?.TEXT]);
-                    const traitLoci = loci.filter(l => l.category === 'trait' && rules.traits[GeneMap[l.locus]?.TEXT]);
-
-                    // Base color
-                    const baseOdds = Object.fromEntries(rules.baseColors.map(c => [c, 100 / rules.baseColors.length]));
-                    const rolledBase = rollFromOdds(baseOdds);
-                    const baseGene = GeneMap[rolledBase.toUpperCase()];
-                    if (!baseGene) throw new Error(`Invalid base color: ${rolledBase}`);
-                    const baseSet = baseGene.EXPRESSED_SETS[Math.floor(Math.random() * baseGene.EXPRESSED_SETS.length)];
-                    Logger.log(`${CONFIG.LOGGING.PREFIX} Base color: ${rolledBase}, genes: ${baseSet.join(', ')}`);
-                    baseSet.forEach(g => genotype.push(g));
-
-                    // Markings
-                    const rolledMarkings = getRandomMarkings(rules.markings, rules.markingCount[0], rules.markingCount[1]);
-                    genotype.push(...rolledMarkings);
-
-                    // Mutations
-                    for (const mutation in rules.mutations) {
-                        if (Math.random() * 100 < rules.mutations[mutation]) {
-                            const gene = GeneMap[mutation.toUpperCase()];
-                            if (!gene) throw new Error(`Invalid mutation: ${mutation}`);
-                            const set = gene.EXPRESSED_SETS[Math.random() < 0.5 ? 0 : 1][0];
-                            Logger.log(`${CONFIG.LOGGING.PREFIX} Mutation added: ${mutation} -> ${set}`);
-                            genotype.push(set);
-                        }
-                    }
-
-                    // Traits
-                    const rolledTraits = Object.keys(rules.traits).filter(t => Math.random() * 100 < rules.traits[t]);
-                    rolledTraits.forEach(t => {
-                        const gene = GeneMap[t.toUpperCase()];
-                        if (!gene) throw new Error(`Invalid trait: ${t}`);
-                        const set = gene.EXPRESSED_SETS[Math.random() < 0.5 ? 0 : 1][0];
-                        Logger.log(`${CONFIG.LOGGING.PREFIX} Trait added: ${t} -> ${set}`);
-                        genotype.push(set);
-                    });
-
-                    Logger.log(`${CONFIG.LOGGING.PREFIX} Final genotype: ${genotype.join(' ')}`);
-                    return genotype;
-                } catch (e) {
-                    ErrorHandler.handle(e, 'getRandomGenotype');
-                    return ['B+/B+'];
-                }
-            }
-
-            function rollEgg(eggType) {
-                try {
-                    Logger.log(`${CONFIG.LOGGING.PREFIX} Rolling egg for type: ${eggType}`);
-                    GeneticsService.load();
-                    const rules = EggRules[eggType];
-                    if (!rules) throw new Error(`Invalid egg type: ${eggType}`);
-
-                    const rolledSpecies = rollFromOdds(rules.species);
-                    const scientificName = ScientificNames[rolledSpecies] || rolledSpecies;
-                    const rolledSex = Math.random() < 0.5 ? Sex.MALE : Sex.FEMALE;
-                    const rolledElement = getRandomElement();
-                    const rolledMane = rules.manes[rolledSpecies] ? rollFromOdds(rules.manes[rolledSpecies]) : rollFromOdds(rules.manes);
-                    
-                    Logger.log(`${CONFIG.LOGGING.PREFIX} Rolled: species=${rolledSpecies}, mane=${rolledMane}, sex=${rolledSex}, element=${rolledElement}`);
-
-                    const genotype = getRandomGenotype(rules, rolledSpecies);
-                    const phenotype = PhenotypeHelper.getPhenotype(genotype, GeneticsService.phenotypes, rolledMane);
-                    const traits = genotype
-                        .filter(g => loci.find(l => l.locus === g.split('/')[0] && l.category === 'trait'))
-                        .map(g => GeneMap[loci.find(l => l.locus === g.split('/')[0]).locus].TEXT)
-                        .join(', ') || 'None';
-
-                    const result = `
-                        <div class="mb-3 p-3 border rounded bg-light">
-                            <h4>${eggType} Egg Hatched!</h4>
-                            <p class="mb-1"><strong>Species:</strong> ${scientificName}</p>
-                            <p class="mb-1"><strong>Mane Type:</strong> ${rolledMane}</p>
-                            <p class="mb-1"><strong>Sex:</strong> ${rolledSex}</p>
-                            <p class="mb-1"><strong>Age:</strong> Hatchling</p>
-                            <p class="mb-1"><strong>Inborn Element:</strong> ${rolledElement}</p>
-                            <p class="mb-1"><strong>Genotype:</strong> ${genotype.join(' ')}</p>
-                            <p class="mb-1"><strong>Phenotype:</strong> ${phenotype}</p>
-                            <p class="mb-1"><strong>Traits:</strong> ${traits}</p>
-                        </div>`;
-                    Logger.log(`${CONFIG.LOGGING.PREFIX} Egg rolled successfully`);
-                    return result;
-                } catch (e) {
-                    ErrorHandler.handle(e, 'rollEgg');
-                    return `<h4>Error!</h4><p>Failed to roll egg: ${e.message}</p>`;
-                }
-            }
-
-            // Event Listeners
-            document.addEventListener('DOMContentLoaded', () => {
-                Logger.log(`${CONFIG.LOGGING.PREFIX} DOM fully loaded`);
-                const rollBtn = document.getElementById('roll-btn');
-                const resetBtn = document.getElementById('reset-btn');
-                
-                if (!rollBtn || !resetBtn) {
-                    Logger.log(`${CONFIG.LOGGING.PREFIX} Error: Roll or Reset button not found`);
-                    document.getElementById('error-message').style.display = 'block';
-                    document.getElementById('error-message').innerText = 'Error: Buttons not found';
-                    return;
-                }
-
-                rollBtn.addEventListener('click', () => {
-                    Logger.log(`${CONFIG.LOGGING.PREFIX} Roll button clicked`);
-                    document.getElementById('error-message').style.display = 'none';
-                    const eggType = document.getElementById('egg-type').value;
-                    Logger.log(`${CONFIG.LOGGING.PREFIX} Selected egg type: ${eggType}`);
-                    const result = rollEgg(eggType);
-                    document.getElementById('results').innerHTML = result;
-                });
-
-                resetBtn.addEventListener('click', () => {
-                    Logger.log(`${CONFIG.LOGGING.PREFIX} Reset button clicked`);
-                    document.getElementById('error-message').style.display = 'none';
-                    document.getElementById('results').innerHTML = '';
-                    document.getElementById('egg-type').value = 'Common';
-                });
-            });
-        } catch (e) {
-            console.error(`${CONFIG.LOGGING.PREFIX} Syntax error in script initialization: ${e.message}`);
-            document.getElementById('error-message').style.display = 'block';
-            document.getElementById('error-message').innerText = `Syntax Error: ${e.message}`;
+    // Pre-sort genes by rarity for easier access
+    const sortedGenes = { Markings: {}, Mutations: {}, Traits: {} };
+    for (const category in sortedGenes) {
+        sortedGenes[category]['Common'] = [];
+        sortedGenes[category]['Uncommon'] = [];
+        sortedGenes[category]['Rare'] = [];
+        for (const allele in GENE_LIBRARY[category]) {
+            const gene = GENE_LIBRARY[category][allele];
+            sortedGenes[category][gene.rarity].push(allele);
         }
-    </script>
+    }
+
+    function generateDragon(eggType) {
+        const dragon = {};
+
+        // 1. Determine Species
+        let build = 'Thilyarem';
+        switch (eggType) {
+            case 'Destrier':
+                build = 'Destrier';
+                break;
+            case 'Mystery':
+                build = getRandom(['Cyroa', 'Thilyarem', 'Destrier']);
+                break;
+            case 'Common':
+            case 'Uncommon':
+            case 'Rare':
+            default:
+                build = roll(0.5) ? 'Cyroa' : 'Thilyarem';
+                break;
+        }
+
+        if (build === 'Cyroa') dragon.species = { name: 'Panlongus murepera scirto', build: 'Cyroa' };
+        else if (build === 'Destrier') dragon.species = { name: 'Panlongus Lykophus Imperator', build: 'Destrier' };
+        else dragon.species = { name: 'Panlongus lykophus pelagius', build: 'Thilyarem' };
+
+        // 2. Determine Singular Stats
+        dragon.sex = roll(0.5) ? 'Male' : 'Female';
+        dragon.manetype = getRandom(MANETYPES);
+        dragon.element = getRandom(ELEMENTS.slice(0, -1));
+
+        // 3. Determine Base Genetics
+        const allGenos = Object.values(GENOTYPES).flat();
+        dragon.baseGeno = getRandom(allGenos);
+        
+        for (const color in GENOTYPES) {
+            if (GENOTYPES[color].includes(dragon.baseGeno)) {
+                dragon.baseColor = color;
+                break;
+            }
+        }
+
+        // 4. Determine Genes based on Tier
+        let tier = 'Common';
+        if (eggType === 'Uncommon') tier = 'Uncommon';
+        else if (eggType === 'Rare') tier = 'Rare';
+        else if (eggType === 'Mystery') tier = 'Mystery';
+
+        const { geno: otherGeno, pheno } = getRandomGenes(tier);
+        dragon.genotype = `${dragon.baseGeno} ${otherGeno.join(' ')}`.trim();
+        dragon.phenotype = pheno.Markings.join(', ') || 'None';
+        dragon.mutations = pheno.Mutations.join(', ') || 'None';
+        dragon.traits = pheno.Traits.join(', ') || 'None';
+
+        // 5. Determine Abilities
+        dragon.abilities = [];
+        if (tier === 'Uncommon' && roll(0.25)) dragon.abilities.push(getRandom(Object.values(GENE_LIBRARY.Abilities)).name);
+        if (tier === 'Rare' && roll(0.6)) dragon.abilities.push(getRandom(Object.values(GENE_LIBRARY.Abilities)).name);
+        if (tier === 'Mystery' && roll(0.1)) dragon.abilities.push(getRandom(Object.values(GENE_LIBRARY.Abilities)).name);
+
+
+        // 6. Final Formatting
+        let output = `Species: ${dragon.species.name}\n`;
+        output += `Build: ${dragon.species.build}\n`;
+        output += `Sex: ${dragon.sex}\n`;
+        output += `Manetype: ${dragon.manetype}\n`;
+        output += `Element: ${dragon.element}\n`;
+        output += `Base Color: ${dragon.baseColor}\n`;
+        output += `Genotype: ${dragon.genotype}\n`;
+        output += `Phenotype: ${dragon.phenotype}\n`;
+        output += `Mutations: ${dragon.mutations}\n`;
+        output += `Traits: ${dragon.traits}\n`;
+        output += `Abilities: ${dragon.abilities.join(', ') || 'None'}\n`;
+        output += `Fertility: Fertile\n`;
+        output += `Defects: Healthy\n`;
+
+        resultsOutput.textContent = output;
+    }
+
+    function getRandomGenes(tier) {
+        const geno = [];
+        const pheno = { Markings: [], Mutations: [], Traits: [] };
+        
+        let numGenes = getRandom([2, 3]);
+        let weights = { Common: 0.9, Uncommon: 0.1, Rare: 0.0 };
+
+        if (tier === 'Uncommon') {
+            numGenes = getRandom([3, 4]);
+            weights = { Common: 0.6, Uncommon: 0.35, Rare: 0.05 };
+        } else if (tier === 'Rare') {
+            numGenes = getRandom([4, 5]);
+            weights = { Common: 0.2, Uncommon: 0.4, Rare: 0.4 };
+        } else if (tier === 'Mystery') {
+            numGenes = getRandom([1, 2, 3, 4, 5]);
+            weights = { Common: 0.33, Uncommon: 0.33, Rare: 0.33 };
+        }
+
+        for (let i = 0; i < numGenes; i++) {
+            const category = getRandom(['Markings', 'Mutations', 'Traits']);
+            
+            const rand = Math.random();
+            let chosenRarity;
+            if (rand < weights.Common) {
+                chosenRarity = 'Common';
+            } else if (rand < weights.Common + weights.Uncommon) {
+                chosenRarity = 'Uncommon';
+            } else {
+                chosenRarity = 'Rare';
+            }
+
+            const genePool = sortedGenes[category][chosenRarity];
+            if (genePool.length === 0) continue;
+
+            const allele = getRandom(genePool);
+            
+            // Determine if homozygous or heterozygous
+            if (roll(0.5)) { // 50% chance to be homozygous dominant
+                geno.push(`${allele}/${allele}`);
+                pheno[category].push(GENE_LIBRARY[category][allele].name);
+            } else {
+                geno.push(`n${allele}`);
+            }
+        }
+
+        return { geno, pheno };
+    }
+
+
+    generateBtn.addEventListener('click', () => {
+        const selectedType = eggTypeSelect.value;
+        generateDragon(selectedType);
+    });
+
+});
+</script>
+
 </body>
 </html>
