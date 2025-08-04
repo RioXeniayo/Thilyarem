@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Geno Converter Tool</title>
+    <!-- Bootstrap CSS for styling -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            background-color: #f0f2f5;
+            padding-top: 2rem;
+            padding-bottom: 2rem;
+        }
+        .container {
+            max-width: 900px;
+        }
+        .card {
+            margin-bottom: 1.5rem;
+        }
+        #results-output {
+            white-space: pre-wrap;
+            font-family: monospace;
+            background-color: #e9ecef;
+            border-radius: .375rem;
+            padding: 1rem;
+            min-height: 300px;
+        }
+        h1 {
+            text-align: center;
+            margin-bottom: 1.5rem;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>Geno Converter Tool 🧬</h1>
+
+    <div class="card">
+        <div class="card-header">Input Old Dragon Data</div>
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <label for="build-select" class="form-label">Build:</label>
+                    <select class="form-select" id="build-select">
+                        <option value="Thilyarem">Thilyarem</option>
+                        <option value="Destrier">Destrier</option>
+                    </select>
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label for="manetype-select" class="form-label">Manetype:</label>
+                    <select class="form-select" id="manetype-select">
+                        <!-- Manetypes populated by JS -->
+                    </select>
+                </div>
+            </div>
+            <div class="mb-3">
+                <label for="genotype-input" class="form-label">Old Genotype:</label>
+                <textarea class="form-control" id="genotype-input" rows="3" placeholder="Paste old genotype string here..."></textarea>
+            </div>
+            <div class="mb-3">
+                <label for="phenotype-input" class="form-label">Old Phenotype:</label>
+                <textarea class="form-control" id="phenotype-input" rows="3" placeholder="Paste old phenotype string here to find hidden genes..."></textarea>
+            </div>
+            <hr>
+            <div class="row">
+                <div class="col-md-6">
+                    <h6>Old Mutations</h6>
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" value="Heterochromia" id="old-mut-heterochromia">
+                        <label class="form-check-label" for="old-mut-heterochromia">Heterochromia (will be removed)</label>
+                    </div>
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" value="Partial" id="old-mut-partial">
+                        <label class="form-check-label" for="old-mut-partial">Partial Albinism / Melanism</label>
+                    </div>
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" value="Albinism" id="old-mut-albinism">
+                        <label class="form-check-label" for="old-mut-albinism">Albinism</label>
+                    </div>
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" value="Inversa" id="old-mut-inversa">
+                        <label class="form-check-label" for="old-mut-inversa">Inversa</label>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <h6>Inheritable Abilities</h6>
+                    <div id="abilities-container" class="row">
+                        <!-- Abilities populated by JS -->
+                    </div>
+                </div>
+            </div>
+             <div class="text-center mt-4">
+                <button id="convert-btn" class="btn btn-primary btn-lg">Convert Genotype</button>
+            </div>
+        </div>
+    </div>
+    
+    <div class="card">
+        <div class="card-header">
+            Converted Dragon
+        </div>
+        <div class="card-body">
+            <div id="results-output">Converted results will appear here.</div>
+        </div>
+    </div>
+
+</div> <!-- /container -->
+
+<!-- Main Application JS -->
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+
+    // --- DATA DEFINITIONS ---
+    const GENOTYPES = {
+        'Tan': ["B+/B+ M+/M+ K+/K+", "B+/B+ M+/MB K+/K+", "B+/B+ M+/M0 K+/K+", "B+/B+ MB/MB K+/K+", "B+/B+ MB/M0 K+/K+", "B+/B+ M+/M+ K+/KB", "B+/B+ M+/MB K+/KB", "B+/B+ M+/M0 K+/KB", "B+/B+ MB/MB K+/KB", "B+/B+ MB/M0 K+/KB", "B+/B+ M+/M+ KB/KB", "B+/B+ M+/MB KB/KB", "B+/B+ M+/M0 KB/KB", "B+/B+ MB/MB KB/KB", "B+/B+ MB/M0 KB/KB", "B+/BA M+/M+ K+/K+", "B+/BA M+/MB K+/K+", "B+/BA M+/M0 K+/K+", "B+/BA MB/MB K+/K+", "B+/BA MB/M0 K+/K+", "B+/BA M+/M+ K+/KB", "B+/BA M+/MB K+/KB", "B+/BA M+/M0 K+/KB", "B+/BA MB/MB K+/KB", "B+/BA MB/M0 K+/KB", "B+/BA M+/M+ KB/KB", "B+/BA M+/MB KB/KB", "B+/BA M+/M0 KB/KB", "B+/BA MB/MB KB/KB", "B+/BA MB/M0 KB/KB", "B+/BG M+/M+ K+/K+", "B+/BG M+/MB K+/K+", "B+/BG M+/M0 K+/K+", "B+/BG MB/MB K+/K+", "B+/BG MB/M0 K+/K+", "B+/BG M+/M+ K+/KB", "B+/BG M+/MB K+/KB", "B+/BG M+/M0 K+/KB", "B+/BG MB/MB K+/KB", "B+/BG MB/M0 K+/KB", "B+/BG M+/M+ KB/KB", "B+/BG M+/MB KB/KB", "B+/BG M+/M0 KB/KB", "B+/BG MB/MB KB/KB", "B+/BG MB/M0 KB/KB", "B+/BW M+/M+ K+/K+", "B+/BW M+/MB K+/K+", "B+/BW M+/M0 K+/K+", "B+/BW MB/MB K+/K+", "B+/BW MB/M0 K+/K+", "B+/BW M+/M+ K+/KB", "B+/BW M+/MB K+/KB", "B+/BW M+/M0 K+/KB", "B+/BW MB/MB K+/KB", "B+/BW MB/M0 K+/KB", "B+/BW M+/M+ KB/KB", "B+/BW M+/MB KB/KB", "B+/BW M+/M0 KB/KB", "B+/BW MB/MB KB/KB", "B+/BW MB/M0 KB/KB"],
+        'Brown': ["BA/BA M+/M+ K+/K+", "BA/BA M+/MB K+/K+", "BA/BA M+/M0 K+/K+", "BA/BA MB/MB K+/K+", "BA/BA MB/M0 K+/K+", "BA/BA M+/M+ K+/KB", "BA/BA M+/MB K+/KB", "BA/BA M+/M0 K+/KB", "BA/BA MB/MB K+/KB", "BA/BA MB/M0 K+/KB", "BA/BA M+/M+ KB/KB", "BA/BA M+/MB KB/KB", "BA/BA M+/M0 KB/KB", "BA/BA MB/MB KB/KB", "BA/BA MB/M0 KB/KB", "BA/BG M+/M+ K+/K+", "BA/BG M+/MB K+/K+", "BA/BG M+/M0 K+/K+", "BA/BG MB/MB K+/K+", "BA/BG MB/M0 K+/K+", "BA/BG M+/M+ K+/KB", "BA/BG M+/MB K+/KB", "BA/BG M+/M0 K+/KB", "BA/BG MB/MB K+/KB", "BA/BG MB/M0 K+/KB", "BA/BG M+/M+ KB/KB", "BA/BG M+/MB KB/KB", "BA/BG M+/M0 KB/KB", "BA/BG MB/MB KB/KB", "BA/BG MB/M0 KB/KB", "BA/BW M+/M+ K+/K+", "BA/BW M+/MB K+/K+", "BA/BW M+/M0 K+/K+", "BA/BW MB/MB K+/K+", "BA/BW MB/M0 K+/K+", "BA/BW M+/M+ K+/KB", "BA/BW M+/MB K+/KB", "BA/BW M+/M0 K+/KB", "BA/BW MB/MB K+/KB", "BA/BW MB/M0 K+/KB", "BA/BW M+/M+ KB/KB", "BA/BW M+/MB KB/KB", "BA/BW M+/M0 KB/KB", "BA/BW MB/MB KB/KB", "BA/BW MB/M0 KB/KB"],
+        'Green': ["BG/BG M+/M+ K+/K+", "BG/BG M+/MB K+/K+", "BG/BG M+/M0 K+/K+", "BG/BG MB/M0 K+/K+", "BG/BG M+/M+ K+/KB", "BG/BG M+/MB K+/KB", "BG/BG M+/M0 K+/KB", "BG/BG MB/M0 K+/KB", "BG/BG M+/M+ KB/KB", "BG/BG M+/MB KB/KB", "BG/BG M+/M0 KB/KB", "BG/BG MB/M0 KB/KB", "BG/BW M+/M+ K+/K+", "BG/BW M+/MB K+/K+", "BG/BW M+/M0 K+/K+", "BG/BW MB/M0 K+/K+", "BG/BW M+/M+ K+/KB", "BG/BW M+/MB K+/KB", "BG/BW M+/M0 K+/KB", "BG/BW MB/M0 K+/KB", "BG/BW M+/M+ KB/KB", "BG/BW M+/MB KB/KB", "BG/BW M+/M0 KB/KB", "BG/BW MB/M0 KB/KB"],
+        'White': ["BW/BW M0/M0 K+/K+", "BW/BW M0/M0 K+/KB", "BW/BW M0/M0 KB/KB"],
+        'Black': ["B+/B+ M+/M+ KB/KB", "B+/BA M+/M+ KB/KB", "B+/BG M+/M+ KB/KB", "B+/BW M+/M+ KB/KB", "BA/BA M+/M+ KB/KB", "BA/BG M+/M+ KB/KB", "BA/BW M+/M+ KB/KB", "BG/BG M+/M+ KB/KB", "BG/BW M+/M+ KB/KB", "BW/BW M+/M+ KB/KB"],
+        'Cream': ["B+/B+ M0/M0 K+/K+", "B+/B+ M0/M0 K+/KB", "B+/B+ M0/M0 KB/KB", "B+/BA M0/M0 K+/K+", "B+/BA M0/M0 K+/KB", "B+/BA M0/M0 KB/KB", "B+/BG M0/M0 K+/K+", "B+/BG M0/M0 K+/KB", "B+/BG M0/M0 KB/KB", "B+/BW M0/M0 K+/K+", "B+/BW M0/M0 K+/KB", "B+/BW M0/M0 KB/KB"],
+        'Lilac': ["BA/BA M0/M0 K+/K+", "BA/BA M0/M0 K+/KB", "BA/BA M0/M0 KB/KB", "BA/BG M0/M0 K+/K+", "BA/BG M0/M0 K+/KB", "BA/BG M0/M0 KB/KB", "BA/BW M0/M0 K+/K+", "BA/BW M0/M0 K+/KB", "BA/BW M0/M0 KB/KB"],
+        'Seagreen': ["BG/BG MB/MB K+/K+", "BG/BG MB/MB K+/KB", "BG/BG MB/MB KB/KB", "BG/BW MB/MB K+/K+", "BG/BW MB/MB K+/KB", "BG/BW MB/MB KB/KB"],
+        'Teagreen': ["BG/BG M0/M0 K+/K+", "BG/BG M0/M0 K+/KB", "BG/BG M0/M0 KB/KB", "BG/BW M0/M0 K+/K+", "BG/BW M0/M0 K+/KB", "BG/BW M0/M0 KB/KB"],
+        'Slate': ["BW/BW M+/M+ K+/K+", "BW/BW M+/MB K+/K+", "BW/BW M+/M0 K+/K+", "BW/BW MB/M0 K+/K+", "BW/BW M+/M+ K+/KB", "BW/BW M+/MB K+/KB", "BW/BW M+/M0 K+/KB", "BW/BW MB/M0 K+/KB", "BW/BW M+/M+ KB/KB", "BW/BW M+/MB KB/KB", "BW/BW M+/M0 KB/KB", "BW/BW MB/M0 KB/KB"],
+        'Blue': ["BW/BW MB/MB K+/K+", "BW/BW MB/MB K+/KB", "BW/BW MB/MB KB/KB"],
+    };
+    const GENE_LIBRARY = {
+        BaseModifiers: { Vl: { name: 'Violet', rarity: 'Rare' }, Vm: { name: 'Vermillion', rarity: 'Rare' }, Jd: { name: 'Jade', rarity: 'Rare' }, Am: { name: 'Amber', rarity: 'Rare' }, Prl: { name: 'Pearl', rarity: 'Rare' } },
+        Markings: { Dpl: { name: 'Dapples', rarity: 'Common' }, Bt: { name: 'Bellytone', rarity: 'Common' }, Mtl: { name: 'Mantle', rarity: 'Common' }, Clr: { name: 'Collar', rarity: 'Common' }, Ikd: { name: 'Inked', rarity: 'Common' }, Sia: { name: 'Siamese', rarity: 'Common' }, Pnt: { name: 'Points', rarity: 'Common' }, Stn: { name: 'Stained', rarity: 'Common' }, Rn: { name: 'Roan', rarity: 'Common' }, Tb: { name: 'Tabby', rarity: 'Common' }, Spt: { name: 'Spotted', rarity: 'Common' }, Apl: { name: 'Appalosa', rarity: 'Uncommon' }, Mrl: { name: 'Merle', rarity: 'Uncommon' }, Brn: { name: 'Barring', rarity: 'Uncommon' }, Dn: { name: 'Dun', rarity: 'Uncommon' }, Pyn: { name: 'Python', rarity: 'Uncommon' }, Stk: { name: 'Streaks', rarity: 'Uncommon' }, Ovr: { name: 'Overo', rarity: 'Uncommon' }, Rsc: { name: 'Rorscach', rarity: 'Uncommon' }, Pg: { name: 'Pangare', rarity: 'Uncommon' }, Sb: { name: 'Sable', rarity: 'Uncommon' }, Pb: { name: 'Piebald', rarity: 'Rare' }, Gnt: { name: 'Glint', rarity: 'Rare' }, Sf: { name: 'Snowfall', rarity: 'Rare' }, Wd: { name: 'Widow', rarity: 'Rare' }, Dmd: { name: 'Diamond', rarity: 'Rare' }, Spr: { name: 'Spider', rarity: 'Rare' }, Gln: { name: 'Glint', rarity: 'Rare' }, Stm: { name: 'Spectrum', rarity: 'Rare' }, Iri: { name: 'Iridescent', rarity: 'Rare' }, Pnd: { name: 'Panda', rarity: 'Rare' }, Bn: { name: 'Bengal', rarity: 'Uncommon' } },
+        Mutations: { Vit: { name: 'Vitiligo', rarity: 'Common' }, Inv: { name: 'Inversa', rarity: 'Uncommon' }, Les: { name: 'Leucistic', rarity: 'Uncommon' }, Alb: { name: 'Albino', rarity: 'Uncommon' }, Axg: { name: 'Axanthic-G', rarity: 'Uncommon' }, Ery: { name: 'Erythristic', rarity: 'Rare' }, Lva: { name: 'Lavender Albino', rarity: 'Rare' }, Axm: { name: 'Axanthic-M', rarity: 'Rare' } },
+        Traits: { Ho: { name: 'Horns', rarity: 'Uncommon' }, Fg: { name: 'Fangs', rarity: 'Uncommon' }, Sp: { name: 'Spines', rarity: 'Rare' } },
+        Abilities: { Unbent: { name: 'Unbent'}, Cunning: { name: 'Cunning'}, Strike: { name: 'Strike'}, Bold: { name: 'Bold'}, Swift: { name: 'Swift'}, Skillful_Hunter: { name: 'Skillful Hunter'}, Completionist: { name: 'Completionist'}, Ocean_Champion: { name: 'Ocean Champion'}, Fish_Wrangler: { name: 'Fish Wrangler'}, Charismatic: { name: 'Charismatic'}, Shaman: { name: 'Shaman'}, Foraging_Maestro: { name: 'Foraging Maestro'} }
+    };
+    const MANETYPES = ['Natural', 'Razor', 'Sphinx', 'Curly', 'Long', 'Fiery', 'Barbary'];
+
+    const CONVERSION_MAP = {
+        // Base Colors
+        'tan': 'Tan', 'tt': 'Tan', 'ntt': 'Tan', 'tt': 'Tan',
+        'brown': 'Brown', 'aa': 'Brown', 'naa': 'Brown', 'na': 'Brown',
+        'seagreen': 'Seagreen', 'sg': 'Seagreen', 'nsg': 'Seagreen',
+        'blue': 'Blue', 'bb': 'Blue', 'nbb': 'Blue', 'nb': 'Blue',
+        'white': 'White', 'ww': 'White', 'nww': 'White', 'nw': 'White',
+        'black': 'Black', 'ee': 'Black', 'nee': 'Black', 'ne': 'Black',
+        // Base Modifiers
+        'amber': { key: 'Am', lib: 'BaseModifiers' },
+        'forest green': { key: 'Jd', lib: 'BaseModifiers' },
+        'jade': { key: 'Jd', lib: 'BaseModifiers' },
+        'violet': { key: 'Vl', lib: 'BaseModifiers' },
+        'red': { key: 'Vm', lib: 'BaseModifiers' },
+        'vermillion': { key: 'Vm', lib: 'BaseModifiers' },
+        'cream': { key: 'Prl', lib: 'BaseModifiers' }, 'ncr': { key: 'Prl', lib: 'BaseModifiers' }, 'crcr': { key: 'Prl', lib: 'BaseModifiers' },
+        // Markings
+        'roan': { key: 'Rn', lib: 'Markings' }, 'nrn': { key: 'Rn', lib: 'Markings' }, 'rnrn': { key: 'Rn', lib: 'Markings' },
+        'bellytone': { key: 'Bt', lib: 'Markings' }, 'nbt': { key: 'Bt', lib: 'Markings' }, 'btbt': { key: 'Bt', lib: 'Markings' },
+        'siam': { key: 'Sia', lib: 'Markings' }, 'nsi': { key: 'Sia', lib: 'Markings' }, 'sisi': { key: 'Sia', lib: 'Markings' }, 'siamese': { key: 'Sia', lib: 'Markings' },
+        'tiger stripes': { key: 'Bn', lib: 'Markings' }, 'nts': { key: 'Bn', lib: 'Markings' }, 'tsts': { key: 'Bn', lib: 'Markings' }, 'bengal': { key: 'Bn', lib: 'Markings' },
+        'tabby': { key: 'Tb', lib: 'Markings' }, 'ntb': { key: 'Tb', lib: 'Markings' }, 'tbtb': { key: 'Tb', lib: 'Markings' },
+        'spots': { key: 'Spt', lib: 'Markings' }, 'nspt': { key: 'Spt', lib: 'Markings' }, 'sptspt': { key: 'Spt', lib: 'Markings' }, 'spotted': { key: 'Spt', lib: 'Markings' },
+        'bleached mane': { key: 'Stn', lib: 'Markings' }, 'nbm': { key: 'Stn', lib: 'Markings' }, 'bmbm': { key: 'Stn', lib: 'Markings' },
+        'dark mane': { key: 'Stn', lib: 'Markings' }, 'ndm': { key: 'Stn', lib: 'Markings' }, 'dmdm': { key: 'Stn', lib: 'Markings' }, 'stained': { key: 'Stn', lib: 'Markings' },
+        'shadow tip': { key: 'Ikd', lib: 'Markings' }, 'nsht': { key: 'Ikd', lib: 'Markings' }, 'shtsht': { key: 'Ikd', lib: 'Markings' }, 'inked': { key: 'Ikd', lib: 'Markings' },
+        'dun': { key: 'Dn', lib: 'Markings' }, 'ndn': { key: 'Dn', lib: 'Markings' }, 'dndn': { key: 'Dn', lib: 'Markings' },
+        'collar': { key: 'Clr', lib: 'Markings' }, 'ncl': { key: 'Clr', lib: 'Markings' }, 'clcl': { key: 'Clr', lib: 'Markings' },
+        'wave marks': { key: 'Stk', lib: 'Markings' }, 'nwm': { key: 'Stk', lib: 'Markings' }, 'wmwm': { key: 'Stk', lib: 'Markings' }, 'streaks': { key: 'Stk', lib: 'Markings' },
+        'pangare': { key: 'Pg', lib: 'Markings' }, 'npan': { key: 'Pg', lib: 'Markings' }, 'panpan': { key: 'Pg', lib: 'Markings' },
+        'pigments': { key: 'Pnt', lib: 'Markings' }, 'npig': { key: 'Pnt', lib: 'Markings' }, 'pigpig': { key: 'Pnt', lib: 'Markings' }, 'points': { key: 'Pnt', lib: 'Markings' },
+        'cover': { key: 'Mtl', lib: 'Markings' }, 'ncv': { key: 'Mtl', lib: 'Markings' }, 'cvcv': { key: 'Mtl', lib: 'Markings' }, 'mantle': { key: 'Mtl', lib: 'Markings' },
+        'gradient': { key: 'Gln', lib: 'Markings' }, 'ngd': { key: 'Gln', lib: 'Markings' }, 'gdgd': { key: 'Gln', lib: 'Markings' }, 'glint': { key: 'Gln', lib: 'Markings' },
+        'piebald': { key: 'Pb', lib: 'Markings' }, 'npb': { key: 'Pb', lib: 'Markings' }, 'pbpb': { key: 'Pb', lib: 'Markings' },
+        'shine': { key: 'Iri', lib: 'Markings' }, 'nsh': { key: 'Iri', lib: 'Markings' }, 'shsh': { key: 'Iri', lib: 'Markings' }, 'iridescent': { key: 'Iri', lib: 'Markings' },
+        'panda': { key: 'Pnd', lib: 'Markings' }, 'npnd': { key: 'Pnd', lib: 'Markings' }, 'pndpnd': { key: 'Pnd', lib: 'Markings' },
+        'snowfall': { key: 'Sf', lib: 'Markings' }, 'nsf': { key: 'Sf', lib: 'Markings' }, 'sfsf': { key: 'Sf', lib: 'Markings' },
+        // Mutations
+        'graying': { key: 'Axg', lib: 'Mutations' }, 'ngr': { key: 'Axg', lib: 'Mutations' }, 'grgr': { key: 'Axg', lib: 'Mutations' }, 'axanthic-g': { key: 'Axg', lib: 'Mutations' },
+        'vitiligo': { key: 'Vit', lib: 'Mutations' }, 'nvit': { key: 'Vit', lib: 'Mutations' }, 'vitvit': { key: 'Vit', lib: 'Mutations' },
+        'partial melanism': { key: 'Ovr', lib: 'Markings' }, 'partial albinism': { key: 'Ovr', lib: 'Markings' }, 'overo': { key: 'Ovr', lib: 'Markings' },
+        'inversa': { key: 'Inv', lib: 'Mutations' },
+        'albinism': { key: 'Alb', lib: 'Mutations' },
+        'melanism': { key: 'Axm', lib: 'Mutations' }, 'axanthic-m': { key: 'Axm', lib: 'Mutations' },
+    };
+
+    const getRandom = (arr) => arr[Math.floor(Math.random() * arr.length)];
+    const roll = (chance) => Math.random() < chance;
+
+    const resultsOutput = document.getElementById('results-output');
+    const convertBtn = document.getElementById('convert-btn');
+
+    function init() {
+        // Populate dropdowns and checkboxes
+        const manetypeSelect = document.getElementById('manetype-select');
+        manetypeSelect.innerHTML = MANETYPES.map(m => `<option value="${m}">${m}</option>`).join('');
+        
+        const abilitiesContainer = document.getElementById('abilities-container');
+        abilitiesContainer.innerHTML = Object.values(GENE_LIBRARY.Abilities).map(ability => `
+            <div class="col-6 col-sm-4">
+                <div class="form-check">
+                    <input class="form-check-input ability-checkbox" type="checkbox" value="${ability.name}" id="ability-${ability.name.replace(/ /g, '_')}">
+                    <label class="form-check-label" for="ability-${ability.name.replace(/ /g, '_')}">${ability.name}</label>
+                </div>
+            </div>
+        `).join('');
+
+        convertBtn.addEventListener('click', convertGeno);
+    }
+
+    function convertGeno() {
+        const build = document.getElementById('build-select').value;
+        const manetype = document.getElementById('manetype-select').value;
+        const oldGeno = document.getElementById('genotype-input').value;
+        const oldPheno = document.getElementById('phenotype-input').value;
+        const fullInputString = `${oldGeno} ${oldPheno}`.toLowerCase().replace(/,/g, ' ');
+        const tokens = fullInputString.split(/[\s/]+/).filter(t => t);
+
+        const foundGenes = new Map();
+        let baseColor = 'Unknown';
+
+        // Process tokens to find genes
+        tokens.forEach(token => {
+            if (CONVERSION_MAP[token]) {
+                const mapping = CONVERSION_MAP[token];
+                if (typeof mapping === 'string') { // It's a base color
+                    baseColor = mapping;
+                } else { // It's a gene
+                    const isHomozygous = token.endsWith(token.slice(-2).toLowerCase()) && token.length > 3 && token !== 'inversa';
+                    if (!foundGenes.has(mapping.key)) {
+                        foundGenes.set(mapping.key, { isHomozygous: isHomozygous, lib: mapping.lib });
+                    } else if (isHomozygous) {
+                        foundGenes.get(mapping.key).isHomozygous = true;
+                    }
+                }
+            }
+        });
+
+        // Process checkboxes for mutations
+        document.querySelectorAll('#old-mut-partial, #old-mut-albinism, #old-mut-inversa').forEach(cb => {
+            if (cb.checked) {
+                const mapping = CONVERSION_MAP[cb.value.toLowerCase()];
+                if (mapping && !foundGenes.has(mapping.key)) {
+                    foundGenes.set(mapping.key, { isHomozygous: true, lib: mapping.lib });
+                }
+            }
+        });
+        
+        // Finalize Genes and Phenotypes
+        const newGenoParts = [];
+        const pheno = { BaseModifiers: [], Markings: [], Mutations: [], Traits: [] };
+        const carried = { BaseModifiers: [], Markings: [], Mutations: [], Traits: [] };
+
+        foundGenes.forEach((data, key) => {
+            const geneInfo = GENE_LIBRARY[data.lib][key];
+            let isHomozygous = data.isHomozygous;
+
+            // Force hom for rare genes, mutations, traits, and all base modifiers
+            if (geneInfo.rarity === 'Rare' || data.lib !== 'Markings') {
+                isHomozygous = true;
+            }
+
+            newGenoParts.push(isHomozygous ? `${key}/${key}` : `${key}/n`);
+            
+            let expresses = false;
+            if (data.lib === 'Markings') {
+                if (geneInfo.rarity !== 'Rare' || isHomozygous) {
+                    expresses = true;
+                }
+            } else { // Mutations, Traits, BaseModifiers
+                if (isHomozygous) {
+                    expresses = true;
+                }
+            }
+
+            if (expresses) {
+                pheno[data.lib].push(geneInfo.name);
+            } else {
+                carried[data.lib].push(geneInfo.name);
+            }
+        });
+
+        // Assemble final output
+        const finalDragon = {};
+        finalDragon.build = build;
+        finalDragon.manetype = manetype;
+        finalDragon.baseColor = baseColor;
+        finalDragon.baseGeno = getRandom(GENOTYPES[baseColor] || []);
+        finalDragon.genotype = `${finalDragon.baseGeno} ${newGenoParts.join(' ')}`.trim();
+        finalDragon.phenotype = pheno.Markings.join(', ') || 'None';
+        finalDragon.baseModifiers = pheno.BaseModifiers.join(', ') || 'None';
+        finalDragon.mutations = pheno.Mutations.join(', ') || 'None';
+        finalDragon.traits = pheno.Traits.join(', ') || 'None';
+        finalDragon.carried = [...carried.BaseModifiers, ...carried.Markings, ...carried.Mutations, ...carried.Traits].join(', ') || 'None';
+        finalDragon.abilities = Array.from(document.querySelectorAll('.ability-checkbox:checked')).map(cb => cb.value);
+
+        // Format for display
+        let output = `Species: ${build === 'Destrier' ? 'Panlongus Lykophus Imperator' : 'Panlongus lykophus pelagius'}\n`;
+        output += `Build: ${finalDragon.build}\n`;
+        output += `Sex: Unknown\n`;
+        output += `Manetype: ${finalDragon.manetype}\n`;
+        output += `Base Color: ${finalDragon.baseColor}\n`;
+        output += `Base Modifiers: ${finalDragon.baseModifiers}\n`;
+        output += `Genotype: ${finalDragon.genotype}\n`;
+        output += `Phenotype: ${finalDragon.phenotype}\n`;
+        output += `Carried: ${finalDragon.carried}\n`;
+        output += `Mutations: ${finalDragon.mutations}\n`;
+        output += `Traits: ${finalDragon.traits}\n`;
+        output += `Abilities: ${finalDragon.abilities.join(', ') || 'None'}\n`;
+        output += `Fertility: Good\n`;
+        output += `Defects: Healthy\n`;
+
+        resultsOutput.textContent = output;
+    }
+
+    init();
+});
+</script>
+
+</body>
+</html>
