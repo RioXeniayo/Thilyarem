@@ -202,6 +202,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const BASE_COLORS = Object.keys(GENOTYPES);
 
     const GENE_LIBRARY = {
+        BaseModifiers: { Vl: { name: 'Violet', rarity: 'Rare' }, Vm: { name: 'Vermillion', rarity: 'Rare' }, Jd: { name: 'Jade', rarity: 'Rare' }, Am: { name: 'Amber', rarity: 'Rare' } },
         Markings: { Dpl: { name: 'Dapples', rarity: 'Common' }, Bt: { name: 'Bellytone', rarity: 'Common' }, Mtl: { name: 'Mantle', rarity: 'Common' }, Clr: { name: 'Collar', rarity: 'Common' }, Ikd: { name: 'Inked', rarity: 'Common' }, Sia: { name: 'Siamese', rarity: 'Common' }, Pnt: { name: 'Points', rarity: 'Common' }, Stn: { name: 'Stained', rarity: 'Common' }, Rn: { name: 'Roan', rarity: 'Common' }, Tby: { name: 'Tabby', rarity: 'Common' }, Spt: { name: 'Spotted', rarity: 'Common' }, Apl: { name: 'Appalosa', rarity: 'Uncommon' }, Mrl: { name: 'Merle', rarity: 'Uncommon' }, Brn: { name: 'Barring', rarity: 'Uncommon' }, Dn: { name: 'Dun', rarity: 'Uncommon' }, Pyn: { name: 'Python', rarity: 'Uncommon' }, Stk: { name: 'Streaks', rarity: 'Uncommon' }, Ovr: { name: 'Overo', rarity: 'Uncommon' }, Rsc: { name: 'Rorscach', rarity: 'Uncommon' }, Pg: { name: 'Pangare', rarity: 'Uncommon' }, Sb: { name: 'Sable', rarity: 'Uncommon' }, Pb: { name: 'Piebald', rarity: 'Rare' }, Gnt: { name: 'Glint', rarity: 'Rare' }, Sf: { name: 'Snowfall', rarity: 'Rare' }, Wd: { name: 'Widow', rarity: 'Rare' }, Dmd: { name: 'Diamond', rarity: 'Rare' }, Spr: { name: 'Spider', rarity: 'Rare' }, Stm: { name: 'Spectrum', rarity: 'Rare' }, Iri: { name: 'Iridescent', rarity: 'Rare' } },
         Mutations: { Vit: { name: 'Vitiligo', rarity: 'Common' }, Inv: { name: 'Inversa', rarity: 'Uncommon' }, Les: { name: 'Leucistic', rarity: 'Uncommon' }, Alb: { name: 'Albino', rarity: 'Uncommon' }, Axg: { name: 'Axanthic -G', rarity: 'Uncommon' }, Ery: { name: 'Erythristic', rarity: 'Rare' }, Lva: { name: 'Lavender Albino', rarity: 'Rare' }, Axm: { name: 'Axanthic-M', rarity: 'Rare' } },
         Traits: { Ho: { name: 'Horns', rarity: 'Uncommon' }, Fg: { name: 'Fangs', rarity: 'Uncommon' }, Sp: { name: 'Spines', rarity: 'Rare' } },
@@ -242,6 +243,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 <div class="col-md-6 mb-3"><label for="${prefix}-base-color" class="form-label">Base Color (Phenotype):</label><select id="${prefix}-base-color" class="form-select base-color-selector" data-prefix="${prefix}">${BASE_COLORS.map(c => `<option value="${c}">${c}</option>`).join('')}</select></div>
                 <div class="col-md-6 mb-3"><label for="${prefix}-base-genetics" class="form-label">Base Genetics (Genotype):</label><select id="${prefix}-base-genetics" class="form-select"></select></div>
             </div>
+            <div class="mb-3"><label for="${prefix}-base-modifier-genetics" class="form-label">Base Modifier Genetics:</label><textarea id="${prefix}-base-modifier-genetics" class="form-control" rows="1" placeholder="e.g., Vl/n Vm/Vm..."></textarea></div>
             <div class="mb-3"><label for="${prefix}-marking-genetics" class="form-label">Marking Genetics:</label><textarea id="${prefix}-marking-genetics" class="form-control" rows="2" placeholder="e.g., Dpl/Dpl Spt/n..."></textarea></div>
             <div class="mb-3"><label for="${prefix}-mutation-genetics" class="form-label">Mutation Genetics:</label><textarea id="${prefix}-mutation-genetics" class="form-control" rows="2" placeholder="e.g., Vit/n..."></textarea></div>
             <div class="mb-3"><label for="${prefix}-trait-genetics" class="form-label">Trait Genetics (Physical):</label><textarea id="${prefix}-trait-genetics" class="form-control" rows="2" placeholder="e.g., Ho/n Fg/Fg..."></textarea></div>
@@ -300,10 +302,18 @@ document.addEventListener('DOMContentLoaded', function() {
             geneticsDropdown.selectedIndex = Math.floor(Math.random() * geneticsDropdown.options.length);
         }
 
+        const baseModifierKeys = Object.keys(GENE_LIBRARY.BaseModifiers);
         const markingKeys = Object.keys(GENE_LIBRARY.Markings);
         const mutationKeys = Object.keys(GENE_LIBRARY.Mutations);
         const traitKeys = Object.keys(GENE_LIBRARY.Traits);
         
+        let baseModifiersStr = "";
+        const numBaseModifiers = Math.floor(Math.random() * 2); // 0 or 1
+        for (let i = 0; i < numBaseModifiers; i++) {
+            const key = getRandom(baseModifierKeys);
+            baseModifiersStr += roll(0.5) ? `${key}/${key} ` : `${key}/n `;
+        }
+
         let markingsStr = "";
         const numMarkings = Math.floor(Math.random() * 5) + 2;
         for (let i = 0; i < numMarkings; i++) {
@@ -325,6 +335,7 @@ document.addEventListener('DOMContentLoaded', function() {
             traitsStr += roll(0.5) ? `${key}/${key} ` : `${key}/n `;
         }
         
+        document.getElementById(`${prefix}-base-modifier-genetics`).value = baseModifiersStr.trim();
         document.getElementById(`${prefix}-marking-genetics`).value = markingsStr.trim();
         document.getElementById(`${prefix}-mutation-genetics`).value = mutationsStr.trim();
         document.getElementById(`${prefix}-trait-genetics`).value = traitsStr.trim();
@@ -399,7 +410,7 @@ document.addEventListener('DOMContentLoaded', function() {
             let cubHTML = "";
             if (cub.isChimera) cubHTML += `** Chimeric Markings/Mutations **\n`;
             cubHTML += `Species: ${cub.species.name}\nBuild: ${cub.species.build}\nSex: ${cub.sex}\nManetype: ${cub.manetype}\nElement: ${cub.element}\n`;
-            cubHTML += `Base Color: ${cub.baseColor}\nGenotype: ${cub.genotype}\nPhenotype: ${cub.phenotype}\n`;
+            cubHTML += `Base Color: ${cub.baseColor}\nBase Modifiers: ${cub.baseModifiersPheno}\nGenotype: ${cub.genotype}\nPhenotype: ${cub.phenotype}\n`;
             cubHTML += `Carried: ${cub.carried}\n`;
             cubHTML += `Mutations: ${cub.mutations}\nTraits: ${cub.traits}\nAbilities: ${cub.abilities.join(', ') || 'None'}\n`;
             cubHTML += `Fertility: ${cub.fertility}\nInbred: ${cub.inbred}\nDefects: ${cub.defects.length > 0 ? cub.defects.join(', ') : 'Healthy'}\n\n`;
@@ -447,14 +458,13 @@ document.addEventListener('DOMContentLoaded', function() {
                     inherited.push(isHomozygous ? `${key}/${key}` : `${key}/n`);
 
                     let expressesPhenotypically = false;
-                    // Updated logic: Mutations and Traits now require homozygous to express
                     if (category === 'Markings') {
                         if (geneInfo.rarity === 'Common' || geneInfo.rarity === 'Uncommon') {
-                            expressesPhenotypically = true; // Expresses if het or hom
+                            expressesPhenotypically = true;
                         } else if (geneInfo.rarity === 'Rare' && isHomozygous) {
-                            expressesPhenotypically = true; // Only expresses if hom
+                            expressesPhenotypically = true;
                         }
-                    } else { // Mutations and Traits
+                    } else { // Mutations, Traits, and Base Modifiers
                         if (isHomozygous) {
                             expressesPhenotypically = true;
                         }
@@ -500,13 +510,15 @@ document.addEventListener('DOMContentLoaded', function() {
         const sireMutationGenes = sire.isChimera && roll(0.5) ? sire.chimera.mutations : sire.primary.mutations;
         const damMutationGenes = dam.isChimera && roll(0.5) ? dam.chimera.mutations : dam.primary.mutations;
 
+        const primaryBaseModifiers = inheritGeneCategory(sire.primary.baseModifiers, dam.primary.baseModifiers, 'BaseModifiers', settings);
         const primaryMarkings = inheritGeneCategory(sireMarkingGenes, damMarkingGenes, 'Markings', settings);
         const primaryMutations = inheritGeneCategory(sireMutationGenes, damMutationGenes, 'Mutations', settings);
         const primaryTraits = inheritGeneCategory(sire.primary.traits, dam.primary.traits, 'Traits', settings);
 
-        let otherGenes = [...primaryMarkings.inherited, ...primaryMutations.inherited, ...primaryTraits.inherited];
+        let otherGenes = [...primaryBaseModifiers.inherited, ...primaryMarkings.inherited, ...primaryMutations.inherited, ...primaryTraits.inherited];
         cub.phenotype = primaryMarkings.pheno.join(', ') || 'None';
-        cub.carried = [...primaryMarkings.carried, ...primaryMutations.carried, ...primaryTraits.carried].join(', ') || 'None';
+        cub.baseModifiersPheno = primaryBaseModifiers.pheno.join(', ') || 'None';
+        cub.carried = [...primaryBaseModifiers.carried, ...primaryMarkings.carried, ...primaryMutations.carried, ...primaryTraits.carried].join(', ') || 'None';
         cub.mutations = primaryMutations.pheno.join(', ') || 'None';
         cub.traits = primaryTraits.pheno.join(', ') || 'None';
 
@@ -667,6 +679,7 @@ document.addEventListener('DOMContentLoaded', function() {
         data.abilities = Array.from(document.querySelectorAll(`#${prefix}-form .ability-checkbox:checked`)).map(cb => cb.value);
         
         data.primary.baseGenetics = document.getElementById(`${prefix}-base-genetics`).value;
+        data.primary.baseModifiers = parseAlleleString(document.getElementById(`${prefix}-base-modifier-genetics`).value, GENE_LIBRARY.BaseModifiers);
         data.primary.markings = parseAlleleString(document.getElementById(`${prefix}-marking-genetics`).value, GENE_LIBRARY.Markings);
         data.primary.mutations = parseAlleleString(document.getElementById(`${prefix}-mutation-genetics`).value, GENE_LIBRARY.Mutations);
         data.primary.traits = parseAlleleString(document.getElementById(`${prefix}-trait-genetics`).value, GENE_LIBRARY.Traits);
@@ -741,4 +754,3 @@ document.addEventListener('DOMContentLoaded', function() {
 
 </body>
 </html>
-
