@@ -227,16 +227,10 @@ document.addEventListener('DOMContentLoaded', function() {
         geno.push(isHomozygous ? `${allele}/${allele}` : `${allele}/n`);
 
         let expressesPhenotypically = false;
-        if (category === 'Markings') {
-            if (geneInfo.rarity === 'Common' || geneInfo.rarity === 'Uncommon') {
-                expressesPhenotypically = true;
-            } else if (geneInfo.rarity === 'Rare' && isHomozygous) {
-                expressesPhenotypically = true;
-            }
-        } else { // Mutations and Traits
-            if (isHomozygous) {
-                expressesPhenotypically = true;
-            }
+        if (geneInfo.rarity === 'Common' || geneInfo.rarity === 'Uncommon') {
+            expressesPhenotypically = true;
+        } else if (geneInfo.rarity === 'Rare' && isHomozygous) {
+            expressesPhenotypically = true;
         }
 
         if (expressesPhenotypically) {
