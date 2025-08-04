@@ -447,11 +447,12 @@ document.addEventListener('DOMContentLoaded', function() {
                     inherited.push(isHomozygous ? `${key}/${key}` : `${key}/n`);
 
                     let expressesPhenotypically = false;
+                    // Updated logic: Mutations and Traits now require homozygous to express
                     if (category === 'Markings') {
                         if (geneInfo.rarity === 'Common' || geneInfo.rarity === 'Uncommon') {
-                            expressesPhenotypically = true;
+                            expressesPhenotypically = true; // Expresses if het or hom
                         } else if (geneInfo.rarity === 'Rare' && isHomozygous) {
-                            expressesPhenotypically = true;
+                            expressesPhenotypically = true; // Only expresses if hom
                         }
                     } else { // Mutations and Traits
                         if (isHomozygous) {
@@ -609,8 +610,15 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 
-    function determinePhenoColor(geno) { 
-        for (const color in GENOTYPES) { if (GENOTYPES[color].includes(geno)) return color; } return "Unknown";
+    function determinePhenoColor(geno) {
+        const whiteGenotypes = ["BW/BW M0/M0 K+/K+", "BW/BW M0/M0 K+/KB", "BW/BW M0/M0 KB/KB"];
+        if (whiteGenotypes.includes(geno)) {
+            return "White";
+        }
+        for (const color in GENOTYPES) { 
+            if (GENOTYPES[color].includes(geno)) return color; 
+        } 
+        return "Unknown";
     }
 
     function determineSpecies(sire, dam, settings) { 
@@ -733,3 +741,4 @@ document.addEventListener('DOMContentLoaded', function() {
 
 </body>
 </html>
+
