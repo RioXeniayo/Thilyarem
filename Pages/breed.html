@@ -460,9 +460,9 @@ document.addEventListener('DOMContentLoaded', function() {
                     let expressesPhenotypically = false;
                     if (category === 'Markings') {
                         if (geneInfo.rarity === 'Common' || geneInfo.rarity === 'Uncommon') {
-                            expressesPhenotypically = true;
+                            expressesPhenotypically = true; // Expresses if het or hom
                         } else if (geneInfo.rarity === 'Rare' && isHomozygous) {
-                            expressesPhenotypically = true;
+                            expressesPhenotypically = true; // Only expresses if hom
                         }
                     } else { // Mutations, Traits, and Base Modifiers
                         if (isHomozygous) {
@@ -498,8 +498,8 @@ document.addEventListener('DOMContentLoaded', function() {
 
         const baseAlleles = {};
         ['B', 'M', 'K'].forEach(locus => {
-            const sireL = sire.baseGenetics.split(' ')['BMK'.indexOf(locus)].split('/');
-            const damL = dam.baseGenetics.split(' ')['BMK'.indexOf(locus)].split('/');
+            const sireL = sire.primary.baseGenetics.split(' ')['BMK'.indexOf(locus)].split('/');
+            const damL = dam.primary.baseGenetics.split(' ')['BMK'.indexOf(locus)].split('/');
             baseAlleles[locus] = [getRandom(sireL), getRandom(damL)].sort();
         });
         const baseGeno = `${baseAlleles.B.join('/')} ${baseAlleles.M.join('/')} ${baseAlleles.K.join('/')}`;
@@ -623,10 +623,6 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     function determinePhenoColor(geno) {
-        const whiteGenotypes = ["BW/BW M0/M0 K+/K+", "BW/BW M0/M0 K+/KB", "BW/BW M0/M0 KB/KB"];
-        if (whiteGenotypes.includes(geno)) {
-            return "White";
-        }
         for (const color in GENOTYPES) { 
             if (GENOTYPES[color].includes(geno)) return color; 
         } 
@@ -706,51 +702,3 @@ document.addEventListener('DOMContentLoaded', function() {
             crane: document.getElementById('crane-companion').checked,
         };
     }
-
-    function showError(message) { 
-        const errorDiv = document.getElementById('error-container');
-        errorDiv.textContent = message;
-        errorDiv.style.display = 'block';
-    }
-
-    function hideError() { 
-        document.getElementById('error-container').style.display = 'none';
-    }
-    
-    function showResults(outputHTML) { 
-        document.getElementById('results-output').innerHTML = outputHTML;
-        const resultsModal = new bootstrap.Modal(document.getElementById('resultsModal'));
-        resultsModal.show();
-    }
-    
-    function init() {
-        document.getElementById('sire-form').innerHTML = createParentForm('sire');
-        document.getElementById('dam-form').innerHTML = createParentForm('dam');
-        randomizeParent('sire');
-        randomizeParent('dam');
-        document.getElementById('roll-btn').addEventListener('click', rollBreeding);
-        document.getElementById('randomize-all-btn').addEventListener('click', () => {
-            randomizeParent('sire');
-            randomizeParent('dam');
-        });
-        document.querySelectorAll('.base-color-selector').forEach(sel => {
-            sel.addEventListener('change', (e) => updateBaseGenetics(e.target.dataset.prefix));
-            updateBaseGenetics(sel.dataset.prefix);
-        });
-        document.querySelectorAll('.chimera-check').forEach(chk => {
-            chk.addEventListener('change', (e) => {
-                const prefix = e.target.dataset.prefix;
-                document.getElementById(`${prefix}-chimera-section`).style.display = e.target.checked ? 'block' : 'none';
-            });
-        });
-        document.getElementById('inbred-check').addEventListener('change', (e) => {
-            document.querySelector('.inbreed-details').style.display = e.target.checked ? 'block' : 'none';
-        });
-    }
-
-    init();
-});
-</script>
-
-</body>
-</html>
