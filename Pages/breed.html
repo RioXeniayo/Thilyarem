@@ -242,9 +242,9 @@ document.addEventListener('DOMContentLoaded', function() {
                 <div class="col-md-6 mb-3"><label for="${prefix}-base-color" class="form-label">Base Color (Phenotype):</label><select id="${prefix}-base-color" class="form-select base-color-selector" data-prefix="${prefix}">${BASE_COLORS.map(c => `<option value="${c}">${c}</option>`).join('')}</select></div>
                 <div class="col-md-6 mb-3"><label for="${prefix}-base-genetics" class="form-label">Base Genetics (Genotype):</label><select id="${prefix}-base-genetics" class="form-select"></select></div>
             </div>
-            <div class="mb-3"><label for="${prefix}-marking-genetics" class="form-label">Marking Genetics:</label><textarea id="${prefix}-marking-genetics" class="form-control" rows="2" placeholder="e.g., Dpl/Dpl nSpt..."></textarea></div>
-            <div class="mb-3"><label for="${prefix}-mutation-genetics" class="form-label">Mutation Genetics:</label><textarea id="${prefix}-mutation-genetics" class="form-control" rows="2" placeholder="e.g., nVit..."></textarea></div>
-            <div class="mb-3"><label for="${prefix}-trait-genetics" class="form-label">Trait Genetics (Physical):</label><textarea id="${prefix}-trait-genetics" class="form-control" rows="2" placeholder="e.g., Ho/nHo Fg/Fg..."></textarea></div>
+            <div class="mb-3"><label for="${prefix}-marking-genetics" class="form-label">Marking Genetics:</label><textarea id="${prefix}-marking-genetics" class="form-control" rows="2" placeholder="e.g., Dpl/Dpl Spt/n..."></textarea></div>
+            <div class="mb-3"><label for="${prefix}-mutation-genetics" class="form-label">Mutation Genetics:</label><textarea id="${prefix}-mutation-genetics" class="form-control" rows="2" placeholder="e.g., Vit/n..."></textarea></div>
+            <div class="mb-3"><label for="${prefix}-trait-genetics" class="form-label">Trait Genetics (Physical):</label><textarea id="${prefix}-trait-genetics" class="form-control" rows="2" placeholder="e.g., Ho/n Fg/Fg..."></textarea></div>
             <div class="form-check mb-3"><input class="form-check-input chimera-check" type="checkbox" id="${prefix}-chimera-check" data-prefix="${prefix}" disabled><label class="form-check-label" for="${prefix}-chimera-check">Chimerism (Handled by random roll)</label></div>
             <div class="chimera-section" id="${prefix}-chimera-section"></div><hr>
             <h5>Element & Abilities</h5>
@@ -269,19 +269,13 @@ document.addEventListener('DOMContentLoaded', function() {
             if (part.includes('/')) {
                 [allele1, allele2] = part.split('/');
                 key = (allele1 === 'n' ? allele2 : allele1).toUpperCase();
-            } else if (part.startsWith('n')) {
+            } else if (part.startsWith('n')) { // Legacy support for nAllele
                 allele1 = 'n';
                 allele2 = part.substring(1);
                 key = allele2.toUpperCase();
-            } else {
-                 const match = part.match(/([A-Z][a-z]*)([A-Z][a-z]*)/i);
-                 if (match && match[1].toUpperCase() === match[2].toUpperCase()) {
-                     allele1 = allele2 = match[1];
-                     key = allele1.toUpperCase();
-                 } else { 
-                     allele1 = allele2 = part;
-                     key = part.toUpperCase();
-                 }
+            } else { // Assumes homozygous if no '/'
+                 allele1 = allele2 = part;
+                 key = part.toUpperCase();
             }
             const libraryKey = Object.keys(library).find(k => k.toUpperCase() === key);
             if (libraryKey) {
@@ -314,21 +308,21 @@ document.addEventListener('DOMContentLoaded', function() {
         const numMarkings = Math.floor(Math.random() * 5) + 2;
         for (let i = 0; i < numMarkings; i++) {
             const key = getRandom(markingKeys);
-            markingsStr += roll(0.5) ? `${key}/${key} ` : `n${key} `;
+            markingsStr += roll(0.5) ? `${key}/${key} ` : `${key}/n `;
         }
 
         let mutationsStr = "";
         const numMutations = Math.floor(Math.random() * 3);
         for (let i = 0; i < numMutations; i++) {
             const key = getRandom(mutationKeys);
-            mutationsStr += roll(0.5) ? `${key}/${key} ` : `n${key} `;
+            mutationsStr += roll(0.5) ? `${key}/${key} ` : `${key}/n `;
         }
 
         let traitsStr = "";
         const numTraits = Math.floor(Math.random() * 3);
         for (let i = 0; i < numTraits; i++) {
             const key = getRandom(traitKeys);
-            traitsStr += roll(0.5) ? `${key}/${key} ` : `n${key} `;
+            traitsStr += roll(0.5) ? `${key}/${key} ` : `${key}/n `;
         }
         
         document.getElementById(`${prefix}-marking-genetics`).value = markingsStr.trim();
@@ -367,8 +361,11 @@ document.addEventListener('DOMContentLoaded', function() {
         
         let cubCount = (maxCubs > 0) ? Math.floor(Math.random() * (maxCubs - minCubs + 1)) + minCubs : 0;
 
-        if (settings.crescentHerb && roll(0.5)) cubCount++;
-        if (settings.moonlitHerb) cubCount += Math.floor(Math.random() * 3);
+        if (settings.crescentHerb && roll(0.52)) cubCount++; // +2% item buff
+        if (settings.moonlitHerb) {
+            cubCount += Math.floor(Math.random() * 3);
+            if (roll(0.02)) cubCount++; // +2% item buff
+        }
         if (settings.bondBreeding) cubCount++;
         
         let outputHTML = cubCount === 0 ? "The breeding resulted in no viable hatchlings." : "";
@@ -381,6 +378,7 @@ document.addEventListener('DOMContentLoaded', function() {
             if (cub.isChimera) cubHTML += `** Chimeric Markings/Mutations **\n`;
             cubHTML += `Species: ${cub.species.name}\nBuild: ${cub.species.build}\nSex: ${cub.sex}\nManetype: ${cub.manetype}\nElement: ${cub.element}\n`;
             cubHTML += `Base Color: ${cub.baseColor}\nGenotype: ${cub.genotype}\nPhenotype: ${cub.phenotype}\n`;
+            cubHTML += `Carried: ${cub.carried}\n`;
             cubHTML += `Mutations: ${cub.mutations}\nTraits: ${cub.traits}\nAbilities: ${cub.abilities.join(', ') || 'None'}\n`;
             cubHTML += `Fertility: ${cub.fertility}\nInbred: ${cub.inbred}\nDefects: ${cub.defects.length > 0 ? cub.defects.join(', ') : 'Healthy'}\n\n`;
 
@@ -396,32 +394,53 @@ document.addEventListener('DOMContentLoaded', function() {
         showResults(outputHTML);
     }
     
-    const inheritGeneCategory = (sire, dam, category) => {
+    const inheritGeneCategory = (sire, dam, category, settings) => {
         const inherited = [];
         const pheno = [];
+        const carried = [];
         const lib = GENE_LIBRARY[category];
         const sireGenes = sire[category.toLowerCase()];
         const damGenes = dam[category.toLowerCase()];
         const allGeneKeys = [...new Set([...Object.keys(sireGenes), ...Object.keys(damGenes)])];
         
         allGeneKeys.forEach(key => {
+            const geneInfo = lib[key];
             const sireAlleles = sireGenes[key] || ['n', 'n'];
             const damAlleles = damGenes[key] || ['n', 'n'];
-            const sireHas = sireAlleles[1] !== 'n';
-            const damHas = damAlleles[1] !== 'n';
+            const sireHas = sireAlleles.includes(key);
+            const damHas = damAlleles.includes(key);
+
             let passChance = 0;
-            if (sireHas && damHas) passChance = 0.40;
-            else if (sireHas || damHas) passChance = 0.15;
+            const basePass = (sireHas && damHas) ? 0.40 : 0.15;
+            
+            if (geneInfo.rarity === 'Common') passChance = basePass + 0.10;
+            else if (geneInfo.rarity === 'Uncommon') passChance = basePass + 0.05;
+            else if (geneInfo.rarity === 'Rare') passChance = basePass + 0.02;
+            else passChance = basePass;
             
             if (roll(passChance)) {
                 const childAlleles = [getRandom(sireAlleles), getRandom(damAlleles)].sort();
-                if (childAlleles[1] !== 'n') {
-                    inherited.push(childAlleles[0] === 'n' ? `n${key}` : `${key}/${key}`);
-                    if (childAlleles.includes(key)) { pheno.push(lib[key].name); }
+                
+                if (childAlleles.includes(key)) { // If the gene is present at all
+                    const isHomozygous = childAlleles[0] === key && childAlleles[1] === key;
+                    
+                    // Add to genotype string
+                    inherited.push(isHomozygous ? `${key}/${key}` : `${key}/n`);
+
+                    // Check for phenotype expression
+                    if (geneInfo.rarity === 'Common' || geneInfo.rarity === 'Uncommon') {
+                        pheno.push(geneInfo.name);
+                    } else if (geneInfo.rarity === 'Rare') {
+                        if (isHomozygous) {
+                            pheno.push(geneInfo.name);
+                        } else {
+                            carried.push(geneInfo.name);
+                        }
+                    }
                 }
             }
         });
-        return { inherited, pheno };
+        return { inherited, pheno, carried };
     };
 
     function generateCub(sire, dam, settings) {
@@ -429,14 +448,11 @@ document.addEventListener('DOMContentLoaded', function() {
         const defectsResult = determineDefects(sire, dam, settings);
         
         cub.defects = defectsResult.defects;
-
-        if (defectsResult.reason) {
-            cub.viable = false;
-        }
+        if (defectsResult.reason) cub.viable = false;
         
         cub.sex = roll(0.5) ? 'Male' : 'Female';
         cub.species = determineSpecies(sire, dam, settings);
-        cub.manetype = "Natural";
+        cub.manetype = determineManetype(sire, dam, settings);
         cub.element = roll(0.5) ? sire.element : dam.element;
         cub.abilities = determineAbilities(sire, dam);
         cub.inbred = settings.isInbred ? 'Yes' : 'No';
@@ -451,20 +467,21 @@ document.addEventListener('DOMContentLoaded', function() {
         const baseGeno = `${baseAlleles.B.join('/')} ${baseAlleles.M.join('/')} ${baseAlleles.K.join('/')}`;
         cub.baseColor = determinePhenoColor(baseGeno);
         
-        const primaryMarkings = inheritGeneCategory(sire, dam, 'Markings');
-        const primaryMutations = inheritGeneCategory(sire, dam, 'Mutations');
-        const primaryTraits = inheritGeneCategory(sire, dam, 'Traits');
+        const primaryMarkings = inheritGeneCategory(sire, dam, 'Markings', settings);
+        const primaryMutations = inheritGeneCategory(sire, dam, 'Mutations', settings);
+        const primaryTraits = inheritGeneCategory(sire, dam, 'Traits', settings);
 
         let otherGenes = [...primaryMarkings.inherited, ...primaryMutations.inherited, ...primaryTraits.inherited];
         cub.phenotype = primaryMarkings.pheno.join(', ') || 'None';
+        cub.carried = [...primaryMarkings.carried, ...primaryMutations.carried, ...primaryTraits.carried].join(', ') || 'None';
         cub.mutations = primaryMutations.pheno.join(', ') || 'None';
         cub.traits = primaryTraits.pheno.join(', ') || 'None';
 
         if (roll(0.01)) {
             cub.isChimera = true;
             if(!cub.defects.includes('Chimerism')) cub.defects.push('Chimerism');
-            const secondaryMarkings = inheritGeneCategory(sire, dam, 'Markings');
-            const secondaryMutations = inheritGeneCategory(sire, dam, 'Mutations');
+            const secondaryMarkings = inheritGeneCategory(sire, dam, 'Markings', settings);
+            const secondaryMutations = inheritGeneCategory(sire, dam, 'Mutations', settings);
             cub.phenotype += ` // ${secondaryMarkings.pheno.join(', ') || 'None'}`;
             cub.mutations += ` // ${secondaryMutations.pheno.join(', ') || 'None'}`;
             otherGenes.push('//', ...secondaryMarkings.inherited, ...secondaryMutations.inherited);
@@ -472,11 +489,11 @@ document.addEventListener('DOMContentLoaded', function() {
 
         let mutationChance = 0.015;
         if (settings.moonlitHerb) mutationChance += 0.10;
-        if (settings.crane) mutationChance += 0.02;
+        if (settings.crane) mutationChance += 0.04; // +2% buff
         if (roll(mutationChance) && !cub.isChimera) {
             const randomMutationKey = getRandom(Object.keys(GENE_LIBRARY.Mutations));
             if (!otherGenes.some(m => m.includes(randomMutationKey))) {
-                otherGenes.push(`n${randomMutationKey}`);
+                otherGenes.push(`${randomMutationKey}/n`);
             }
         }
         
@@ -493,11 +510,11 @@ document.addEventListener('DOMContentLoaded', function() {
         if (settings.dubiousFood) riskModifier *= 2.0;
 
         let baseRisk = 0;
-        if (sire.age === 'Adolescent' || dam.age === 'Adolescent') baseRisk = 0.25; // Increased
+        if (sire.age === 'Adolescent' || dam.age === 'Adolescent') baseRisk = 0.35; // Increased
         if (settings.isInbred) {
-            if (settings.inbreedLevel === 'Slight') baseRisk += 0.15;      // Increased
-            else if (settings.inbreedLevel === 'Moderate') baseRisk += 0.40; // Increased
-            else if (settings.inbreedLevel === 'Severe') baseRisk += 0.75;  // Increased
+            if (settings.inbreedLevel === 'Slight') baseRisk += 0.25;      // Increased
+            else if (settings.inbreedLevel === 'Moderate') baseRisk += 0.55; // Increased
+            else if (settings.inbreedLevel === 'Severe') baseRisk += 0.90;  // Increased
         }
         if (settings.dubiousFood) baseRisk += 0.05;
 
@@ -508,7 +525,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 if (isApplicable) {
                     let chance = RARITY_CHANCES[data.rarity] * riskModifier;
                     if (defect === 'Stillborn' && (sire.age === 'Adolescent' || dam.age === 'Adolescent' || settings.inbreedLevel === 'Severe')) {
-                        chance *= 3.0; // Significantly increase stillborn chance for these conditions
+                        chance *= 3.5; 
                     }
                     if (roll(chance)) {
                          if (defect === 'Stillborn' || defect === 'Slug Egg') {
@@ -525,22 +542,34 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     function determineOffspringFertility(sire, dam, settings, defectsResult) {
-        if (settings.inbreedLevel === 'Severe' && roll(0.15)) {
-            return 'Sterile';
-        }
-        if (defectsResult.isInfertile) {
-            return 'Bad';
-        }
+        if (settings.inbreedLevel === 'Severe' && roll(0.15)) return 'Sterile';
+        if (defectsResult.isInfertile) return 'Bad';
 
         const fertilityMap = { Best: 4, Good: 3, Okay: 2, Bad: 1 };
         let fertilityScore = Math.round((fertilityMap[sire.fertility] + fertilityMap[dam.fertility]) / 2);
 
         if (sire.age === 'Adolescent' || dam.age === 'Adolescent') fertilityScore--;
         if (settings.inbreedLevel === 'Moderate' || settings.inbreedLevel === 'Severe') fertilityScore--;
-
         if (fertilityScore < 1) fertilityScore = 1;
 
         return Object.keys(fertilityMap).find(key => fertilityMap[key] === fertilityScore) || 'Bad';
+    }
+
+    function determineManetype(sire, dam, settings) {
+        if (settings.questionablePotion && roll(0.25)) return getRandom(MANETYPES);
+
+        const sireMane = sire.manetype;
+        const damMane = dam.manetype;
+
+        if (sireMane === damMane) {
+            if (roll(0.85)) return sireMane;
+            if (roll(0.10)) return 'Natural';
+            return getRandom(MANETYPES.filter(m => m !== sireMane));
+        } else {
+            if (roll(0.60)) return 'Natural';
+            if (roll(0.50)) return sireMane; // 50% chance of the remaining 40%
+            return damMane;
+        }
     }
 
     function determinePhenoColor(geno) { 
@@ -554,7 +583,7 @@ document.addEventListener('DOMContentLoaded', function() {
             let destrierChance = 0;
             if (s === 'Destrier' && d === 'Destrier') destrierChance = 0.40;
             else if (s === 'Destrier' || d === 'Destrier') destrierChance = 0.15;
-            if (settings.calmingBrow) destrierChance += 0.1;
+            if (settings.calmingBrow) destrierChance += 0.12; // +2% item buff
             if (sire.savageBoon || dam.savageBoon) destrierChance += 0.05;
             if (roll(destrierChance)) { build = 'Destrier'; }
         }
@@ -569,8 +598,8 @@ document.addEventListener('DOMContentLoaded', function() {
             const sireHas = sire.abilities.includes(abilityName);
             const damHas = dam.abilities.includes(abilityName);
             let passChance = 0;
-            if (sireHas && damHas) passChance = 0.40;
-            else if (sireHas || damHas) passChance = 0.20;
+            if (sireHas && damHas) passChance = 0.25; // Decreased
+            else if (sireHas || damHas) passChance = 0.10; // Decreased
             if(roll(passChance)) inheritedAbilities.push(abilityName);
         });
         return inheritedAbilities;
@@ -599,6 +628,7 @@ document.addEventListener('DOMContentLoaded', function() {
             crescentHerb: document.getElementById('crescent-herb').checked,
             moonlitHerb: document.getElementById('moonlit-herb').checked,
             calmingBrow: document.getElementById('calming-brow').checked,
+            questionablePotion: document.getElementById('questionable-potion').checked,
             dubiousFood: document.getElementById('dubious-food').checked,
             heartyMeal: document.getElementById('hearty-meal').checked,
             bondBreeding: document.getElementById('bond-breeding-check').checked,
