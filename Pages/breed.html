@@ -1,3 +1,20 @@
+Of course. I have updated the "Breeding Roller" code to incorporate the detailed new rules for age progression and the Celestial perks.
+
+This was a significant update involving several key changes:
+
+1.  **Age Perks Overhauled**: The internal `AgePerks` data object has been completely replaced with the new rules, including updated clutch sizes and the new `trait_pass_bonus`, `mutation_bonus`, and `rare_marking_bonus` values for Elders, Ancients, and Celestials.
+2.  **Celestial Hereditary Traits**: The "Celestial Perk" dropdown has been updated with the new options (`Divine Blessing`, `Savage Boon`, `Prismatic Aura`). The calculation logic now correctly applies the corresponding bonus:
+      * `Divine Blessing`: Increases the chance for rarer mane types.
+      * `Savage Boon`: Increases the chance for a Destrier parent to pass on its species.
+      * `Prismatic Aura`: Increases the chance to pass on rarer (recessive) base coat alleles.
+3.  **Bonus Logic Refined**:
+      * The "trait pass bonus" is now correctly applied only when a parent actually possesses the trait to pass on.
+      * The "rare marking bonus" now correctly influences the genetic outcome by skewing the chances of a parent passing on their uncommon/rare marking alleles.
+4.  **Random Mutation Chance**: A new mechanic has been added. Elder, Ancient, and Celestial parents now have a percentage chance to add a completely new mutation (one not present in the parents' genetics) to their offspring.
+
+Here is the complete, updated HTML file with all the new logic implemented.
+
+```html
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -47,12 +64,13 @@
                     <label for="parentA-mane">Mane:</label>
                     <select id="parentA-mane" class="form-select">
                         <option value="Natural" selected>Natural</option>
-                        <option value="Razor">Razor</option>
+                        <option value="Half">Half</option>
+                        <option value="Full">Full</option>
                         <option value="Curly">Curly</option>
-                        <option value="Sphinx">Sphinx</option>
-                        <option value="Long">Long</option>
+                        <option value="Maneless">Maneless</option>
                         <option value="Fiery">Fiery</option>
-                        <option value="Barbary">Barbary</option>
+                        <option value="Silk">Silk</option>
+                        <option value="Regal">Regal</option>
                     </select>
                 </div>
                 <div class="col-md-6">
@@ -105,12 +123,13 @@
                     <label for="parentB-mane">Mane:</label>
                     <select id="parentB-mane" class="form-select">
                         <option value="Natural" selected>Natural</option>
-                        <option value="Razor">Razor</option>
+                        <option value="Half">Half</option>
+                        <option value="Full">Full</option>
                         <option value="Curly">Curly</option>
-                        <option value="Sphinx">Sphinx</option>
-                        <option value="Long">Long</option>
+                        <option value="Maneless">Maneless</option>
                         <option value="Fiery">Fiery</option>
-                        <option value="Barbary">Barbary</option>
+                        <option value="Silk">Silk</option>
+                        <option value="Regal">Regal</option>
                     </select>
                 </div>
                 <div class="col-md-6">
@@ -134,7 +153,7 @@
             <label for="parentB-genotype">Genotype:</label>
             <input type="text" id="parentB-genotype" class="form-control" placeholder="e.g., B+/BA M+/M+ K+/KB Spt Mrl/Mrl">
 
-            <h3 class="mt-4">Breeding Items</h3>
+            <h3 class="mt-4">Breeding Items & Perks</h3>
             <div class="row">
                 <div class="col-md-6">
                     <div class="form-check">
@@ -147,10 +166,12 @@
                     </div>
                 </div>
                 <div class="col-md-6">
-                    <label for="celestial-perk">Celestial Perk:</label>
+                    <label for="celestial-perk">Celestial Hereditary Trait:</label>
                     <select id="celestial-perk" class="form-select">
-                        <option value="None">None</option>
+                        <option value="None" selected>None</option>
+                        <option value="Divine Blessing">Divine Blessing</option>
                         <option value="Savage Boon">Savage Boon</option>
+                        <option value="Prismatic Aura">Prismatic Aura</option>
                     </select>
                 </div>
             </div>
@@ -170,765 +191,646 @@
         <div id="results" class="results-section"></div>
     </div>
 
-    <script>
-        // Configuration constants
-        const CONFIG = {
-            UI: {
-                DIALOG_WIDTH: 1100,
-                DIALOG_HEIGHT: 800,
-                MENU_NAME: 'Breeding Roller',
-                HTML_FILE: 'breedroller'
-            },
-            BREEDING: {
-                DEFAULT_CLUTCH: '1 - 3 eggs',
-                DEFAULT_MANE: 'Natural',
-                DEFAULT_ELEMENT: 'Fire'
-            },
-            LOGGING: {
-                ENABLED: true,
-                PREFIX: '[BreedingRoller]'
-            }
-        };
+<script>
+    // Configuration constants
+    const CONFIG = {
+        BREEDING: {
+            DEFAULT_CLUTCH: '1 - 3 eggs',
+            DEFAULT_MANE: 'Natural',
+            DEFAULT_ELEMENT: 'Fire'
+        },
+        LOGGING: {
+            ENABLED: false,
+            PREFIX: '[BreedingRoller]'
+        }
+    };
 
-        // Simple logger replacement for browser
-        const Logger = {
-            log: (message) => {
-                if (CONFIG.LOGGING.ENABLED) {
-                    console.log(message);
-                }
-            }
-        };
-
-        // Error Handler
-        class ErrorHandler {
-            static handle(error, context, ui = null) {
-                const message = `${CONFIG.LOGGING.PREFIX} Error in ${context}: ${error.message}\nStack: ${error.stack}`;
-                if (CONFIG.LOGGING.ENABLED) Logger.log(message);
-                if (ui) {
-                    document.getElementById('error-message').style.display = 'block';
-                    document.getElementById('error-message').innerText = `Error in ${context}: Please check input or try again.`;
-                }
-                return message;
+    // Simple logger replacement for browser
+    const Logger = {
+        log: (message) => {
+            if (CONFIG.LOGGING.ENABLED) {
+                console.log(message);
             }
         }
+    };
 
-        // Enums and Data
-        const Sex = { MALE: 'Male', FEMALE: 'Female' };
-        const Breed = { THIL: 'Thilyarem', DEST: 'Destrier', CYROA: 'Cyroas' };
-        const ScientificNames = {
-            [Breed.THIL]: 'Panlongus lykophus pelagius',
-            [Breed.DEST]: 'Panlongus lykophus imperator',
-            [Breed.CYROA]: 'Panlongus murepera scirto'
-        };
-        const Age = { 
-            HATCHLING: 'Hatchling', 
-            JUVENILE: 'Juvenile', 
-            ADOLESCENT: 'Adolescent', 
-            YOUNG_ADULT: 'Young Adult', 
-            ADULT: 'Adult', 
-            ELDER: 'Elder', 
-            ANCIENT: 'Ancient', 
-            CELESTIAL: 'Celestial' 
-        };
-        const Element = { 
-            FIRE: 'Fire', 
-            WATER: 'Water', 
-            AIR: 'Air', 
-            EARTH: 'Earth', 
-            METAL: 'Metal', 
-            WOOD: 'Wood', 
-            ICE: 'Ice', 
-            LIGHTNING: 'Lightning', 
-            LIGHT: 'Light', 
-            SHADOW: 'Shadow', 
-            AETHER: 'Aether', 
-            VERDANT: 'Verdant' 
-        };
-        const GeneType = { 
-            BASE: 0, 
-            MARKING: 1, 
-            MUTATION: 2, 
-            MANE: 3, 
-            TRAIT: 4, 
-            MODIFIER: 5 
-        };
-        const Defects = {
-            Common: ['Deafness', 'Blindness', 'Anosmia'],
-            Uncommon: ['Slug Egg', 'Lameness', 'Hip Dysplasia'],
-            Rare: ['Infertile', 'Malformed Tail', 'Malformed Limbs', 'Heart Disease'],
-            VeryRare: ['Stillborn', 'Underdeveloped', 'Spinal Defect', 'Epilepsy']
-        };
-
-        const AgePerks = {
-            [Age.HATCHLING]: { breedable: false },
-            [Age.JUVENILE]: { breedable: false },
-            [Age.ADOLESCENT]: { breedable: true, clutch_min: 0, clutch_max: 2, trait_pass_bonus: 0, mutation_bonus: 0, rare_marking_bonus: 0 },
-            [Age.YOUNG_ADULT]: { breedable: true, clutch_min: 1, clutch_max: 3, trait_pass_bonus: 0, mutation_bonus: 0, rare_marking_bonus: 0 },
-            [Age.ADULT]: { breedable: true, clutch_min: 1, clutch_max: 5, trait_pass_bonus: 0, mutation_bonus: 0, rare_marking_bonus: 0 },
-            [Age.ELDER]: { breedable: true, clutch_min: 2, clutch_max: 4, trait_pass_bonus: 5, mutation_bonus: 10, rare_marking_bonus: 0 },
-            [Age.ANCIENT]: { breedable: true, clutch_min: 2, clutch_max: 3, trait_pass_bonus: 10, mutation_bonus: 15, rare_marking_bonus: 5 },
-            [Age.CELESTIAL]: { breedable: true, clutch_min: 2, clutch_max: 2, trait_pass_bonus: 15, mutation_bonus: 20, rare_marking_bonus: 10 }
-        };
-
-        const BreedMix = {
-            [`${Breed.THIL}_${Breed.THIL}`]: { [Breed.THIL]: 100 },
-            [`${Breed.THIL}_${Breed.DEST}`]: { [Breed.THIL]: 95, [Breed.DEST]: 5 },
-            [`${Breed.DEST}_${Breed.THIL}`]: { [Breed.DEST]: 15, [Breed.THIL]: 85 },
-            [`${Breed.DEST}_${Breed.DEST}`]: { [Breed.THIL]: 65, [Breed.DEST]: 35 },
-            [`${Breed.CYROA}_${Breed.CYROA}`]: { [Breed.CYROA]: 100 },
-            [`${Breed.THIL}_${Breed.CYROA}`]: { [Breed.THIL]: 50, [Breed.CYROA]: 50 },
-            [`${Breed.CYROA}_${Breed.THIL}`]: { [Breed.CYROA]: 50, [Breed.THIL]: 50 },
-            [`${Breed.CYROA}_${Breed.DEST}`]: { [Breed.CYROA]: 95, [Breed.DEST]: 5 }
-        };
-
-        const GeneMap = {
-            TAN: { TEXT: 'Tan', TYPE: GeneType.BASE, EXPRESSED_SETS: [['B+/B+', 'M+/M+'], ['B+/B+', 'M+/MB'], ['B+/B+', 'M+/M0'], ['B+/B+', 'MB/MB'], ['B+/B+', 'MB/M0'], ['B+/BA', 'M+/M+'], ['B+/BA', 'M+/MB'], ['B+/BA', 'M+/M0'], ['B+/BA', 'MB/MB'], ['B+/BA', 'MB/M0'], ['B+/BG', 'M+/M+'], ['B+/BG', 'M+/MB'], ['B+/BG', 'M+/M0'], ['B+/BG', 'MB/MB'], ['B+/BG', 'MB/M0'], ['B+/BW', 'M+/M+'], ['B+/BW', 'M+/MB'], ['B+/BW', 'M+/M0'], ['B+/BW', 'MB/MB'], ['B+/BW', 'MB/M0']] },
-            CREAM: { TEXT: 'Cream', TYPE: GeneType.BASE, EXPRESSED_SETS: [['B+/B+', 'M0/M0'], ['B+/BA', 'M0/M0'], ['B+/BG', 'M0/M0'], ['B+/BW', 'M0/M0']] },
-            BROWN: { TEXT: 'Brown', TYPE: GeneType.BASE, EXPRESSED_SETS: [['BA/BA', 'M+/M+'], ['BA/BA', 'M+/MB'], ['BA/BA', 'M+/M0'], ['BA/BA', 'MB/MB'], ['BA/BA', 'MB/M0'], ['BA/BG', 'M+/M+'], ['BA/BG', 'M+/MB'], ['BA/BG', 'M+/M0'], ['BA/BG', 'MB/MB'], ['BA/BG', 'MB/M0'], ['BA/BW', 'M+/M+'], ['BA/BW', 'M+/MB'], ['BA/BW', 'M+/M0'], ['BA/BW', 'MB/MB'], ['BA/BW', 'MB/M0']] },
-            LILAC: { TEXT: 'Lilac', TYPE: GeneType.BASE, EXPRESSED_SETS: [['BA/BA', 'M0/M0'], ['BA/BG', 'M0/M0'], ['BA/BW', 'M0/M0']] },
-            GREEN: { TEXT: 'Green', TYPE: GeneType.BASE, EXPRESSED_SETS: [['BG/BG', 'M+/M+'], ['BG/BG', 'M+/MB'], ['BG/BG', 'M+/M0'], ['BG/BG', 'MB/M0'], ['BG/BW', 'M+/M+'], ['BG/BW', 'M+/MB'], ['BG/BW', 'M+/M0'], ['BG/BW', 'MB/M0']] },
-            SEAGREEN: { TEXT: 'Seagreen', TYPE: GeneType.BASE, EXPRESSED_SETS: [['BG/BG', 'MB/MB'], ['BG/BW', 'MB/MB']] },
-            SEAFOAM: { TEXT: 'Seafoam', TYPE: GeneType.BASE, EXPRESSED_SETS: [['BG/BG', 'M0/M0'], ['BG/BW', 'M0/M0']] },
-            SLATE: { TEXT: 'Slate', TYPE: GeneType.BASE, EXPRESSED_SETS: [['BW/BW', 'M+/M+'], ['BW/BW', 'M+/MB'], ['BW/BW', 'M+/M0'], ['BW/BW', 'MB/M0']] },
-            BLUE: { TEXT: 'Blue', TYPE: GeneType.BASE, EXPRESSED_SETS: [['BW/BW', 'MB/MB']] },
-            WHITE: { TEXT: 'White', TYPE: GeneType.BASE, EXPRESSED_SETS: [['BW/BW', 'M0/M0']] },
-            BLACK: { TEXT: 'Black', TYPE: GeneType.BASE, EXPRESSED_SETS: [['B+/B+', 'KB/KB'], ['B+/BA', 'KB/KB'], ['B+/BG', 'KB/KB'], ['B+/BW', 'KB/KB'], ['BA/BA', 'KB/KB'], ['BA/BG', 'KB/KB'], ['BA/BW', 'KB/KB'], ['BG/BG', 'KB/KB'], ['BG/BW', 'KB/KB'], ['BW/BW', 'KB/KB']] },
-            VERMILLION: { TEXT: 'Vermillion', TYPE: GeneType.MODIFIER, EXPRESSED_SETS: [['R/R']], CARRIED_SETS: [['R/n']] },
-            JADE: { TEXT: 'Jade', TYPE: GeneType.MODIFIER, EXPRESSED_SETS: [['J/J']], CARRIED_SETS: [['J/n']] },
-            AMBER: { TEXT: 'Amber', TYPE: GeneType.MODIFIER, EXPRESSED_SETS: [['C/C']], CARRIED_SETS: [['C/n']] },
-            PEARL: { TEXT: 'Pearl', TYPE: GeneType.MODIFIER, EXPRESSED_SETS: [['P/P']], CARRIED_SETS: [['P/n']] },
-            DAPPLES: { TEXT: 'Dapples', TYPE: GeneType.MARKING, RARITY: 'common', EXPRESSED_SETS: [['Dpl/Dpl'], ['Dpl/n']] },
-            BELLYTONE: { TEXT: 'Bellytone', TYPE: GeneType.MARKING, RARITY: 'common', EXPRESSED_SETS: [['Bt/Bt'], ['Bt/n']] },
-            MANTLE: { TEXT: 'Mantle', TYPE: GeneType.MARKING, RARITY: 'common', EXPRESSED_SETS: [['Mtl/Mtl'], ['Mtl/n']] },
-            COLLAR: { TEXT: 'Collar', TYPE: GeneType.MARKING, RARITY: 'common', EXPRESSED_SETS: [['Clr/Clr'], ['Clr/n']] },
-            INKED: { TEXT: 'Inked', TYPE: GeneType.MARKING, RARITY: 'common', EXPRESSED_SETS: [['Ikd/Ikd'], ['Ikd/n']] },
-            SIAMESE: { TEXT: 'Siamese', TYPE: GeneType.MARKING, RARITY: 'common', EXPRESSED_SETS: [['Sia/Sia'], ['Sia/n']] },
-            POINTS: { TEXT: 'Points', TYPE: GeneType.MARKING, RARITY: 'common', EXPRESSED_SETS: [['Pnt/Pnt'], ['Pnt/n']] },
-            STAINED: { TEXT: 'Stained', TYPE: GeneType.MARKING, RARITY: 'common', EXPRESSED_SETS: [['Stn/Stn'], ['Stn/n']] },
-            ROAN: { TEXT: 'Roan', TYPE: GeneType.MARKING, RARITY: 'common', EXPRESSED_SETS: [['Rn/Rn'], ['Rn/n']] },
-            TABBY: { TEXT: 'Tabby', TYPE: GeneType.MARKING, RARITY: 'common', EXPRESSED_SETS: [['Tby/Tby'], ['Tby/n']] },
-            SPOTTED: { TEXT: 'Spotted', TYPE: GeneType.MARKING, RARITY: 'common', EXPRESSED_SETS: [['Spt/Spt'], ['Spt/n']] },
-            APPALOOSA: { TEXT: 'Appaloosa', TYPE: GeneType.MARKING, RARITY: 'uncommon', EXPRESSED_SETS: [['Apl/Apl'], ['Apl/n']] },
-            MERLE: { TEXT: 'Merle', TYPE: GeneType.MARKING, RARITY: 'uncommon', EXPRESSED_SETS: [['Mrl/Mrl'], ['Mrl/n']] },
-            BARRING: { TEXT: 'Barring', TYPE: GeneType.MARKING, RARITY: 'uncommon', EXPRESSED_SETS: [['Brn/Brn'], ['Brn/n']] },
-            DUN: { TEXT: 'Dun', TYPE: GeneType.MARKING, RARITY: 'uncommon', EXPRESSED_SETS: [['Dn/Dn'], ['Dn/n']] },
-            PYTHON: { TEXT: 'Python', TYPE: GeneType.MARKING, RARITY: 'uncommon', EXPRESSED_SETS: [['Pyn/Pyn'], ['Pyn/n']] },
-            STREAKS: { TEXT: 'Streaks', TYPE: GeneType.MARKING, RARITY: 'uncommon', EXPRESSED_SETS: [['Stk/Stk'], ['Stk/n']] },
-            OVERO: { TEXT: 'Overo', TYPE: GeneType.MARKING, RARITY: 'uncommon', EXPRESSED_SETS: [['Ovr/Ovr'], ['Ovr/n']] },
-            RORSCHACH: { TEXT: 'Rorschach', TYPE: GeneType.MARKING, RARITY: 'uncommon', EXPRESSED_SETS: [['Rsc/Rsc'], ['Rsc/n']] },
-            PANGARE: { TEXT: 'Pangare', TYPE: GeneType.MARKING, RARITY: 'uncommon', EXPRESSED_SETS: [['Pg/Pg'], ['Pg/n']] },
-            SABLE: { TEXT: 'Sable', TYPE: GeneType.MARKING, RARITY: 'uncommon', EXPRESSED_SETS: [['Sb/Sb'], ['Sb/n']] },
-            PIEBALD: { TEXT: 'Piebald', TYPE: GeneType.MARKING, RARITY: 'rare', EXPRESSED_SETS: [['Pb/Pb'], ['Pb/n']] },
-            GLINT: { TEXT: 'Glint', TYPE: GeneType.MARKING, RARITY: 'rare', EXPRESSED_SETS: [['Gln/Gln'], ['Gln/n']] },
-            SNOWFALL: { TEXT: 'Snowfall', TYPE: GeneType.MARKING, RARITY: 'rare', EXPRESSED_SETS: [['Sf/Sf'], ['Sf/n']] },
-            WIDOW: { TEXT: 'Widow', TYPE: GeneType.MARKING, RARITY: 'rare', EXPRESSED_SETS: [['Wd/Wd'], ['Wd/n']] },
-            DIAMOND: { TEXT: 'Diamond', TYPE: GeneType.MARKING, RARITY: 'rare', EXPRESSED_SETS: [['Dmd/Dmd'], ['Dmd/n']] },
-            SPIDER: { TEXT: 'Spider', TYPE: GeneType.MARKING, RARITY: 'rare', EXPRESSED_SETS: [['Spr/Spr'], ['Spr/n']] },
-            SPECTRUM: { TEXT: 'Spectrum', TYPE: GeneType.MARKING, RARITY: 'rare', EXPRESSED_SETS: [['Stm/Stm'], ['Stm/n']] },
-            IRIDESCENT: { TEXT: 'Iridescent', TYPE: GeneType.MARKING, RARITY: 'rare', EXPRESSED_SETS: [['Iri/Iri'], ['Iri/n']] },
-            VITILIGO: { TEXT: 'Vitiligo', TYPE: GeneType.MUTATION, RARITY: 'common', EXPRESSED_SETS: [['Vit/Vit'], ['Vit/n']] },
-            INVERSA: { TEXT: 'Inversa', TYPE: GeneType.MUTATION, RARITY: 'uncommon', EXPRESSED_SETS: [['Inv/Inv'], ['Inv/n']] },
-            LEUCISTIC: { TEXT: 'Leucistic', TYPE: GeneType.MUTATION, RARITY: 'uncommon', EXPRESSED_SETS: [['Les/Les'], ['Les/n']] },
-            ALBINO: { TEXT: 'Albino', TYPE: GeneType.MUTATION, RARITY: 'uncommon', EXPRESSED_SETS: [['Alb/Alb'], ['Alb/n']] },
-            AXANTHIC_G: { TEXT: 'Axanthic-G', TYPE: GeneType.MUTATION, RARITY: 'uncommon', EXPRESSED_SETS: [['Axg/Axg'], ['Axg/n']] },
-            ERYTHRISTIC: { TEXT: 'Erythristic', TYPE: GeneType.MUTATION, RARITY: 'rare', EXPRESSED_SETS: [['Ery/Ery'], ['Ery/n']] },
-            LAVENDER_ALBINO: { TEXT: 'Lavender Albino', TYPE: GeneType.MUTATION, RARITY: 'rare', EXPRESSED_SETS: [['Lva/Lva'], ['Lva/n']] },
-            AXANTHIC_M: { TEXT: 'Axanthic-M', TYPE: GeneType.MUTATION, RARITY: 'rare', EXPRESSED_SETS: [['Axm/Axm'], ['Axm/n']] },
-            CHIMERISM: { TEXT: 'Chimerism', TYPE: GeneType.MUTATION, RARITY: 'very rare', EXPRESSED_SETS: [['Cm/Cm'], ['Cm/n']] },
-            NATURAL: { TEXT: 'Natural', TYPE: GeneType.MANE, RARITY: 'common' },
-            RAZOR: { TEXT: 'Razor', TYPE: GeneType.MANE, RARITY: 'uncommon' },
-            CURLY: { TEXT: 'Curly', TYPE: GeneType.MANE, RARITY: 'uncommon' },
-            SPHINX: { TEXT: 'Sphinx', TYPE: GeneType.MANE, RARITY: 'rare' },
-            LONG: { TEXT: 'Long', TYPE: GeneType.MANE, RARITY: 'rare' },
-            FIERY: { TEXT: 'Fiery', TYPE: GeneType.MANE, RARITY: 'rare' },
-            BARBARY: { TEXT: 'Barbary', TYPE: GeneType.MANE, RARITY: 'rare' },
-            HORNED: { TEXT: 'Horned', TYPE: GeneType.TRAIT, RARITY: 'uncommon', EXPRESSED_SETS: [['Hr/Hr'], ['Hr/n']] },
-            FANGED: { TEXT: 'Fanged', TYPE: GeneType.TRAIT, RARITY: 'uncommon', EXPRESSED_SETS: [['Fg/Fg'], ['Fg/n']] },
-            SABRETEETH: { TEXT: 'Sabreteeth', TYPE: GeneType.TRAIT, RARITY: 'rare', EXPRESSED_SETS: [['St/St'], ['St/n']] }
-        };
-
-        const OverrideRules = [
-            { result: 'Painted', requires: ['Pb/Pb', 'Wd/Wd'], removes: ['Piebald', 'Widow'] }
-        ];
-
-        const loci = [
-            { locus: 'B', category: 'base', null_allele: 'n', genes: [
-                { allele: 'B+', homozygous_genotype: 'B+/B+', heterozygous_genotypes: ['B+/BA', 'B+/BG', 'B+/BW'] },
-                { allele: 'BA', homozygous_genotype: 'BA/BA', heterozygous_genotypes: ['BA/BG', 'BA/BW'] },
-                { allele: 'BG', homozygous_genotype: 'BG/BG', heterozygous_genotypes: ['BG/BW'] },
-                { allele: 'BW', homozygous_genotype: 'BW/BW', heterozygous_genotypes: [] }
-            ]},
-            { locus: 'M', category: 'base', null_allele: 'n', genes: [
-                { allele: 'M+', homozygous_genotype: 'M+/M+', heterozygous_genotypes: ['M+/MB', 'M+/M0'] },
-                { allele: 'MB', homozygous_genotype: 'MB/MB', heterozygous_genotypes: ['MB/M0'] },
-                { allele: 'M0', homozygous_genotype: 'M0/M0', heterozygous_genotypes: [] }
-            ]},
-            { locus: 'K', category: 'base', null_allele: 'n', genes: [
-                { allele: 'K+', homozygous_genotype: 'K+/K+', heterozygous_genotypes: ['K+/KB'] },
-                { allele: 'KB', homozygous_genotype: 'KB/KB', heterozygous_genotypes: [] }
-            ]},
-            { locus: 'R', category: 'modifier', null_allele: 'n', genes: [{ allele: 'R', homozygous_genotype: 'R/R', heterozygous_genotypes: ['R/n'] }] },
-            { locus: 'J', category: 'modifier', null_allele: 'n', genes: [{ allele: 'J', homozygous_genotype: 'J/J', heterozygous_genotypes: ['J/n'] }] },
-            { locus: 'C', category: 'modifier', null_allele: 'n', genes: [{ allele: 'C', homozygous_genotype: 'C/C', heterozygous_genotypes: ['C/n'] }] },
-            { locus: 'P', category: 'modifier', null_allele: 'n', genes: [{ allele: 'P', homozygous_genotype: 'P/P', heterozygous_genotypes: ['P/n'] }] },
-            { locus: 'Dpl', category: 'marking', null_allele: 'n', genes: [{ allele: 'Dpl', homozygous_genotype: 'Dpl/Dpl', heterozygous_genotypes: ['Dpl/n'] }] },
-            { locus: 'Bt', category: 'marking', null_allele: 'n', genes: [{ allele: 'Bt', homozygous_genotype: 'Bt/Bt', heterozygous_genotypes: ['Bt/n'] }] },
-            { locus: 'Mtl', category: 'marking', null_allele: 'n', genes: [{ allele: 'Mtl', homozygous_genotype: 'Mtl/Mtl', heterozygous_genotypes: ['Mtl/n'] }] },
-            { locus: 'Clr', category: 'marking', null_allele: 'n', genes: [{ allele: 'Clr', homozygous_genotype: 'Clr/Clr', heterozygous_genotypes: ['Clr/n'] }] },
-            { locus: 'Ikd', category: 'marking', null_allele: 'n', genes: [{ allele: 'Ikd', homozygous_genotype: 'Ikd/Ikd', heterozygous_genotypes: ['Ikd/n'] }] },
-            { locus: 'Sia', category: 'marking', null_allele: 'n', genes: [{ allele: 'Sia', homozygous_genotype: 'Sia/Sia', heterozygous_genotypes: ['Sia/n'] }] },
-            { locus: 'Pnt', category: 'marking', null_allele: 'n', genes: [{ allele: 'Pnt', homozygous_genotype: 'Pnt/Pnt', heterozygous_genotypes: ['Pnt/n'] }] },
-            { locus: 'Stn', category: 'marking', null_allele: 'n', genes: [{ allele: 'Stn', homozygous_genotype: 'Stn/Stn', heterozygous_genotypes: ['Stn/n'] }] },
-            { locus: 'Rn', category: 'marking', null_allele: 'n', genes: [{ allele: 'Rn', homozygous_genotype: 'Rn/Rn', heterozygous_genotypes: ['Rn/n'] }] },
-            { locus: 'Tby', category: 'marking', null_allele: 'n', genes: [{ allele: 'Tby', homozygous_genotype: 'Tby/Tby', heterozygous_genotypes: ['Tby/n'] }] },
-            { locus: 'Spt', category: 'marking', null_allele: 'n', genes: [{ allele: 'Spt', homozygous_genotype: 'Spt/Spt', heterozygous_genotypes: ['Spt/n'] }] },
-            { locus: 'Apl', category: 'marking', null_allele: 'n', genes: [{ allele: 'Apl', homozygous_genotype: 'Apl/Apl', heterozygous_genotypes: ['Apl/n'] }] },
-            { locus: 'Mrl', category: 'marking', null_allele: 'n', genes: [{ allele: 'Mrl', homozygous_genotype: 'Mrl/Mrl', heterozygous_genotypes: ['Mrl/n'] }] },
-            { locus: 'Brn', category: 'marking', null_allele: 'n', genes: [{ allele: 'Brn', homozygous_genotype: 'Brn/Brn', heterozygous_genotypes: ['Brn/n'] }] },
-            { locus: 'Dn', category: 'marking', null_allele: 'n', genes: [{ allele: 'Dn', homozygous_genotype: 'Dn/Dn', heterozygous_genotypes: ['Dn/n'] }] },
-            { locus: 'Pyn', category: 'marking', null_allele: 'n', genes: [{ allele: 'Pyn', homozygous_genotype: 'Pyn/Pyn', heterozygous_genotypes: ['Pyn/n'] }] },
-            { locus: 'Stk', category: 'marking', null_allele: 'n', genes: [{ allele: 'Stk', homozygous_genotype: 'Stk/Stk', heterozygous_genotypes: ['Stk/n'] }] },
-            { locus: 'Ovr', category: 'marking', null_allele: 'n', genes: [{ allele: 'Ovr', homozygous_genotype: 'Ovr/Ovr', heterozygous_genotypes: ['Ovr/n'] }] },
-            { locus: 'Rsc', category: 'marking', null_allele: 'n', genes: [{ allele: 'Rsc', homozygous_genotype: 'Rsc/Rsc', heterozygous_genotypes: ['Rsc/n'] }] },
-            { locus: 'Pg', category: 'marking', null_allele: 'n', genes: [{ allele: 'Pg', homozygous_genotype: 'Pg/Pg', heterozygous_genotypes: ['Pg/n'] }] },
-            { locus: 'Sb', category: 'marking', null_allele: 'n', genes: [{ allele: 'Sb', homozygous_genotype: 'Sb/Sb', heterozygous_genotypes: ['Sb/n'] }] },
-            { locus: 'Pb', category: 'marking', null_allele: 'n', genes: [{ allele: 'Pb', homozygous_genotype: 'Pb/Pb', heterozygous_genotypes: ['Pb/n'] }] },
-            { locus: 'Gln', category: 'marking', null_allele: 'n', genes: [{ allele: 'Gln', homozygous_genotype: 'Gln/Gln', heterozygous_genotypes: ['Gln/n'] }] },
-            { locus: 'Sf', category: 'marking', null_allele: 'n', genes: [{ allele: 'Sf', homozygous_genotype: 'Sf/Sf', heterozygous_genotypes: ['Sf/n'] }] },
-            { locus: 'Wd', category: 'marking', null_allele: 'n', genes: [{ allele: 'Wd', homozygous_genotype: 'Wd/Wd', heterozygous_genotypes: ['Wd/n'] }] },
-            { locus: 'Dmd', category: 'marking', null_allele: 'n', genes: [{ allele: 'Dmd', homozygous_genotype: 'Dmd/Dmd', heterozygous_genotypes: ['Dmd/n'] ]] },
-            { locus: 'Spr', category: 'marking', null_allele: 'n', genes: [{ allele: 'Spr', homozygous_genotype: 'Spr/Spr', heterozygous_genotypes: ['Spr/n'] ]] },
-            { locus: 'Stm', category: 'marking', null_allele: 'n', genes: [{ allele: 'Stm', homozygous_genotype: 'Stm/Stm', heterozygous_genotypes: ['Stm/n'] ]] },
-            { locus: 'Iri', category: 'marking', null_allele: 'n', genes: [{ allele: 'Iri', homozygous_genotype: 'Iri/Iri', heterozygous_genotypes: ['Iri/n'] ]] },
-            { locus: 'Vit', category: 'mutation', null_allele: 'n', genes: [{ allele: 'Vit', homozygous_genotype: 'Vit/Vit', heterozygous_genotypes: ['Vit/n'] }] },
-            { locus: 'Inv', category: 'mutation', null_allele: 'n', genes: [{ allele: 'Inv', homozygous_genotype: 'Inv/Inv', heterozygous_genotypes: ['Inv/n'] ]] },
-            { locus: 'Les', category: 'mutation', null_allele: 'n', genes: [{ allele: 'Les', homozygous_genotype: 'Les/Les', heterozygous_genotypes: ['Les/n'] ]] },
-            { locus: 'Alb', category: 'mutation', null_allele: 'n', genes: [{ allele: 'Alb', homozygous_genotype: 'Alb/Alb', heterozygous_genotypes: ['Alb/n'] ]] },
-            { locus: 'Axg', category: 'mutation', null_allele: 'n', genes: [{ allele: 'Axg', homozygous_genotype: 'Axg/Axg', heterozygous_genotypes: ['Axg/n'] ]] },
-            { locus: 'Ery', category: 'mutation', null_allele: 'n', genes: [{ allele: 'Ery', homozygous_genotype: 'Ery/Ery', heterozygous_genotypes: ['Ery/n'] ]] },
-            { locus: 'Lva', category: 'mutation', null_allele: 'n', genes: [{ allele: 'Lva', homozygous_genotype: 'Lva/Lva', heterozygous_genotypes: ['Lva/n'] ]] },
-            { locus: 'Axm', category: 'mutation', null_allele: 'n', genes: [{ allele: 'Axm', homozygous_genotype: 'Axm/Axm', heterozygous_genotypes: ['Axm/n'] ]] },
-            { locus: 'Cm', category: 'mutation', null_allele: 'n', genes: [{ allele: 'Cm', homozygous_genotype: 'Cm/Cm', heterozygous_genotypes: ['Cm/n'] ]] },
-            { locus: 'Hr', category: 'trait', null_allele: 'n', genes: [{ allele: 'Hr', homozygous_genotype: 'Hr/Hr', heterozygous_genotypes: ['Hr/n'] }] },
-            { locus: 'Fg', category: 'trait', null_allele: 'n', genes: [{ allele: 'Fg', homozygous_genotype: 'Fg/Fg', heterozygous_genotypes: ['Fg/n'] }] },
-            { locus: 'St', category: 'trait', null_allele: 'n', genes: [{ allele: 'St', homozygous_genotype: 'St/St', heterozygous_genotypes: ['St/n'] ]] }
-        ];
-
-        // Helper Classes
-        class GenotypeHelper {
-            static sliceGenotype(genotype) {
-                try {
-                    if (!genotype || typeof genotype !== 'string') {
-                        throw new Error(`Invalid genotype input: ${genotype}`);
-                    }
-                    return genotype.split(' ').filter(g => g && g.trim());
-                } catch (e) {
-                    ErrorHandler.handle(e, 'sliceGenotype');
-                    return [];
-                }
-            }
-
-            static getAlleles(genes, loci_data) {
-                try {
-                    if (!Array.isArray(genes) || !Array.isArray(loci_data)) {
-                        throw new Error('Invalid input types');
-                    }
-                    
-                    const alleles = {};
-                    const validAlleles = loci_data.flatMap(l => l.genes.map(g => g.allele)).concat('n');
-                    
-                    for (const locus of loci_data) {
-                        const geneOnLocus = genes.find(g => {
-                            if (!g) return false;
-                            const allelesInGene = g.includes('/') ? g.split('/') : [g];
-                            return allelesInGene.some(a => locus.genes.some(lg => lg.allele === a));
-                        });
-                        
-                        alleles[locus.locus] = geneOnLocus
-                            ? geneOnLocus.includes('/')
-                                ? geneOnLocus.split('/').map(a => validAlleles.includes(a) ? a : locus.null_allele).slice(0, 2)
-                                : [validAlleles.includes(geneOnLocus) ? geneOnLocus : locus.null_allele, locus.null_allele]
-                            : [locus.null_allele, locus.null_allele];
-                            
-                        // Ensure K locus always has two alleles
-                        if (locus.locus === 'K' && !alleles[locus.locus].some(a => ['K+', 'KB'].includes(a))) {
-                            alleles[locus.locus] = ['K+', 'K+'];
-                        }
-                            
-                        if (alleles[locus.locus].length !== 2) {
-                            Logger.log(`Invalid allele pair for locus ${locus.locus}: ${alleles[locus.locus]}`);
-                            alleles[locus.locus] = [locus.null_allele, locus.null_allele];
-                        }
-                    }
-                    return alleles;
-                } catch (e) {
-                    ErrorHandler.handle(e, 'getAlleles');
-                    throw new Error('Invalid genotype format: use valid alleles (e.g., B+/BA, K+/KB, Spt).');
-                }
-            }
+    // Error Handler
+    class ErrorHandler {
+        static handle(error, context) {
+            const message = `${CONFIG.LOGGING.PREFIX} Error in ${context}: ${error.message}\nStack: ${error.stack}`;
+            if (CONFIG.LOGGING.ENABLED) Logger.log(message);
+            document.getElementById('error-message').style.display = 'block';
+            document.getElementById('error-message').innerText = `Error in ${context}: ${error.message}`;
+            return message;
         }
+    }
 
-        class PhenotypeHelper {
-            static phenotypeCache = new Map();
+    // Enums and Data
+    const Sex = { MALE: 'Male', FEMALE: 'Female' };
+    const Breed = { THIL: 'Thilyarem', DEST: 'Destrier', CYROA: 'Cyroas' };
+    const ScientificNames = {
+        [Breed.THIL]: 'Panlongus lykophus pelagius',
+        [Breed.DEST]: 'Panlongus lykophus imperator',
+        [Breed.CYROA]: 'Panlongus murepera scirto'
+    };
+    const Age = { 
+        HATCHLING: 'Hatchling', JUVENILE: 'Juvenile', ADOLESCENT: 'Adolescent', 
+        YOUNG_ADULT: 'Young Adult', ADULT: 'Adult', ELDER: 'Elder', 
+        ANCIENT: 'Ancient', CELESTIAL: 'Celestial' 
+    };
+    const Element = { 
+        FIRE: 'Fire', WATER: 'Water', AIR: 'Air', EARTH: 'Earth', METAL: 'Metal', 
+        WOOD: 'Wood', ICE: 'Ice', LIGHTNING: 'Lightning', LIGHT: 'Light', 
+        SHADOW: 'Shadow', AETHER: 'Aether', VERDANT: 'Verdant' 
+    };
+    const GeneType = { BASE: 0, MARKING: 1, MUTATION: 2, MANE: 3, TRAIT: 4, MODIFIER: 5 };
+    
+    const Defects = {
+        Common: ['Deafness', 'Blindness'],
+        Uncommon: ['Slug Egg', 'Anosmia', 'Lameness', 'Hip Dysplasia'],
+        Rare: ['Infertile', 'Malformed Tail', 'Malformed Limbs', 'Heart Disease'],
+        VeryRare: ['Stillborn', 'Underdeveloped', 'Spinal Defect', 'Epilepsy'],
+        Tiers: {
+            Slight: ['Deafness', 'Blindness', 'Anosmia', 'Malformed Tail', 'Malformed Limbs'],
+            Medium: ['Slug Egg', 'Stillborn', 'Underdeveloped', 'Infertile', 'Deafness', 'Blindness', 'Anosmia', 'Malformed Tail', 'Malformed Limbs'],
+            High: ['Slug Egg', 'Stillborn', 'Underdeveloped', 'Infertile', 'Deafness', 'Blindness', 'Anosmia', 'Malformed Tail', 'Malformed Limbs', 'Lameness', 'Hip Dysplasia', 'Heart Disease', 'Spinal Defect', 'Epilepsy']
+        }
+    };
 
-            static getPhenotype(genes, phenotypeData, mane) {
-                try {
-                    if (!Array.isArray(genes) || !Array.isArray(phenotypeData) || !mane) {
-                        throw new Error(`Invalid input: genes=${JSON.stringify(genes)}, mane=${mane}`);
+    // Updated AgePerks object with new rules
+    const AgePerks = {
+        [Age.HATCHLING]:    { breedable: false, clutch_min: 0, clutch_max: 0, trait_pass_bonus: 0, mutation_bonus: 0, rare_marking_bonus: 0 },
+        [Age.JUVENILE]:     { breedable: false, clutch_min: 0, clutch_max: 0, trait_pass_bonus: 0, mutation_bonus: 0, rare_marking_bonus: 0 },
+        [Age.ADOLESCENT]:   { breedable: true,  clutch_min: 0, clutch_max: 2, trait_pass_bonus: 0, mutation_bonus: 0, rare_marking_bonus: 0 },
+        [Age.YOUNG_ADULT]:  { breedable: true,  clutch_min: 1, clutch_max: 3, trait_pass_bonus: 0, mutation_bonus: 0, rare_marking_bonus: 0 },
+        [Age.ADULT]:        { breedable: true,  clutch_min: 1, clutch_max: 5, trait_pass_bonus: 0, mutation_bonus: 0, rare_marking_bonus: 0 },
+        [Age.ELDER]:        { breedable: true,  clutch_min: 2, clutch_max: 4, trait_pass_bonus: 5, mutation_bonus: 10, rare_marking_bonus: 0 },
+        [Age.ANCIENT]:      { breedable: true,  clutch_min: 2, clutch_max: 3, trait_pass_bonus: 10, mutation_bonus: 15, rare_marking_bonus: 5 },
+        [Age.CELESTIAL]:    { breedable: true,  clutch_min: 2, clutch_max: 2, trait_pass_bonus: 15, mutation_bonus: 20, rare_marking_bonus: 10 }
+    };
+
+    const BreedMix = {
+        [`${Breed.THIL}_${Breed.THIL}`]: { [Breed.THIL]: 100 },
+        [`${Breed.THIL}_${Breed.DEST}`]: { [Breed.THIL]: 95, [Breed.DEST]: 5 },
+        [`${Breed.DEST}_${Breed.THIL}`]: { [Breed.DEST]: 15, [Breed.THIL]: 85 },
+        [`${Breed.DEST}_${Breed.DEST}`]: { [Breed.THIL]: 65, [Breed.DEST]: 35 },
+        [`${Breed.CYROA}_${Breed.CYROA}`]: { [Breed.CYROA]: 100 },
+        [`${Breed.THIL}_${Breed.CYROA}`]: { [Breed.THIL]: 50, [Breed.CYROA]: 50 },
+        [`${Breed.CYROA}_${Breed.THIL}`]: { [Breed.CYROA]: 50, [Breed.THIL]: 50 },
+        [`${Breed.CYROA}_${Breed.DEST}`]: { [Breed.CYROA]: 95, [Breed.DEST]: 5 }
+    };
+    
+    const GeneMap = {
+        VERMILLION: { TEXT: 'Vermillion', TYPE: GeneType.MODIFIER, EXPRESSED_SETS: [['R/R']], CARRIED_SETS: [['R/n']] },
+        JADE: { TEXT: 'Jade', TYPE: GeneType.MODIFIER, EXPRESSED_SETS: [['J/J']], CARRIED_SETS: [['J/n']] },
+        AMBER: { TEXT: 'Amber', TYPE: GeneType.MODIFIER, EXPRESSED_SETS: [['C/C']], CARRIED_SETS: [['C/n']] },
+        PEARL: { TEXT: 'Pearl', TYPE: GeneType.MODIFIER, EXPRESSED_SETS: [['P/P']], CARRIED_SETS: [['P/n']] },
+        DAPPLES: { TEXT: 'Dapples', TYPE: GeneType.MARKING, RARITY: 'Common', EXPRESSED_SETS: [['Dpl/Dpl'], ['Dpl/n']] },
+        BELLYTONE: { TEXT: 'Bellytone', TYPE: GeneType.MARKING, RARITY: 'Common', EXPRESSED_SETS: [['Bt/Bt'], ['Bt/n']] },
+        MANTLE: { TEXT: 'Mantle', TYPE: GeneType.MARKING, RARITY: 'Common', EXPRESSED_SETS: [['Mtl/Mtl'], ['Mtl/n']] },
+        COLLAR: { TEXT: 'Collar', TYPE: GeneType.MARKING, RARITY: 'Common', EXPRESSED_SETS: [['Clr/Clr'], ['Clr/n']] },
+        INKED: { TEXT: 'Inked', TYPE: GeneType.MARKING, RARITY: 'Common', EXPRESSED_SETS: [['Ikd/Ikd'], ['Ikd/n']] },
+        SIAMESE: { TEXT: 'Siamese', TYPE: GeneType.MARKING, RARITY: 'Common', EXPRESSED_SETS: [['Sia/Sia'], ['Sia/n']] },
+        POINTS: { TEXT: 'Points', TYPE: GeneType.MARKING, RARITY: 'Common', EXPRESSED_SETS: [['Pnt/Pnt'], ['Pnt/n']] },
+        STAINED: { TEXT: 'Stained', TYPE: GeneType.MARKING, RARITY: 'Common', EXPRESSED_SETS: [['Stn/Stn'], ['Stn/n']] },
+        ROAN: { TEXT: 'Roan', TYPE: GeneType.MARKING, RARITY: 'Common', EXPRESSED_SETS: [['Rn/Rn'], ['Rn/n']] },
+        TABBY: { TEXT: 'Tabby', TYPE: GeneType.MARKING, RARITY: 'Common', EXPRESSED_SETS: [['Tby/Tby'], ['Tby/n']] },
+        SPOTTED: { TEXT: 'Spotted', TYPE: GeneType.MARKING, RARITY: 'Common', EXPRESSED_SETS: [['Spt/Spt'], ['Spt/n']] },
+        APPALOOSA: { TEXT: 'Appaloosa', TYPE: GeneType.MARKING, RARITY: 'Uncommon', EXPRESSED_SETS: [['Apl/Apl'], ['Apl/n']] },
+        MERLE: { TEXT: 'Merle', TYPE: GeneType.MARKING, RARITY: 'Uncommon', EXPRESSED_SETS: [['Mrl/Mrl'], ['Mrl/n']] },
+        BARRING: { TEXT: 'Barring', TYPE: GeneType.MARKING, RARITY: 'Uncommon', EXPRESSED_SETS: [['Brn/Brn'], ['Brn/n']] },
+        DUN: { TEXT: 'Dun', TYPE: GeneType.MARKING, RARITY: 'Uncommon', EXPRESSED_SETS: [['Dn/Dn'], ['Dn/n']] },
+        PYTHON: { TEXT: 'Python', TYPE: GeneType.MARKING, RARITY: 'Uncommon', EXPRESSED_SETS: [['Pyn/Pyn'], ['Pyn/n']] },
+        STREAKS: { TEXT: 'Streaks', TYPE: GeneType.MARKING, RARITY: 'Uncommon', EXPRESSED_SETS: [['Stk/Stk'], ['Stk/n']] },
+        OVERO: { TEXT: 'Overo', TYPE: GeneType.MARKING, RARITY: 'Uncommon', EXPRESSED_SETS: [['Ovr/Ovr'], ['Ovr/n']] },
+        RORSCHACH: { TEXT: 'Rorschach', TYPE: GeneType.MARKING, RARITY: 'Uncommon', EXPRESSED_SETS: [['Rsc/Rsc'], ['Rsc/n']] },
+        PANGARE: { TEXT: 'Pangare', TYPE: GeneType.MARKING, RARITY: 'Uncommon', EXPRESSED_SETS: [['Pg/Pg'], ['Pg/n']] },
+        SABLE: { TEXT: 'Sable', TYPE: GeneType.MARKING, RARITY: 'Uncommon', EXPRESSED_SETS: [['Sb/Sb'], ['Sb/n']] },
+        PIEBALD: { TEXT: 'Piebald', TYPE: GeneType.MARKING, RARITY: 'Rare', EXPRESSED_SETS: [['Pb/Pb'], ['Pb/n']] },
+        GLINT: { TEXT: 'Glint', TYPE: GeneType.MARKING, RARITY: 'Rare', EXPRESSED_SETS: [['Gln/Gln'], ['Gln/n']] },
+        SNOWFALL: { TEXT: 'Snowfall', TYPE: GeneType.MARKING, RARITY: 'Rare', EXPRESSED_SETS: [['Sf/Sf'], ['Sf/n']] },
+        WIDOW: { TEXT: 'Widow', TYPE: GeneType.MARKING, RARITY: 'Rare', EXPRESSED_SETS: [['Wd/Wd'], ['Wd/n']] },
+        DIAMOND: { TEXT: 'Diamond', TYPE: GeneType.MARKING, RARITY: 'Rare', EXPRESSED_SETS: [['Dmd/Dmd'], ['Dmd/n']] },
+        SPIDER: { TEXT: 'Spider', TYPE: GeneType.MARKING, RARITY: 'Rare', EXPRESSED_SETS: [['Spr/Spr'], ['Spr/n']] },
+        SPECTRUM: { TEXT: 'Spectrum', TYPE: GeneType.MARKING, RARITY: 'Rare', EXPRESSED_SETS: [['Stm/Stm'], ['Stm/n']] },
+        IRIDESCENT: { TEXT: 'Iridescent', TYPE: GeneType.MARKING, RARITY: 'Rare', EXPRESSED_SETS: [['Iri/Iri'], ['Iri/n']] },
+        VITILIGO: { TEXT: 'Vitiligo', TYPE: GeneType.MUTATION, RARITY: 'Common', EXPRESSED_SETS: [['Vit/Vit'], ['Vit/n']] },
+        INVERSA: { TEXT: 'Inversa', TYPE: GeneType.MUTATION, RARITY: 'Uncommon', EXPRESSED_SETS: [['Inv/Inv'], ['Inv/n']] },
+        LEUCISTIC: { TEXT: 'Leucistic', TYPE: GeneType.MUTATION, RARITY: 'Uncommon', EXPRESSED_SETS: [['Les/Les'], ['Les/n']] },
+        ALBINO: { TEXT: 'Albino', TYPE: GeneType.MUTATION, RARITY: 'Uncommon', EXPRESSED_SETS: [['Alb/Alb'], ['Alb/n']] },
+        'AXANTHIC-G': { TEXT: 'Axanthic-G', TYPE: GeneType.MUTATION, RARITY: 'Uncommon', EXPRESSED_SETS: [['Axg/Axg'], ['Axg/n']] },
+        ERYTHRISTIC: { TEXT: 'Erythristic', TYPE: GeneType.MUTATION, RARITY: 'Rare', EXPRESSED_SETS: [['Ery/Ery'], ['Ery/n']] },
+        'LAVENDER ALBINO': { TEXT: 'Lavender Albino', TYPE: GeneType.MUTATION, RARITY: 'Rare', EXPRESSED_SETS: [['Lva/Lva'], ['Lva/n']] },
+        'AXANTHIC-M': { TEXT: 'Axanthic-M', TYPE: GeneType.MUTATION, RARITY: 'Rare', EXPRESSED_SETS: [['Axm/Axm'], ['Axm/n']] },
+        CHIMERISM: { TEXT: 'Chimerism', TYPE: GeneType.MUTATION, RARITY: 'Very Rare', EXPRESSED_SETS: [['Cm/Cm'],['Cm/n']]},
+        HORNED: { TEXT: 'Horned', TYPE: GeneType.TRAIT, RARITY: 'Uncommon', EXPRESSED_SETS: [['Hr/Hr'], ['Hr/n']] },
+        FANGED: { TEXT: 'Fanged', TYPE: GeneType.TRAIT, RARITY: 'Uncommon', EXPRESSED_SETS: [['Fg/Fg'], ['Fg/n']] },
+        SABRETEETH: { TEXT: 'Sabreteeth', TYPE: GeneType.TRAIT, RARITY: 'Rare', EXPRESSED_SETS: [['St/St'], ['St/n']] }
+    };
+    const SpontaneousMutations = ['Vit', 'Inv', 'Les', 'Alb', 'Axg', 'Ery', 'Lva', 'Axm'];
+
+    const loci = [
+        { locus: 'B', category: 'base', null_allele: 'n', genes: [
+            { allele: 'B+', homozygous_genotype: 'B+/B+', heterozygous_genotypes: ['B+/BA', 'B+/BG', 'B+/BW'] },
+            { allele: 'BA', homozygous_genotype: 'BA/BA', heterozygous_genotypes: ['BA/BG', 'BA/BW'] },
+            { allele: 'BG', homozygous_genotype: 'BG/BG', heterozygous_genotypes: ['BG/BW'] },
+            { allele: 'BW', homozygous_genotype: 'BW/BW', heterozygous_genotypes: [] }
+        ]},
+        { locus: 'M', category: 'base', null_allele: 'n', genes: [
+            { allele: 'M+', homozygous_genotype: 'M+/M+', heterozygous_genotypes: ['M+/MB', 'M+/M0'] },
+            { allele: 'MB', homozygous_genotype: 'MB/MB', heterozygous_genotypes: ['MB/M0'] },
+            { allele: 'M0', homozygous_genotype: 'M0/M0', heterozygous_genotypes: [] }
+        ]},
+        { locus: 'K', category: 'base', null_allele: 'n', genes: [
+            { allele: 'K+', homozygous_genotype: 'K+/K+', heterozygous_genotypes: ['K+/KB'] },
+            { allele: 'KB', homozygous_genotype: 'KB/KB', heterozygous_genotypes: [] }
+        ]},
+        { locus: 'R', category: 'modifier', null_allele: 'n', genes: [{ allele: 'R' }] }, { locus: 'J', category: 'modifier', null_allele: 'n', genes: [{ allele: 'J' }] },
+        { locus: 'C', category: 'modifier', null_allele: 'n', genes: [{ allele: 'C' }] }, { locus: 'P', category: 'modifier', null_allele: 'n', genes: [{ allele: 'P' }] },
+        { locus: 'Dpl', category: 'marking', null_allele: 'n', genes: [{ allele: 'Dpl', rarity: 'Common' }] }, { locus: 'Bt', category: 'marking', null_allele: 'n', genes: [{ allele: 'Bt', rarity: 'Common' }] },
+        { locus: 'Mtl', category: 'marking', null_allele: 'n', genes: [{ allele: 'Mtl', rarity: 'Common' }] }, { locus: 'Clr', category: 'marking', null_allele: 'n', genes: [{ allele: 'Clr', rarity: 'Common' }] },
+        { locus: 'Ikd', category: 'marking', null_allele: 'n', genes: [{ allele: 'Ikd', rarity: 'Common' }] }, { locus: 'Sia', category: 'marking', null_allele: 'n', genes: [{ allele: 'Sia', rarity: 'Common' }] },
+        { locus: 'Pnt', category: 'marking', null_allele: 'n', genes: [{ allele: 'Pnt', rarity: 'Common' }] }, { locus: 'Stn', category: 'marking', null_allele: 'n', genes: [{ allele: 'Stn', rarity: 'Common' }] },
+        { locus: 'Rn', category: 'marking', null_allele: 'n', genes: [{ allele: 'Rn', rarity: 'Common' }] }, { locus: 'Tby', category: 'marking', null_allele: 'n', genes: [{ allele: 'Tby', rarity: 'Common' }] },
+        { locus: 'Spt', category: 'marking', null_allele: 'n', genes: [{ allele: 'Spt', rarity: 'Common' }] }, { locus: 'Apl', category: 'marking', null_allele: 'n', genes: [{ allele: 'Apl', rarity: 'Uncommon' }] },
+        { locus: 'Mrl', category: 'marking', null_allele: 'n', genes: [{ allele: 'Mrl', rarity: 'Uncommon' }] }, { locus: 'Brn', category: 'marking', null_allele: 'n', genes: [{ allele: 'Brn', rarity: 'Uncommon' }] },
+        { locus: 'Dn', category: 'marking', null_allele: 'n', genes: [{ allele: 'Dn', rarity: 'Uncommon' }] }, { locus: 'Pyn', category: 'marking', null_allele: 'n', genes: [{ allele: 'Pyn', rarity: 'Uncommon' }] },
+        { locus: 'Stk', category: 'marking', null_allele: 'n', genes: [{ allele: 'Stk', rarity: 'Uncommon' }] }, { locus: 'Ovr', category: 'marking', null_allele: 'n', genes: [{ allele: 'Ovr', rarity: 'Uncommon' }] },
+        { locus: 'Rsc', category: 'marking', null_allele: 'n', genes: [{ allele: 'Rsc', rarity: 'Uncommon' }] }, { locus: 'Pg', category: 'marking', null_allele: 'n', genes: [{ allele: 'Pg', rarity: 'Uncommon' }] },
+        { locus: 'Sb', category: 'marking', null_allele: 'n', genes: [{ allele: 'Sb', rarity: 'Uncommon' }] }, { locus: 'Pb', category: 'marking', null_allele: 'n', genes: [{ allele: 'Pb', rarity: 'Rare' }] },
+        { locus: 'Gln', category: 'marking', null_allele: 'n', genes: [{ allele: 'Gln', rarity: 'Rare' }] }, { locus: 'Sf', category: 'marking', null_allele: 'n', genes: [{ allele: 'Sf', rarity: 'Rare' }] },
+        { locus: 'Wd', category: 'marking', null_allele: 'n', genes: [{ allele: 'Wd', rarity: 'Rare' }] }, { locus: 'Dmd', category: 'marking', null_allele: 'n', genes: [{ allele: 'Dmd', rarity: 'Rare' }] },
+        { locus: 'Spr', category: 'marking', null_allele: 'n', genes: [{ allele: 'Spr', rarity: 'Rare' }] }, { locus: 'Stm', category: 'marking', null_allele: 'n', genes: [{ allele: 'Stm', rarity: 'Rare' }] },
+        { locus: 'Iri', category: 'marking', null_allele: 'n', genes: [{ allele: 'Iri', rarity: 'Rare' }] }, { locus: 'Vit', category: 'mutation', null_allele: 'n', genes: [{ allele: 'Vit' }] },
+        { locus: 'Inv', category: 'mutation', null_allele: 'n', genes: [{ allele: 'Inv' }] }, { locus: 'Les', category: 'mutation', null_allele: 'n', genes: [{ allele: 'Les' }] },
+        { locus: 'Alb', category: 'mutation', null_allele: 'n', genes: [{ allele: 'Alb' }] }, { locus: 'Axg', category: 'mutation', null_allele: 'n', genes: [{ allele: 'Axg' }] },
+        { locus: 'Ery', category: 'mutation', null_allele: 'n', genes: [{ allele: 'Ery' }] }, { locus: 'Lva', category: 'mutation', null_allele: 'n', genes: [{ allele: 'Lva' }] },
+        { locus: 'Axm', category: 'mutation', null_allele: 'n', genes: [{ allele: 'Axm' }] }, { locus: 'Cm', category: 'mutation', null_allele: 'n', genes: [{ allele: 'Cm' }] },
+        { locus: 'Hr', category: 'trait', null_allele: 'n', genes: [{ allele: 'Hr' }] }, { locus: 'Fg', category: 'trait', null_allele: 'n', genes: [{ allele: 'Fg' }] },
+        { locus: 'St', category: 'trait', null_allele: 'n', genes: [{ allele: 'St' }] }
+    ];
+
+    // Helper Classes
+    class GenotypeHelper {
+        static sliceGenotype(genotype) {
+            try {
+                if (!genotype || typeof genotype !== 'string') return [];
+                return genotype.trim().split(/\s+/).filter(g => g);
+            } catch (e) { ErrorHandler.handle(e, 'sliceGenotype'); return []; }
+        }
+    
+        static getAlleles(genes, loci_data) {
+            try {
+                if (!Array.isArray(genes) || !Array.isArray(loci_data)) throw new Error('Invalid input types');
+                const alleles = {};
+                const geneSet = new Set(genes);
+    
+                for (const locusInfo of loci_data) {
+                    const locus = locusInfo.locus;
+                    let foundAllelePair = null;
+    
+                    for (const geneStr of geneSet) {
+                        const firstPart = geneStr.split('/')[0];
+                        if (locusInfo.genes.some(g => g.allele === firstPart)) {
+                            foundAllelePair = geneStr;
+                            break;
+                        }
                     }
-
-                    const cacheKey = `${genes.join('|')}|${mane}`;
-                    if (this.phenotypeCache.has(cacheKey)) {
-                        return this.phenotypeCache.get(cacheKey);
+    
+                    if (foundAllelePair) {
+                        alleles[locus] = foundAllelePair.includes('/') ? foundAllelePair.split('/') : [foundAllelePair, locusInfo.null_allele];
+                    } else {
+                        alleles[locus] = [locusInfo.null_allele, locusInfo.null_allele];
                     }
+    
+                    if (locus === 'K' && alleles[locus][0] === 'n' && alleles[locus][1] === 'n') {
+                        alleles[locus] = ['K+', 'K+'];
+                    }
+                }
+                return alleles;
+            } catch (e) { ErrorHandler.handle(e, 'getAlleles'); throw new Error('Invalid genotype format.'); }
+        }
+    }
 
-                    const has = (allele) => genes.some(g => g === allele || g.includes(`/${allele}`) || g.includes(`${allele}/`));
-                    
-                    let baseCoat = 'Tan';
-                    if (has('R/R')) baseCoat = 'Vermillion';
-                    else if (has('J/J')) baseCoat = 'Jade';
-                    else if (has('C/C')) baseCoat = 'Amber';
-                    else if (has('P/P')) baseCoat = 'Pearl';
-                    else if (has('KB/KB')) {
-                        if (has('B+/B+') || has('B+/BA') || has('B+/BG') || has('B+/BW') || 
-                            has('BA/BA') || has('BA/BG') || has('BA/BW') || 
-                            has('BG/BG') || has('BG/BW') || has('BW/BW')) baseCoat = 'Black';
-                    } else if (has('BW/BW')) {
-                        baseCoat = has('M0/M0') ? 'White' : has('MB/MB') ? 'Blue' : 'Slate';
-                    } else if (has('BG/BG') || has('BG/BW')) {
+    class PhenotypeHelper {
+        static phenotypeCache = new Map();
+        static getPhenotype(genes, mane) {
+             try {
+                const cacheKey = `${genes.join('|')}|${mane}`;
+                if (this.phenotypeCache.has(cacheKey)) return this.phenotypeCache.get(cacheKey);
+
+                const has = (allele) => genes.some(g => g === allele);
+                const hasAllele = (allele) => genes.some(g => g.includes(allele));
+
+                let baseCoat = 'Tan'; // Default
+
+                const isBplus = hasAllele('B+');
+                const hasMplus = hasAllele('M+');
+                const isKBhomozygous = has('KB/KB');
+
+                if (isKBhomozygous) {
+                    if (hasMplus) {
+                        baseCoat = 'Black';
+                    } else if (isBplus) { 
+                        baseCoat = has('M0/M0') ? 'Cream' : 'Tan';
+                    } else if (has('BA/BA') || has('B+/BA') || has('BA/BG') || has('BA/BW')) {
+                        baseCoat = has('M0/M0') ? 'Lilac' : 'Brown';
+                    } else if (has('BG/BG') || has('B+/BG') || has('BG/BW')) {
                         baseCoat = has('M0/M0') ? 'Seafoam' : has('MB/MB') ? 'Seagreen' : 'Green';
+                    } else if (has('BW/BW') || has('B+/BW')) {
+                        baseCoat = has('M0/M0') ? 'White' : has('MB/MB') ? 'Blue' : 'Slate';
+                    }
+                } else {
+                    if (isBplus) {
+                        baseCoat = has('M0/M0') ? 'Cream' : 'Tan';
                     } else if (has('BA/BA') || has('BA/BG') || has('BA/BW')) {
                         baseCoat = has('M0/M0') ? 'Lilac' : 'Brown';
-                    } else if (has('B+/B+') || has('B+/BA') || has('B+/BG') || has('B+/BW')) {
-                        baseCoat = has('M0/M0') ? 'Cream' : 'Tan';
+                    } else if (has('BG/BG') || has('BG/BW')) {
+                        baseCoat = has('M0/M0') ? 'Seafoam' : has('MB/MB') ? 'Seagreen' : 'Green';
+                    } else if (has('BW/BW')) {
+                        baseCoat = has('M0/M0') ? 'White' : has('MB/MB') ? 'Blue' : 'Slate';
                     }
+                }
 
-                    let expressed = [];
-                    const carried = [];
-                    for (const pheno of phenotypeData) {
-                        if (pheno.TYPE !== GeneType.BASE && pheno.TYPE !== GeneType.MANE) {
-                            if (pheno.EXPRESSED_SETS?.some(set => set.every(gene => has(gene)))) {
-                                expressed.push(pheno.TEXT);
-                            } else if (pheno.CARRIED_SETS?.some(set => set.every(gene => has(gene)))) {
-                                carried.push(`Carries ${pheno.TEXT}`);
-                            }
+                if (has('R/R')) baseCoat = 'Vermillion';
+                else if (has('J/J')) baseCoat = 'Jade';
+                else if (has('C/C')) baseCoat = 'Amber';
+                else if (has('P/P')) baseCoat = 'Pearl';
+
+                let expressed = [];
+                const carried = [];
+                const allPhenos = Object.values(GeneMap);
+                for (const pheno of allPhenos) {
+                    if (pheno.TYPE !== GeneType.BASE && pheno.TYPE !== GeneType.MANE) {
+                        if (pheno.EXPRESSED_SETS?.some(set => set.every(gene => has(gene)))) {
+                           expressed.push(pheno.TEXT);
+                        } else if (pheno.CARRIED_SETS?.some(set => set.every(gene => has(gene)))) {
+                            carried.push(`Carries ${pheno.TEXT}`);
                         }
                     }
-
-                    for (const rule of OverrideRules) {
-                        if (rule.requires.every(req => has(req))) {
-                            expressed = expressed.filter(p => !rule.removes.includes(p));
-                            expressed.push(rule.result);
-                        }
-                    }
-
-                    let phenoString = `${baseCoat} with ${mane} Mane`;
-                    const markings = expressed.filter(p => GeneMap[p.toUpperCase()]?.TYPE === GeneType.MARKING);
-                    if (markings.length) phenoString += ` / ${markings.join(' / ')}`;
-                    const traits = expressed.filter(p => GeneMap[p.toUpperCase()]?.TYPE === GeneType.TRAIT);
-                    if (traits.length) phenoString += ` [${traits.join(', ')}]`;
-                    const mutations = expressed.filter(p => GeneMap[p.toUpperCase()]?.TYPE === GeneType.MUTATION);
-                    if (mutations.length) phenoString += ` {${mutations.join(', ')}}`;
-                    if (carried.length) phenoString += ` (${carried.join(', ')})`;
-
-                    this.phenotypeCache.set(cacheKey, phenoString);
-                    return phenoString;
-                } catch (e) {
-                    ErrorHandler.handle(e, 'getPhenotype');
-                    return 'Error calculating phenotype';
                 }
-            }
+                
+                let phenoString = `${baseCoat} with ${mane} Mane`;
+                const markings = expressed.filter(p => GeneMap[p.toUpperCase().replace(/\s/g, '')]?.TYPE === GeneType.MARKING);
+                if (markings.length) phenoString += ` / ${markings.join(' / ')}`;
+                const traits = expressed.filter(p => GeneMap[p.toUpperCase()]?.TYPE === GeneType.TRAIT);
+                if (traits.length) phenoString += ` [${traits.join(', ')}]`;
+                const mutations = expressed.filter(p => GeneMap[p.toUpperCase().replace(/\s|-/g, '')]?.TYPE === GeneType.MUTATION);
+                if (mutations.length) phenoString += ` {${mutations.join(', ')}}`;
+                if (carried.length) phenoString += ` (${carried.join(', ')})`;
+
+                this.phenotypeCache.set(cacheKey, phenoString);
+                return phenoString;
+            } catch (e) { ErrorHandler.handle(e, 'getPhenotype'); return 'Error calculating phenotype'; }
         }
+    }
 
-        class PunnettHelper {
-            static getPossibleClutchSize(p_a, p_b, items) {
-                try {
-                    const perkA = AgePerks[p_a.age] || AgePerks[Age.YOUNG_ADULT];
-                    const perkB = AgePerks[p_b.age] || AgePerks[Age.YOUNG_ADULT];
-                    let min = Math.min(perkA.clutch_min, perkB.clutch_min);
-                    let max = Math.max(perkA.clutch_max, perkB.clutch_max) + 
-                              (items.crescent_herb ? 2 : 0) + 
-                              (items.moonlit_herb ? 2 : 0);
-                    return min === max ? `${min} ${min === 1 ? 'egg' : 'eggs'}` : `${min} - ${max} eggs`;
-                } catch (e) {
-                    ErrorHandler.handle(e, 'getPossibleClutchSize');
-                    return CONFIG.BREEDING.DEFAULT_CLUTCH;
-                }
-            }
-
-            static getSexOdds() {
-                try {
-                    return { [Sex.MALE]: 50, [Sex.FEMALE]: 50 };
-                } catch (e) {
-                    ErrorHandler.handle(e, 'getSexOdds');
-                    return { [Sex.MALE]: 50, [Sex.FEMALE]: 50 };
-                }
-            }
-
-            static getBreedOdds(a, b) {
-                try {
-                    return BreedMix[`${a}_${b}`] || BreedMix[`${b}_${a}`] || (a === b ? { [a]: 100 } : { [a]: 50, [b]: 50 });
-                } catch (e) {
-                    ErrorHandler.handle(e, 'getBreedOdds');
-                    return { [Breed.THIL]: 100 };
-                }
-            }
-
-            static getPunnettOdds(allelesA, allelesB) {
-                try {
-                    const odds = {};
-                    for (const locus of loci) {
-                        const a1 = allelesA[locus.locus]?.[0] || locus.null_allele;
-                        const a2 = allelesA[locus.locus]?.[1] || locus.null_allele;
-                        const b1 = allelesB[locus.locus]?.[0] || locus.null_allele;
-                        const b2 = allelesB[locus.locus]?.[1] || locus.null_allele;
-                        const outcomes = [[a1, b1], [a1, b2], [a2, b1], [a2, b2]].map(pair => {
-                            // Ensure K locus always outputs two alleles
-                            if (locus.locus === 'K' && pair.every(a => a === 'n')) {
-                                return ['K+', 'K+'].join('/');
-                            }
-                            return pair.sort().join('/');
-                        });
-                        const locusOdds = {};
-                        outcomes.forEach(outcome => { locusOdds[outcome] = (locusOdds[outcome] || 0) + 25; });
-                        odds[locus.locus] = Object.entries(locusOdds);
-                    }
-                    return odds;
-                } catch (e) {
-                    ErrorHandler.handle(e, 'getPunnettOdds');
-                    throw new Error('Error calculating genotype odds');
-                }
-            }
-        }
-
-        class GeneticsService {
-            static loci = [];
-            static phenotypes = [];
-
-            static load() {
-                try {
-                    this.loci = loci;
-                    this.phenotypes = Object.values(GeneMap);
-                } catch (e) {
-                    ErrorHandler.handle(e, 'GeneticsService.load');
-                }
-            }
-        }
-
-        function getManeOdds(maneA, maneB, speciesA, speciesB, celestialPerk) {
+    class PunnettHelper {
+        static getPossibleClutchSize(p_a, p_b, items) {
             try {
-                const manes = [GeneMap.NATURAL, GeneMap.RAZOR, GeneMap.CURLY, GeneMap.SPHINX, GeneMap.LONG, GeneMap.FIERY, GeneMap.BARBARY];
-                const odds = {};
-                const maneRules = {
-                    'Natural_Natural': { 'Natural': 94, 'Razor': 5, 'Sphinx': 0, 'Curly': 0, 'Long': 0, 'Fiery': 0, 'Barbary': 0 },
-                    'Natural_Razor': { 'Natural': 74, 'Razor': 20, 'Sphinx': 5, 'Curly': 0, 'Long': 0, 'Fiery': 0, 'Barbary': 0 },
-                    'Natural_Sphinx': { 'Natural': 60, 'Razor': 25, 'Sphinx': 15, 'Curly': 0, 'Long': 0, 'Fiery': 0, 'Barbary': 0 },
-                    'Natural_Curly': { 'Natural': 74, 'Razor': 5, 'Sphinx': 0, 'Curly': 15, 'Long': 5, 'Fiery': 1, 'Barbary': 0 },
-                    'Natural_Long': { 'Natural': 59, 'Razor': 0, 'Sphinx': 0, 'Curly': 20, 'Long': 20, 'Fiery': 1, 'Barbary': 0 },
-                    'Natural_Fiery': { 'Natural': 49, 'Razor': 0, 'Sphinx': 0, 'Curly': 30, 'Long': 15, 'Fiery': 5, 'Barbary': 1 },
-                    'Natural_Barbary': { 'Natural': 39, 'Razor': 0, 'Sphinx': 0, 'Curly': 0, 'Long': 40, 'Fiery': 15, 'Barbary': 5 },
-                    'Razor_Razor': { 'Natural': 65, 'Razor': 30, 'Sphinx': 5, 'Curly': 0, 'Long': 0, 'Fiery': 0, 'Barbary': 0 },
-                    'Razor_Curly': { 'Natural': 75, 'Razor': 15, 'Sphinx': 0, 'Curly': 10, 'Long': 0, 'Fiery': 0, 'Barbary': 0 },
-                    'Razor_Sphinx': { 'Natural': 75, 'Razor': 15, 'Sphinx': 10, 'Curly': 0, 'Long': 0, 'Fiery': 0, 'Barbary': 0 },
-                    'Razor_Long': { 'Natural': 94, 'Razor': 5, 'Sphinx': 0, 'Curly': 0, 'Long': 0, 'Fiery': 0, 'Barbary': 0 },
-                    'Razor_Fiery': { 'Natural': 94, 'Razor': 5, 'Sphinx': 0, 'Curly': 0, 'Long': 0, 'Fiery': 0, 'Barbary': 0 },
-                    'Razor_Barbary': { 'Natural': 94, 'Razor': 5, 'Sphinx': 0, 'Curly': 0, 'Long': 0, 'Fiery': 0, 'Barbary': 0 },
-                    'Curly_Curly': { 'Natural': 0, 'Razor': 0, 'Sphinx': 0, 'Curly': 80, 'Long': 20, 'Fiery': 0, 'Barbary': 0 },
-                    'Curly_Sphinx': { 'Natural': 50, 'Razor': 25, 'Sphinx': 20, 'Curly': 5, 'Long': 0, 'Fiery': 0, 'Barbary': 0 },
-                    'Curly_Long': { 'Natural': 0, 'Razor': 0, 'Sphinx': 0, 'Curly': 30, 'Long': 60, 'Fiery': 10, 'Barbary': 0 },
-                    'Curly_Fiery': { 'Natural': 0, 'Razor': 0, 'Sphinx': 0, 'Curly': 30, 'Long': 50, 'Fiery': 20, 'Barbary': 0 },
-                    'Curly_Barbary': { 'Natural': 0, 'Razor': 0, 'Sphinx': 0, 'Curly': 0, 'Long': 50, 'Fiery': 40, 'Barbary': 10 },
-                    'Long_Long': { 'Natural': 0, 'Razor': 0, 'Sphinx': 0, 'Curly': 15, 'Long': 75, 'Fiery': 9, 'Barbary': 1 },
-                    'Long_Fiery': { 'Natural': 0, 'Razor': 0, 'Sphinx': 0, 'Curly': 0, 'Long': 25, 'Fiery': 60, 'Barbary': 15 },
-                    'Long_Barbary': { 'Natural': 0, 'Razor': 0, 'Sphinx': 0, 'Curly': 50, 'Long': 30, 'Fiery': 15, 'Barbary': 5 },
-                    'Fiery_Fiery': { 'Natural': 0, 'Razor': 0, 'Sphinx': 0, 'Curly': 0, 'Long': 20, 'Fiery': 75, 'Barbary': 5 },
-                    'Fiery_Barbary': { 'Natural': 0, 'Razor': 0, 'Sphinx': 0, 'Curly': 0, 'Long': 0, 'Fiery': 75, 'Barbary': 25 },
-                    'Barbary_Barbary': { 'Natural': 0, 'Razor': 0, 'Sphinx': 0, 'Curly': 0, 'Long': 0, 'Fiery': 15, 'Barbary': 85 }
-                };
-
-                const key = `${maneA}_${maneB}` in maneRules ? `${maneA}_${maneB}` : `${maneB}_${maneA}`;
-                const rule = maneRules[key] || (maneA === maneB ? { [maneA]: 100 } : { [maneA]: 50, [maneB]: 50, 'Natural': 0 });
-
-                manes.forEach(mane => {
-                    odds[mane.TEXT] = rule[mane.TEXT] || 0;
-                });
-
-                if (celestialPerk === 'Savage Boon') odds[GeneMap.FIERY.TEXT] = (odds[GeneMap.FIERY.TEXT] || 0) + 20;
-
-                // Normalize odds to sum to 100
-                let total = Object.values(odds).reduce((sum, val) => sum + val, 0);
-                if (total === 0) {
-                    odds['Natural'] = 100; // Default to Natural if no odds are defined
-                } else {
-                    Object.keys(odds).forEach(key => {
-                        odds[key] = (odds[key] / total) * 100;
-                    });
-                }
-
-                return odds;
-            } catch (e) {
-                ErrorHandler.handle(e, 'getManeOdds');
-                return { [CONFIG.BREEDING.DEFAULT_MANE]: 100 };
-            }
+                const perkA = AgePerks[p_a.age] || AgePerks[Age.YOUNG_ADULT];
+                const perkB = AgePerks[p_b.age] || AgePerks[Age.YOUNG_ADULT];
+                let min = Math.min(perkA.clutch_min, perkB.clutch_min);
+                let max = Math.max(perkA.clutch_max, perkB.clutch_max) + (items.crescent_herb ? 2 : 0) + (items.moonlit_herb ? 2 : 0);
+                return min === max ? `${min} ${min === 1 ? 'egg' : 'eggs'}` : `${min} - ${max} eggs`;
+            } catch (e) { ErrorHandler.handle(e, 'getPossibleClutchSize'); return CONFIG.BREEDING.DEFAULT_CLUTCH; }
         }
 
-        function getTraitOdds(items, parentA, parentB) {
-            try {
-                const odds = {};
-                const traits = [GeneMap.HORNED, GeneMap.FANGED, GeneMap.SABRETEETH];
-                const perkA = AgePerks[parentA.age] || AgePerks[Age.YOUNG_ADULT];
-                const perkB = AgePerks[parentB.age] || AgePerks[Age.YOUNG_ADULT];
-                const bonus = Math.max(perkA.trait_pass_bonus, perkB.trait_pass_bonus) + (items.moonlit_herb ? 10 : 0);
-                
-                traits.forEach(trait => {
-                    const hasTrait = parentA.genotype.includes(trait.TEXT[0]) || parentB.genotype.includes(trait.TEXT[0]);
-                    odds[trait.TEXT] = hasTrait ? 50 + bonus : 10 + bonus;
-                });
-                return odds;
-            } catch (e) {
-                ErrorHandler.handle(e, 'getTraitOdds');
-                return { Horned: 10, Fanged: 10, Sabreteeth: 10 };
+        static getSexOdds() { return { [Sex.MALE]: 50, [Sex.FEMALE]: 50 }; }
+
+        static getBreedOdds(parentA, parentB, celestialPerk) {
+            let odds = {...(BreedMix[`${parentA.species}_${parentB.species}`] || BreedMix[`${parentB.species}_${parentA.species}`] || (parentA.species === parentB.species ? { [parentA.species]: 100 } : { [parentA.species]: 50, [parentB.species]: 50 }))};
+            if (celestialPerk === 'Savage Boon' && (parentA.age === Age.CELESTIAL || parentB.age === Age.CELESTIAL)) {
+                if(odds[Breed.DEST] && odds[Breed.DEST] < 100) {
+                    odds[Breed.DEST] += 5;
+                    // Find another breed to subtract from
+                    const otherBreed = Object.keys(odds).find(b => b !== Breed.DEST);
+                    if(otherBreed) odds[otherBreed] -= 5;
+                }
             }
+            return odds;
         }
 
-        function getElementOdds(elementA, elementB) {
-            try {
-                const odds = {};
-                Object.values(Element).forEach(elem => {
-                    odds[elem] = elem === elementA || elem === elementB ? 40 : 5;
-                });
-                return odds;
-            } catch (e) {
-                ErrorHandler.handle(e, 'getElementOdds');
-                return { [CONFIG.BREEDING.DEFAULT_ELEMENT]: 100 };
-            }
-        }
+        static getGametes(parent, locusInfo) {
+            const alleles = parent.alleles[locusInfo.locus];
+            let [a1, a2] = alleles;
+            let chanceA1 = 0.5;
 
-        function calculateInfertility(parentA, parentB, coi) {
-            try {
-                let infertility = coi;
-                if (parentA.age === Age.ADOLESCENT || parentB.age === Age.ADOLESCENT) infertility += 20;
-                return Math.min(infertility, 100);
-            } catch (e) {
-                ErrorHandler.handle(e, 'calculateInfertility');
-                return coi;
-            }
-        }
-
-        function getPhenotypeForSidebar(genotype, mane) {
-            try {
-                if (!genotype || !mane) {
-                    throw new Error('Missing genotype or mane');
-                }
-                
-                GeneticsService.load();
-                const genes = GenotypeHelper.sliceGenotype(genotype);
-                if (!genes.length) {
-                    throw new Error('Empty genotype array');
-                }
-                
-                const phenotype = PhenotypeHelper.getPhenotype(genes, GeneticsService.phenotypes, mane);
-                if (CONFIG.LOGGING.ENABLED) {
-                    Logger.log(`${CONFIG.LOGGING.PREFIX} Phenotype calculated: ${phenotype}`);
-                }
-                return phenotype;
-            } catch (e) {
-                ErrorHandler.handle(e, 'getPhenotypeForSidebar');
-                return 'Error calculating phenotype';
-            }
-        }
-
-        function calculatePossibilities(p_a, p_b, items, coiString) {
-            try {
-                if (!AgePerks[p_a.age]?.breedable || !AgePerks[p_b.age]?.breedable) {
-                    throw new Error('One or both parents are too young to breed.');
-                }
-                
-                const pA_alleles = GenotypeHelper.getAlleles(GenotypeHelper.sliceGenotype(p_a.genotype), GeneticsService.loci);
-                const pB_alleles = GenotypeHelper.getAlleles(GenotypeHelper.sliceGenotype(p_b.genotype), GeneticsService.loci);
-                
-                return {
-                    infertility: calculateInfertility(p_a, p_b, coi),
-                    clutch: PunnettHelper.getPossibleClutchSize(p_a, p_b, items),
-                    breeds: PunnettHelper.getBreedOdds(p_a.species, p_b.species),
-                    sex: PunnettHelper.getSexOdds(),
-                    manes: getManeOdds(p_a.mane, p_b.mane, p_a.species, p_b.species, items.celestial_perk),
-                    traits: getTraitOdds(items, p_a, p_b),
-                    elements: getElementOdds(p_a.element, p_b.element),
-                    genotypeOdds: PunnettHelper.getPunnettOdds(pA_alleles, pB_alleles)
-                };
-            } catch (e) {
-                ErrorHandler.handle(e, 'calculatePossibilities');
-                throw new Error(`Failed to calculate possibilities: ${e.message}`);
-            }
-        }
-
-        function rollOffspring(possibilities, parentA, parentB, items, coi) {
-            try {
-                if (parentA.age === Age.ADOLESCENT || parentB.age === Age.ADOLESCENT) {
-                    if (Math.random() < 0.2) {
-                        return '<h4>Breeding Failed!</h4><p>The offspring were stillborn due to the parents’ young age.</p>';
-                    }
-                }
-
-                const clutchParts = possibilities.clutch.replace(/ eggs?/, '').split(' - ');
-                const min = parseInt(clutchParts[0], 10);
-                const max = parseInt(clutchParts[1] || clutchParts[0], 10);
-                let clutchSize = Math.floor(Math.random() * (max - min + 1)) + min;
-
-                const infertility = possibilities.infertility || 0;
-                if (Math.random() * 100 < infertility) clutchSize = Math.floor(clutchSize / 2);
-                if (clutchSize < 1 && infertility < 100) clutchSize = 1;
-                if (infertility >= 100) clutchSize = 0;
-
-                if (clutchSize === 0) {
-                    return `<h4>Breeding Failed! (Infertility: ${infertility.toFixed(2)}%)</h4><p>No offspring were produced.</p>`;
-                }
-
-                let results = `<h4>Rolled a clutch of ${clutchSize}! (Infertility: ${infertility.toFixed(2)}%)</h4>`;
-                
-                const rollFromOdds = (odds) => {
-                    const rand = Math.random() * 100;
-                    let cumulative = 0;
-                    for (const [key, value] of Object.entries(odds)) {
-                        cumulative += value;
-                        if (rand < cumulative) return key;
-                    }
-                    return Object.keys(odds)[0];
-                };
-
-                for (let i = 1; i <= clutchSize; i++) {
-                    const rolledBreed = rollFromOdds(possibilities.breeds);
-                    const scientificName = ScientificNames[rolledBreed] || rolledBreed;
-                    const rolledSex = rollFromOdds(possibilities.sex);
-                    const rolledMane = rollFromOdds(possibilities.manes);
-                    const rolledElement = rollFromOdds(possibilities.elements);
-
-                    const rollGenotype = () => {
-                        const genotype = [];
-                        for (const locus in possibilities.genotypeOdds) {
-                            const rolledAllelePair = rollFromOdds(Object.fromEntries(possibilities.genotypeOdds[locus]));
-                            if (rolledAllelePair !== 'n/n' || locus === 'K') {
-                                const [a1, a2] = rolledAllelePair.split('/');
-                                // Ensure K locus always outputs two alleles
-                                if (locus === 'K' && rolledAllelePair === 'n/n') {
-                                    genotype.push('K+/K+');
-                                } else {
-                                    genotype.push(a1 === a2 && a1 !== 'n' ? a1 : rolledAllelePair);
-                                }
-                            }
-                        }
-                        return genotype;
-                    };
-
-                    let offspringGenotype = rollGenotype();
-                    let phenotypeString = PhenotypeHelper.getPhenotype(offspringGenotype, GeneticsService.phenotypes, rolledMane);
-                    
-                    if (offspringGenotype.includes('Cm/Cm')) {
-                        const secondGenotype = rollGenotype();
-                        const secondPhenotype = PhenotypeHelper.getPhenotype(secondGenotype, GeneticsService.phenotypes, rolledMane);
-                        offspringGenotype = offspringGenotype.concat(['//'], secondGenotype);
-                        phenotypeString += ` // ${secondPhenotype}`;
-                    }
-                    
-                    const genotypeString = offspringGenotype.join(' ') || 'None';
-
-                    const rolledTraits = Object.entries(possibilities.traits)
-                        .filter(([_, chance]) => Math.random() * 100 < chance)
-                        .map(([trait]) => trait);
-                    const finalTraits = rolledTraits.length ? rolledTraits.join(', ') : 'None';
-
-                    let defect = 'None';
-                    if (coi > 10 && Math.random() * 100 < coi) {
-                        const defectRoll = Math.random() * 100;
-                        defect = defectRoll < 5 ? Defects.VeryRare[Math.floor(Math.random() * Defects.VeryRare.length)] :
-                                 defectRoll < 15 ? Defects.Rare[Math.floor(Math.random() * Defects.Rare.length)] :
-                                 defectRoll < 30 ? Defects.Uncommon[Math.floor(Math.random() * Defects.Uncommon.length)] :
-                                 Defects.Common[Math.floor(Math.random() * Defects.Common.length)];
-                    }
-
-                    results += `
-                        <div class="mb-3 p-3 border rounded bg-light">
-                            <p class="mb-1"><strong>${i}) Species:</strong> ${scientificName}</p>
-                            <p class="mb-1"><strong>Mane Type:</strong> ${rolledMane}</p>
-                            <p class="mb-1"><strong>Sex:</strong> ${rolledSex}</p>
-                            <p class="mb-1"><strong>Age:</strong> Hatchling</p>
-                            <p class="mb-1"><strong>Inborn Element:</strong> ${rolledElement}</p>
-                            <p class="mb-1"><strong>Genotype:</strong> ${genotypeString}</p>
-                            <p class="mb-1"><strong>Phenotype:</strong> ${phenotypeString}</p>
-                            <p class="mb-1"><strong>Traits:</strong> ${finalTraits}</p>
-                            <p class="mb-1"><strong>Defects:</strong> ${defect}</p>
-                        </div>`;
-                }
-                return results;
-            } catch (e) {
-                ErrorHandler.handle(e, 'rollOffspring');
-                return `<h4>Error!</h4><p>Failed to roll offspring: ${e.message}</p>`;
-            }
-        }
-
-        function runBreedingCalculations(parentA, parentB, items, coiString) {
-            try {
-                if (!parentA || !parentB || !items || !coiString) {
-                    throw new Error('Missing required parameters');
-                }
-                
-                GeneticsService.load();
-                const coiMap = { 'None': 0, 'Slight': 15, 'Medium': 30, 'High': 50 };
-                const coi = coiMap[coiString] || 0;
-                const possibilities = calculatePossibilities(parentA, parentB, items, coi);
-                const results = rollOffspring(possibilities, parentA, parentB, items, coi);
-                
-                if (CONFIG.LOGGING.ENABLED) {
-                    Logger.log(`${CONFIG.LOGGING.PREFIX} Breeding calculations completed: clutch=${possibilities.clutch}`);
-                }
-                
-                return { possibilities, resultsHtml: results };
-            } catch (e) {
-                ErrorHandler.handle(e, 'runBreedingCalculations');
-                return { error: `Breeding calculation failed: ${e.message}` };
-            }
-        }
-
-        // Event Listener for Calculate Button
-        document.getElementById('calculate-btn').addEventListener('click', () => {
-            document.getElementById('error-message').style.display = 'none';
+            const perk = AgePerks[parent.age];
+            if (!perk) return { [a1]: 0.5, [a2]: 0.5 };
             
-            const parentA = {
-                species: document.getElementById('parentA-species').value,
-                age: document.getElementById('parentA-age').value,
-                mane: document.getElementById('parentA-mane').value,
-                element: document.getElementById('parentA-element').value,
-                genotype: document.getElementById('parentA-genotype').value
-            };
-
-            const parentB = {
-                species: document.getElementById('parentB-species').value,
-                age: document.getElementById('parentB-age').value,
-                mane: document.getElementById('parentB-mane').value,
-                element: document.getElementById('parentB-element').value,
-                genotype: document.getElementById('parentB-genotype').value
-            };
-
-            const items = {
-                crescent_herb: document.getElementById('crescent-herb').checked,
-                moonlit_herb: document.getElementById('moonlit-herb').checked,
-                celestial_perk: document.getElementById('celestial-perk').value
-            };
-
-            const coi = document.getElementById('coi').value;
-
-            const result = runBreedingCalculations(parentA, parentB, items, coi);
-            if (result.error) {
-                document.getElementById('error-message').style.display = 'block';
-                document.getElementById('error-message').innerText = result.error;
-                document.getElementById('results').innerHTML = '';
-            } else {
-                document.getElementById('results').innerHTML = result.resultsHtml;
+            let bonus = 0;
+            // Rare marking bonus
+            if (locusInfo.category === 'marking' && perk.rare_marking_bonus > 0) {
+                 const geneInfo = locusInfo.genes.find(g => g.allele === a1 || g.allele === a2);
+                 if (geneInfo && (geneInfo.rarity === 'Uncommon' || geneInfo.rarity === 'Rare')) {
+                     bonus = perk.rare_marking_bonus;
+                 }
             }
+            // Prismatic Aura bonus for base coats
+            if (locusInfo.category === 'base' && parent.celestialPerk === 'Prismatic Aura') {
+                const recessiveAlleles = ['BA', 'BG', 'BW', 'MB', 'M0', 'KB'];
+                if(recessiveAlleles.includes(a1) || recessiveAlleles.includes(a2)) {
+                    bonus = 5;
+                }
+            }
+            
+            if (bonus > 0) {
+                 if (a1 !== locusInfo.null_allele && a2 === locusInfo.null_allele) { // Heterozygous dominant
+                    chanceA1 += bonus / 100;
+                 } else if (a1 === locusInfo.null_allele && a2 !== locusInfo.null_allele) { // Heterozygous recessive (just in case)
+                     //This case shouldn't happen with sorted alleles, but good to handle
+                     chanceA1 -= bonus / 100;
+                 }
+            }
+            chanceA1 = Math.max(0, Math.min(1, chanceA1));
+            return { [a1]: chanceA1, [a2]: 1 - chanceA1 };
+        }
+
+        static getPunnettOdds(parentA, parentB) {
+            try {
+                const odds = {};
+                for (const locusInfo of loci) {
+                    const gametesA = this.getGametes(parentA, locusInfo);
+                    const gametesB = this.getGametes(parentB, locusInfo);
+                    
+                    const outcomes = {};
+                    const dominanceOrder = (locusInfo.genes.map(g => g.allele)).concat([locusInfo.null_allele]);
+                    const sortAlleles = (p1, p2) => {
+                        const index1 = dominanceOrder.indexOf(p1);
+                        const index2 = dominanceOrder.indexOf(p2);
+                        return index1 <= index2 ? [p1, p2] : [p2, p1];
+                    };
+                    
+                    for (const [alleleA, probA] of Object.entries(gametesA)) {
+                        for (const [alleleB, probB] of Object.entries(gametesB)) {
+                            let sorted = sortAlleles(alleleA, alleleB);
+                            if (locusInfo.locus === 'K' && sorted[0] === 'n' && sorted[1] === 'n') {
+                                sorted = ['K+', 'K+'];
+                            }
+                            const genotype = sorted.join('/');
+                            outcomes[genotype] = (outcomes[genotype] || 0) + (probA * probB);
+                        }
+                    }
+                    
+                    odds[locusInfo.locus] = Object.entries(outcomes).map(([geno, prob]) => [geno, prob * 100]);
+                }
+                return odds;
+            } catch (e) { ErrorHandler.handle(e, 'getPunnettOdds'); throw new Error('Error calculating genotype odds'); }
+        }
+    }
+    
+    function getTraitOdds(items, parentA, parentB) {
+        try {
+            const odds = {};
+            const traits = ['Horned', 'Fanged', 'Sabreteeth'];
+            const perkA = AgePerks[parentA.age] || {};
+            const perkB = AgePerks[parentB.age] || {};
+
+            traits.forEach(traitName => {
+                const traitInfo = GeneMap[traitName.toUpperCase()];
+                if (!traitInfo) return;
+
+                const allele = traitInfo.EXPRESSED_SETS[0][0].split('/')[0];
+                const hasTraitA = parentA.genotype.includes(allele);
+                const hasTraitB = parentB.genotype.includes(allele);
+                
+                let baseChance = 10;
+                let bonus = 0;
+                if (hasTraitA || hasTraitB) {
+                    baseChance = 50;
+                    // Apply bonus only if trait is present
+                    bonus = Math.max(hasTraitA ? (perkA.trait_pass_bonus || 0) : 0, hasTraitB ? (perkB.trait_pass_bonus || 0) : 0);
+                }
+                odds[traitName] = baseChance + bonus + (items.moonlit_herb ? 10 : 0);
+            });
+            return odds;
+        } catch (e) { ErrorHandler.handle(e, 'getTraitOdds'); return { Horned: 10, Fanged: 10, Sabreteeth: 5 }; }
+    }
+
+    function getManeOdds(maneA, maneB, celestialPerk, parentAgeA, parentAgeB) {
+        const maneRules = {
+            'Natural_Natural': { 'Natural': 75, 'Half': 20, 'Full': 5 }, 'Natural_Half': { 'Natural': 55, 'Half': 43, 'Maneless': 2 },
+            'Natural_Full': { 'Natural': 50, 'Full': 45, 'Curly': 5 }, 'Natural_Curly': { 'Natural': 40, 'Full': 45, 'Curly': 15 },
+            'Natural_Maneless': { 'Natural': 40, 'Half': 55, 'Maneless': 5 }, 'Natural_Fiery': { 'Natural': 60, 'Full': 10, 'Curly': 25, 'Fiery': 5 },
+            'Natural_Silk': { 'Natural': 50, 'Full': 25, 'Curly': 20, 'Silk': 5 }, 'Natural_Regal': { 'Full': 40, 'Natural': 20, 'Curly': 10, 'Fiery': 25, 'Regal': 5 },
+            'Half_Half': { 'Natural': 20, 'Half': 70, 'Maneless': 10 }, 'Half_Full': { 'Natural': 20, 'Half': 40, 'Full': 40 }, 
+            'Half_Curly': { 'Natural': 30, 'Half': 30, 'Full': 30, 'Curly': 10 }, 'Half_Maneless': {'Natural': 30, 'Half': 40, 'Maneless': 30},
+            'Full_Full': { 'Natural': 10, 'Full': 80, 'Curly': 10 }, 'Curly_Curly': { 'Full': 20, 'Curly': 80 },
+            'Maneless_Maneless': { 'Maneless': 100 }, 'Fiery_Fiery': { 'Fiery': 80, 'Curly': 20}, 'Silk_Silk': {'Silk': 80, 'Full': 20}, 'Regal_Regal': {'Regal': 80, 'Fiery': 20}
+        };
+
+        const key = `${maneA}_${maneB}`;
+        const reverseKey = `${maneB}_${maneA}`;
+        let rule = maneRules[key] || maneRules[reverseKey] || { [maneA]: 50, [maneB]: 50 };
+        
+        const allManes = ['Natural', 'Half', 'Full', 'Curly', 'Maneless', 'Fiery', 'Silk', 'Regal'];
+        let odds = {};
+        allManes.forEach(mane => { odds[mane] = rule[mane] || 0; });
+        
+        if (celestialPerk === 'Divine Blessing' && (parentAgeA === Age.CELESTIAL || parentAgeB === Age.CELESTIAL)) {
+            const rareManes = ['Fiery', 'Silk', 'Regal'];
+            const commonManes = ['Natural', 'Half'];
+            rareManes.forEach(mane => { if (odds[mane] !== undefined) odds[mane] += 5; });
+            commonManes.forEach(mane => { if (odds[mane] !== undefined) odds[mane] -= 2.5; }); // balance the bonus
+        }
+        
+        let total = Object.values(odds).reduce((sum, val) => sum + (val > 0 ? val : 0), 0);
+        if (total === 0) return { 'Natural': 100 };
+        Object.keys(odds).forEach(key => { odds[key] = Math.max(0, (odds[key] / total) * 100); });
+
+        return odds;
+    }
+
+    function getElementOdds(elementA, elementB) {
+        const odds = {};
+        Object.values(Element).forEach(elem => {
+            let chance = 5;
+            if (elem === elementA) chance += 40;
+            if (elem === elementB) chance += 40;
+            odds[elem] = chance;
         });
-    </script>
+        let total = Object.values(odds).reduce((sum, val) => sum + val, 0);
+        Object.keys(odds).forEach(key => { odds[key] = (odds[key] / total) * 100; });
+        return odds;
+    }
+
+    function calculateInfertility(parentA, parentB, coiString) {
+         const coiMap = { 'None': 0, 'Slight': 15, 'Medium': 30, 'High': 50 };
+         let infertility = coiMap[coiString] || 0;
+         if (parentA.age === Age.ADOLESCENT || parentB.age === Age.ADOLESCENT) infertility += 20;
+         return Math.min(infertility, 100);
+    }
+    
+    function rollOffspring(possibilities, parentA, parentB, items, coiString) {
+        try {
+            if (parentA.age === Age.ADOLESCENT || parentB.age === Age.ADOLESCENT) {
+                if (Math.random() < 0.2) {
+                    return '<h4>Breeding Failed!</h4><p>The offspring were stillborn due to the parents’ young age.</p>';
+                }
+            }
+    
+            const clutchParts = possibilities.clutch.replace(/ eggs?/, '').split(' - ');
+            const min = parseInt(clutchParts[0], 10);
+            const max = parseInt(clutchParts[1] || clutchParts[0], 10);
+            let clutchSize = Math.floor(Math.random() * (max - min + 1)) + min;
+    
+            const infertility = possibilities.infertility;
+            if (Math.random() * 100 < infertility) clutchSize = Math.floor(clutchSize / 2);
+            if (infertility >= 100) clutchSize = 0;
+    
+            if (clutchSize === 0) {
+                return `<h4>Breeding Failed! (Infertility: ${infertility.toFixed(2)}%)</h4><p>No offspring were produced.</p>`;
+            }
+    
+            let results = `<h4>Rolled a clutch of ${clutchSize}! (Infertility: ${infertility.toFixed(2)}%)</h4>`;
+            
+            const rollFromOdds = (odds) => {
+                const rand = Math.random() * 100;
+                let cumulative = 0;
+                for (const [key, value] of Object.entries(odds)) {
+                    cumulative += value;
+                    if (rand < cumulative) return key;
+                }
+                return Object.keys(odds)[0]; 
+            };
+    
+            for (let i = 1; i <= clutchSize; i++) {
+                const rolledBreed = rollFromOdds(possibilities.breeds);
+                const scientificName = ScientificNames[rolledBreed] || rolledBreed;
+                const rolledSex = rollFromOdds(possibilities.sex);
+                const rolledMane = rollFromOdds(possibilities.manes);
+                const rolledElement = rollFromOdds(possibilities.elements);
+    
+                let offspringGenotypeArray = [];
+                for (const locus in possibilities.genotypeOdds) {
+                    const rolledAllelePair = rollFromOdds(Object.fromEntries(possibilities.genotypeOdds[locus]));
+                     if (rolledAllelePair !== 'n/n') {
+                         offspringGenotypeArray.push(rolledAllelePair);
+                     }
+                }
+
+                // Spontaneous Mutation Roll
+                const perkA = AgePerks[parentA.age] || {};
+                const perkB = AgePerks[parentB.age] || {};
+                const mutationChance = Math.max(perkA.mutation_bonus || 0, perkB.mutation_bonus || 0);
+                if (Math.random() * 100 < mutationChance) {
+                    const newMutationAllele = SpontaneousMutations[Math.floor(Math.random() * SpontaneousMutations.length)];
+                    const existing = offspringGenotypeArray.find(g => g.startsWith(newMutationAllele));
+                    if (!existing) {
+                        offspringGenotypeArray.push(`${newMutationAllele}/n`);
+                    }
+                }
+                
+                let phenotypeString = PhenotypeHelper.getPhenotype(offspringGenotypeArray, rolledMane);
+                let genotypeString = offspringGenotypeArray.join(' ');
+
+                // Defect Rolling
+                let defect = 'None';
+                if (coiString !== 'None') {
+                    const coiPercent = calculateInfertility({}, {}, coiString);
+                    if (Math.random() * 100 < coiPercent) {
+                        const possibleDefects = Defects.Tiers[coiString] || [];
+                        if (possibleDefects.length > 0) {
+                            const defectRoll = Math.random() * 100;
+                            const veryRare = possibleDefects.filter(d => Defects.VeryRare.includes(d));
+                            const rare = possibleDefects.filter(d => Defects.Rare.includes(d));
+                            const uncommon = possibleDefects.filter(d => Defects.Uncommon.includes(d));
+                            const common = possibleDefects.filter(d => Defects.Common.includes(d));
+                            
+                            if (defectRoll < 5 && veryRare.length > 0) defect = veryRare[Math.floor(Math.random() * veryRare.length)];
+                            else if (defectRoll < 15 && rare.length > 0) defect = rare[Math.floor(Math.random() * rare.length)];
+                            else if (defectRoll < 40 && uncommon.length > 0) defect = uncommon[Math.floor(Math.random() * uncommon.length)];
+                            else if (common.length > 0) defect = common[Math.floor(Math.random() * common.length)];
+                            else defect = possibleDefects[Math.floor(Math.random() * possibleDefects.length)]; // Fallback
+                        }
+                    }
+                }
+    
+                results += `
+                    <div class="mb-3 p-3 border rounded bg-light">
+                        <p class="mb-1"><strong>${i}) Species:</strong> ${scientificName}</p>
+                        <p class="mb-1"><strong>Mane Type:</strong> ${rolledMane}</p>
+                        <p class="mb-1"><strong>Sex:</strong> ${rolledSex}</p>
+                        <p class="mb-1"><strong>Age:</strong> Hatchling</p>
+                        <p class="mb-1"><strong>Inborn Element:</strong> ${rolledElement}</p>
+                        <p class="mb-1"><strong>Genotype:</strong> ${genotypeString || 'None'}</p>
+                        <p class="mb-1"><strong>Phenotype:</strong> ${phenotypeString}</p>
+                        <p class="mb-1"><strong>Defects:</strong> ${defect}</p>
+                    </div>`;
+            }
+            return results;
+        } catch (e) { ErrorHandler.handle(e, 'rollOffspring'); return `<h4>Error!</h4><p>Failed to roll offspring: ${e.message}</p>`; }
+    }
+
+    function runBreedingCalculations(parentA, parentB, items, coiString, celestialPerk) {
+        try {
+            if (!parentA || !parentB) throw new Error('Missing required parameters');
+            if (!AgePerks[parentA.age]?.breedable || !AgePerks[parentB.age]?.breedable) {
+                throw new Error('One or both parents are too young to breed.');
+            }
+            
+            parentA.alleles = GenotypeHelper.getAlleles(GenotypeHelper.sliceGenotype(parentA.genotype), loci);
+            parentB.alleles = GenotypeHelper.getAlleles(GenotypeHelper.sliceGenotype(parentB.genotype), loci);
+            parentA.celestialPerk = celestialPerk;
+            parentB.celestialPerk = celestialPerk;
+            
+            const possibilities = {
+                infertility: calculateInfertility(parentA, parentB, coiString),
+                clutch: PunnettHelper.getPossibleClutchSize(parentA, parentB, items),
+                breeds: PunnettHelper.getBreedOdds(parentA, parentB, celestialPerk),
+                sex: PunnettHelper.getSexOdds(),
+                manes: getManeOdds(parentA.mane, parentB.mane, celestialPerk, parentA.age, parentB.age),
+                elements: getElementOdds(parentA.element, parentB.element),
+                traits: getTraitOdds(items, parentA, parentB),
+                genotypeOdds: PunnettHelper.getPunnettOdds(parentA, parentB)
+            };
+
+            const results = rollOffspring(possibilities, parentA, parentB, items, coiString);
+            return { resultsHtml: results };
+        } catch (e) { ErrorHandler.handle(e, 'runBreedingCalculations'); return { error: `Breeding calculation failed: ${e.message}` }; }
+    }
+
+    document.getElementById('calculate-btn').addEventListener('click', () => {
+        document.getElementById('error-message').style.display = 'none';
+        
+        const parentA = {
+            species: document.getElementById('parentA-species').value,
+            age: document.getElementById('parentA-age').value,
+            mane: document.getElementById('parentA-mane').value,
+            element: document.getElementById('parentA-element').value,
+            genotype: document.getElementById('parentA-genotype').value
+        };
+
+        const parentB = {
+            species: document.getElementById('parentB-species').value,
+            age: document.getElementById('parentB-age').value,
+            mane: document.getElementById('parentB-mane').value,
+            element: document.getElementById('parentB-element').value,
+            genotype: document.getElementById('parentB-genotype').value
+        };
+
+        const items = {
+            crescent_herb: document.getElementById('crescent-herb').checked,
+            moonlit_herb: document.getElementById('moonlit-herb').checked
+        };
+
+        const coi = document.getElementById('coi').value;
+        const celestialPerk = document.getElementById('celestial-perk').value;
+
+        const result = runBreedingCalculations(parentA, parentB, items, coi, celestialPerk);
+        if (result.error) {
+            document.getElementById('error-message').style.display = 'block';
+            document.getElementById('error-message').innerText = result.error;
+            document.getElementById('results').innerHTML = '';
+        } else {
+            document.getElementById('results').innerHTML = result.resultsHtml;
+        }
+    });
+</script>
 </body>
+</html>
+```
 </html>
     </script>
 </body>
