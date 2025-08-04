@@ -183,6 +183,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const SPECIES = ['Cyroa', 'Thilyarem', 'Destrier'];
     const ACTIVE_SPECIES = SPECIES.filter(s => s !== 'Cyroa'); // Disable Cyroa for UI
     const AGES = ['Hatchling', 'Juvenile', 'Adolescent', 'Young Adult', 'Adult', 'Elder', 'Ancient', 'Celestial'];
+    const FERTILITY_LEVELS = ['Best', 'Good', 'Okay', 'Bad'];
     const GENOTYPES = {
         'Tan': ["B+/B+ M+/M+ K+/K+", "B+/B+ M+/MB K+/K+", "B+/B+ M+/M0 K+/K+", "B+/B+ MB/MB K+/K+", "B+/B+ MB/M0 K+/K+", "B+/B+ M+/M+ K+/KB", "B+/B+ M+/MB K+/KB", "B+/B+ M+/M0 K+/KB", "B+/B+ MB/MB K+/KB", "B+/B+ MB/M0 K+/KB", "B+/B+ M+/M+ KB/KB", "B+/B+ M+/MB KB/KB", "B+/B+ M+/M0 KB/KB", "B+/B+ MB/MB KB/KB", "B+/B+ MB/M0 KB/KB", "B+/BA M+/M+ K+/K+", "B+/BA M+/MB K+/K+", "B+/BA M+/M0 K+/K+", "B+/BA MB/MB K+/K+", "B+/BA MB/M0 K+/K+", "B+/BA M+/M+ K+/KB", "B+/BA M+/MB K+/KB", "B+/BA M+/M0 K+/KB", "B+/BA MB/MB K+/KB", "B+/BA MB/M0 K+/KB", "B+/BA M+/M+ KB/KB", "B+/BA M+/MB KB/KB", "B+/BA M+/M0 KB/KB", "B+/BA MB/MB KB/KB", "B+/BA MB/M0 KB/KB", "B+/BG M+/M+ K+/K+", "B+/BG M+/MB K+/K+", "B+/BG M+/M0 K+/K+", "B+/BG MB/MB K+/K+", "B+/BG MB/M0 K+/K+", "B+/BG M+/M+ K+/KB", "B+/BG M+/MB K+/KB", "B+/BG M+/M0 K+/KB", "B+/BG MB/MB K+/KB", "B+/BG MB/M0 K+/KB", "B+/BG M+/M+ KB/KB", "B+/BG M+/MB KB/KB", "B+/BG M+/M0 KB/KB", "B+/BG MB/MB KB/KB", "B+/BG MB/M0 KB/KB", "B+/BW M+/M+ K+/K+", "B+/BW M+/MB K+/K+", "B+/BW M+/M0 K+/K+", "B+/BW MB/MB K+/K+", "B+/BW MB/M0 K+/K+", "B+/BW M+/M+ K+/KB", "B+/BW M+/MB K+/KB", "B+/BW M+/M0 K+/KB", "B+/BW MB/MB K+/KB", "B+/BW MB/M0 K+/KB", "B+/BW M+/M+ KB/KB", "B+/BW M+/MB KB/KB", "B+/BW M+/M0 KB/KB", "B+/BW MB/MB KB/KB", "B+/BW MB/M0 KB/KB"],
         'Brown': ["BA/BA M+/M+ K+/K+", "BA/BA M+/MB K+/K+", "BA/BA M+/M0 K+/K+", "BA/BA MB/MB K+/K+", "BA/BA MB/M0 K+/K+", "BA/BA M+/M+ K+/KB", "BA/BA M+/MB K+/KB", "BA/BA M+/M0 K+/KB", "BA/BA MB/MB K+/KB", "BA/BA MB/M0 K+/KB", "BA/BA M+/M+ KB/KB", "BA/BA M+/MB KB/KB", "BA/BA M+/M0 KB/KB", "BA/BA MB/MB KB/KB", "BA/BA MB/M0 KB/KB", "BA/BG M+/M+ K+/K+", "BA/BG M+/MB K+/K+", "BA/BG M+/M0 K+/K+", "BA/BG MB/MB K+/K+", "BA/BG MB/M0 K+/K+", "BA/BG M+/M+ K+/KB", "BA/BG M+/MB K+/KB", "BA/BG M+/M0 K+/KB", "BA/BG MB/MB K+/KB", "BA/BG MB/M0 K+/KB", "BA/BG M+/M+ KB/KB", "BA/BG M+/MB KB/KB", "BA/BG M+/M0 KB/KB", "BA/BG MB/MB KB/KB", "BA/BG MB/M0 KB/KB", "BA/BW M+/M+ K+/K+", "BA/BW M+/MB K+/K+", "BA/BW M+/M0 K+/K+", "BA/BW MB/MB K+/K+", "BA/BW MB/M0 K+/K+", "BA/BW M+/M+ K+/KB", "BA/BW M+/MB K+/KB", "BA/BW M+/M0 K+/KB", "BA/BW MB/MB K+/KB", "BA/BW MB/M0 K+/KB", "BA/BW M+/M+ KB/KB", "BA/BW M+/MB KB/KB", "BA/BW M+/M0 KB/KB", "BA/BW MB/MB KB/KB", "BA/BW MB/M0 KB/KB"],
@@ -233,7 +234,9 @@ document.addEventListener('DOMContentLoaded', function() {
         return `
             <div class="mb-3"><label for="${prefix}-species" class="form-label">Species:</label><select id="${prefix}-species" class="form-select">${ACTIVE_SPECIES.map(s => `<option value="${s}">${s}</option>`).join('')}</select></div>
             <div class="mb-3"><label for="${prefix}-age" class="form-label">Age:</label><select id="${prefix}-age" class="form-select">${AGES.map(a => `<option value="${a}">${a}</option>`).join('')}</select></div>
-            <div class="mb-3"><label for="${prefix}-manetype" class="form-label">Manetype:</label><select id="${prefix}-manetype" class="form-select">${MANETYPES.map(m => `<option value="${m}">${m}</option>`).join('')}</select></div><hr>
+            <div class="mb-3"><label for="${prefix}-manetype" class="form-label">Manetype:</label><select id="${prefix}-manetype" class="form-select">${MANETYPES.map(m => `<option value="${m}">${m}</option>`).join('')}</select></div>
+            <div class="mb-3"><label for="${prefix}-fertility" class="form-label">Fertility:</label><select id="${prefix}-fertility" class="form-select">${FERTILITY_LEVELS.map(f => `<option value="${f}">${f}</option>`).join('')}</select></div>
+            <hr>
             <h5>Genetics</h5>
             <div class="row">
                 <div class="col-md-6 mb-3"><label for="${prefix}-base-color" class="form-label">Base Color (Phenotype):</label><select id="${prefix}-base-color" class="form-select base-color-selector" data-prefix="${prefix}">${BASE_COLORS.map(c => `<option value="${c}">${c}</option>`).join('')}</select></div>
@@ -265,7 +268,7 @@ document.addEventListener('DOMContentLoaded', function() {
             let allele1, allele2, key;
             if (part.includes('/')) {
                 [allele1, allele2] = part.split('/');
-                key = allele1 === 'n' ? allele2.toUpperCase() : allele1.toUpperCase();
+                key = (allele1 === 'n' ? allele2 : allele1).toUpperCase();
             } else if (part.startsWith('n')) {
                 allele1 = 'n';
                 allele2 = part.substring(1);
@@ -280,7 +283,6 @@ document.addEventListener('DOMContentLoaded', function() {
                      key = part.toUpperCase();
                  }
             }
-            // Find the correct key in the library, case-insensitively
             const libraryKey = Object.keys(library).find(k => k.toUpperCase() === key);
             if (libraryKey) {
                 alleleMap[libraryKey] = [allele1, allele2].sort();
@@ -290,13 +292,12 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     function randomizeParent(prefix) { 
-        // Select from active species
         document.getElementById(`${prefix}-species`).value = getRandom(ACTIVE_SPECIES);
         document.getElementById(`${prefix}-age`).value = getRandom(AGES.slice(2)); 
         document.getElementById(`${prefix}-manetype`).value = getRandom(MANETYPES);
+        document.getElementById(`${prefix}-fertility`).value = getRandom(FERTILITY_LEVELS);
         document.getElementById(`${prefix}-element`).value = getRandom(ELEMENTS.slice(0, -1));
 
-        // Random base color and associated genotype
         const randomColor = getRandom(BASE_COLORS);
         document.getElementById(`${prefix}-base-color`).value = randomColor;
         updateBaseGenetics(prefix);
@@ -305,27 +306,26 @@ document.addEventListener('DOMContentLoaded', function() {
             geneticsDropdown.selectedIndex = Math.floor(Math.random() * geneticsDropdown.options.length);
         }
 
-        // Generate random genes
         const markingKeys = Object.keys(GENE_LIBRARY.Markings);
         const mutationKeys = Object.keys(GENE_LIBRARY.Mutations);
         const traitKeys = Object.keys(GENE_LIBRARY.Traits);
         
         let markingsStr = "";
-        const numMarkings = Math.floor(Math.random() * 5) + 2; // 2 to 6 markings
+        const numMarkings = Math.floor(Math.random() * 5) + 2;
         for (let i = 0; i < numMarkings; i++) {
             const key = getRandom(markingKeys);
             markingsStr += roll(0.5) ? `${key}/${key} ` : `n${key} `;
         }
 
         let mutationsStr = "";
-        const numMutations = Math.floor(Math.random() * 3); // 0 to 2 mutations
+        const numMutations = Math.floor(Math.random() * 3);
         for (let i = 0; i < numMutations; i++) {
             const key = getRandom(mutationKeys);
             mutationsStr += roll(0.5) ? `${key}/${key} ` : `n${key} `;
         }
 
         let traitsStr = "";
-        const numTraits = Math.floor(Math.random() * 3); // 0 to 2 traits
+        const numTraits = Math.floor(Math.random() * 3);
         for (let i = 0; i < numTraits; i++) {
             const key = getRandom(traitKeys);
             traitsStr += roll(0.5) ? `${key}/${key} ` : `n${key} `;
@@ -335,7 +335,6 @@ document.addEventListener('DOMContentLoaded', function() {
         document.getElementById(`${prefix}-mutation-genetics`).value = mutationsStr.trim();
         document.getElementById(`${prefix}-trait-genetics`).value = traitsStr.trim();
         
-        // Clear all ability checkboxes
         document.querySelectorAll(`#${prefix}-form .ability-checkbox`).forEach(cb => cb.checked = false);
     }
     
@@ -361,30 +360,40 @@ document.addEventListener('DOMContentLoaded', function() {
         else if (sire.age === 'Ancient') { minCubs = 2, maxCubs = 3; }
         else if (sire.age === 'Celestial') { minCubs = 2, maxCubs = 2; }
         
-        let cubCount = Math.floor(Math.random() * (maxCubs - minCubs + 1)) + minCubs;
+        const fertilityModifiers = { Best: 1.0, Good: 0.85, Okay: 0.6, Bad: 0.3 };
+        const avgFertility = (fertilityModifiers[sire.fertility] + fertilityModifiers[dam.fertility]) / 2;
+        maxCubs = Math.round(maxCubs * avgFertility);
+        if (minCubs > maxCubs) minCubs = maxCubs;
+        
+        let cubCount = (maxCubs > 0) ? Math.floor(Math.random() * (maxCubs - minCubs + 1)) + minCubs : 0;
+
         if (settings.crescentHerb && roll(0.5)) cubCount++;
         if (settings.moonlitHerb) cubCount += Math.floor(Math.random() * 3);
         if (settings.bondBreeding) cubCount++;
         
-        let output = cubCount === 0 ? "The breeding resulted in no viable hatchlings." : "";
+        let outputHTML = cubCount === 0 ? "The breeding resulted in no viable hatchlings." : "";
         let viableHatchlings = 0;
 
         for (let i = 1; i <= cubCount; i++) {
             const cub = generateCub(sire, dam, settings);
+            
+            let cubHTML = "";
+            if (cub.isChimera) cubHTML += `** Chimeric Markings/Mutations **\n`;
+            cubHTML += `Species: ${cub.species.name}\nBuild: ${cub.species.build}\nSex: ${cub.sex}\nManetype: ${cub.manetype}\nElement: ${cub.element}\n`;
+            cubHTML += `Base Color: ${cub.baseColor}\nGenotype: ${cub.genotype}\nPhenotype: ${cub.phenotype}\n`;
+            cubHTML += `Mutations: ${cub.mutations}\nTraits: ${cub.traits}\nAbilities: ${cub.abilities.join(', ') || 'None'}\n`;
+            cubHTML += `Fertility: ${cub.fertility}\nInbred: ${cub.inbred}\nDefects: ${cub.defects.length > 0 ? cub.defects.join(', ') : 'Healthy'}\n\n`;
+
             if (!cub.viable) {
-                output += `================ HATCHLING #${i} ================\n`;
-                output += `Status: ${cub.reason}\n\n`;
-                continue;
+                outputHTML += `================ HATCHLING #${i} (DECEASED) ================\n`;
+                outputHTML += `<s>${cubHTML}</s>`;
+            } else {
+                viableHatchlings++;
+                outputHTML += `================ HATCHLING #${viableHatchlings} ================\n`;
+                outputHTML += cubHTML;
             }
-            viableHatchlings++;
-            output += `================ HATCHLING #${viableHatchlings} ================\n`;
-            if (cub.isChimera) output += `** Chimeric Markings/Mutations **\n`;
-            output += `Species: ${cub.species.name}\nBuild: ${cub.species.build}\nSex: ${cub.sex}\nManetype: ${cub.manetype}\nElement: ${cub.element}\n`;
-            output += `Base Color: ${cub.baseColor}\nGenotype: ${cub.genotype}\nPhenotype: ${cub.phenotype}\n`;
-            output += `Mutations: ${cub.mutations}\nTraits: ${cub.traits}\nAbilities: ${cub.abilities.join(', ') || 'None'}\n`;
-            output += `Fertility: ${cub.fertility}\nInbred: ${cub.inbred}\nDefects: ${cub.defects.length > 0 ? cub.defects.join(', ') : 'Healthy'}\n\n`;
         }
-        showResults(output);
+        showResults(outputHTML);
     }
     
     const inheritGeneCategory = (sire, dam, category) => {
@@ -418,9 +427,12 @@ document.addEventListener('DOMContentLoaded', function() {
     function generateCub(sire, dam, settings) {
         const cub = { viable: true, isChimera: false };
         const defectsResult = determineDefects(sire, dam, settings);
-        if (defectsResult.reason) return defectsResult;
+        
         cub.defects = defectsResult.defects;
-        cub.fertility = defectsResult.isInfertile ? "Infertile" : "Fertile";
+
+        if (defectsResult.reason) {
+            cub.viable = false;
+        }
         
         cub.sex = roll(0.5) ? 'Male' : 'Female';
         cub.species = determineSpecies(sire, dam, settings);
@@ -428,6 +440,7 @@ document.addEventListener('DOMContentLoaded', function() {
         cub.element = roll(0.5) ? sire.element : dam.element;
         cub.abilities = determineAbilities(sire, dam);
         cub.inbred = settings.isInbred ? 'Yes' : 'No';
+        cub.fertility = determineOffspringFertility(sire, dam, settings, defectsResult);
 
         const baseAlleles = {};
         ['B', 'M', 'K'].forEach(locus => {
@@ -449,7 +462,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
         if (roll(0.01)) {
             cub.isChimera = true;
-            cub.defects.push('Chimerism');
+            if(!cub.defects.includes('Chimerism')) cub.defects.push('Chimerism');
             const secondaryMarkings = inheritGeneCategory(sire, dam, 'Markings');
             const secondaryMutations = inheritGeneCategory(sire, dam, 'Mutations');
             cub.phenotype += ` // ${secondaryMarkings.pheno.join(', ') || 'None'}`;
@@ -474,17 +487,17 @@ document.addEventListener('DOMContentLoaded', function() {
     }
     
     function determineDefects(sire, dam, settings) {
-        const result = { defects: [], isInfertile: false };
+        const result = { defects: [], isInfertile: false, reason: null };
         let riskModifier = 1.0;
         if (settings.heartyMeal) riskModifier *= 0.5;
         if (settings.dubiousFood) riskModifier *= 2.0;
 
         let baseRisk = 0;
-        if (sire.age === 'Adolescent' || dam.age === 'Adolescent') baseRisk = 0.20;
+        if (sire.age === 'Adolescent' || dam.age === 'Adolescent') baseRisk = 0.25; // Increased
         if (settings.isInbred) {
-            if (settings.inbreedLevel === 'Slight') baseRisk += 0.10;
-            else if (settings.inbreedLevel === 'Moderate') baseRisk += 0.25;
-            else if (settings.inbreedLevel === 'Severe') baseRisk += 0.50;
+            if (settings.inbreedLevel === 'Slight') baseRisk += 0.15;      // Increased
+            else if (settings.inbreedLevel === 'Moderate') baseRisk += 0.40; // Increased
+            else if (settings.inbreedLevel === 'Severe') baseRisk += 0.75;  // Increased
         }
         if (settings.dubiousFood) baseRisk += 0.05;
 
@@ -493,9 +506,15 @@ document.addEventListener('DOMContentLoaded', function() {
                 const data = DEFECTS[defect];
                 const isApplicable = !settings.isInbred || data.levels[settings.inbreedLevel];
                 if (isApplicable) {
-                    const chance = RARITY_CHANCES[data.rarity] * riskModifier;
+                    let chance = RARITY_CHANCES[data.rarity] * riskModifier;
+                    if (defect === 'Stillborn' && (sire.age === 'Adolescent' || dam.age === 'Adolescent' || settings.inbreedLevel === 'Severe')) {
+                        chance *= 3.0; // Significantly increase stillborn chance for these conditions
+                    }
                     if (roll(chance)) {
-                         if (defect === 'Stillborn' || defect === 'Slug Egg') return { viable: false, reason: defect };
+                         if (defect === 'Stillborn' || defect === 'Slug Egg') {
+                             result.reason = defect;
+                             return result;
+                         }
                          if (defect === 'Infertile') result.isInfertile = true;
                          result.defects.push(defect);
                     }
@@ -505,33 +524,40 @@ document.addEventListener('DOMContentLoaded', function() {
         return result;
     }
 
+    function determineOffspringFertility(sire, dam, settings, defectsResult) {
+        if (settings.inbreedLevel === 'Severe' && roll(0.15)) {
+            return 'Sterile';
+        }
+        if (defectsResult.isInfertile) {
+            return 'Bad';
+        }
+
+        const fertilityMap = { Best: 4, Good: 3, Okay: 2, Bad: 1 };
+        let fertilityScore = Math.round((fertilityMap[sire.fertility] + fertilityMap[dam.fertility]) / 2);
+
+        if (sire.age === 'Adolescent' || dam.age === 'Adolescent') fertilityScore--;
+        if (settings.inbreedLevel === 'Moderate' || settings.inbreedLevel === 'Severe') fertilityScore--;
+
+        if (fertilityScore < 1) fertilityScore = 1;
+
+        return Object.keys(fertilityMap).find(key => fertilityMap[key] === fertilityScore) || 'Bad';
+    }
+
     function determinePhenoColor(geno) { 
         for (const color in GENOTYPES) { if (GENOTYPES[color].includes(geno)) return color; } return "Unknown";
     }
 
     function determineSpecies(sire, dam, settings) { 
         const s = sire.species; const d = dam.species;
-        
-        // With Cyroa disabled, logic simplifies.
-        // If both parents are Thilyarem, the result is Thilyarem.
-        // If a Destrier is involved, the Destrier logic runs.
         let build = 'Thilyarem'; 
-        
         if (s === 'Destrier' || d === 'Destrier') {
             let destrierChance = 0;
             if (s === 'Destrier' && d === 'Destrier') destrierChance = 0.40;
             else if (s === 'Destrier' || d === 'Destrier') destrierChance = 0.15;
-            
             if (settings.calmingBrow) destrierChance += 0.1;
             if (sire.savageBoon || dam.savageBoon) destrierChance += 0.05;
-            
-            if (roll(destrierChance)) {
-                build = 'Destrier';
-            } else {
-                build = 'Thilyarem';
-            }
+            if (roll(destrierChance)) { build = 'Destrier'; }
         }
-        
         if (build === 'Destrier') return { name: 'Panlongus Lykophus Imperator', build: 'Destrier' };
         return { name: 'Panlongus lykophus pelagius', build: 'Thilyarem' };
     }
@@ -555,6 +581,7 @@ document.addEventListener('DOMContentLoaded', function() {
             species: document.getElementById(`${prefix}-species`).value,
             age: document.getElementById(`${prefix}-age`).value,
             manetype: document.getElementById(`${prefix}-manetype`).value,
+            fertility: document.getElementById(`${prefix}-fertility`).value,
             element: document.getElementById(`${prefix}-element`).value,
             baseGenetics: document.getElementById(`${prefix}-base-genetics`).value,
             markings: parseAlleleString(document.getElementById(`${prefix}-marking-genetics`).value, GENE_LIBRARY.Markings),
@@ -589,8 +616,8 @@ document.addEventListener('DOMContentLoaded', function() {
         document.getElementById('error-container').style.display = 'none';
     }
     
-    function showResults(outputText) { 
-        document.getElementById('results-output').textContent = outputText;
+    function showResults(outputHTML) { 
+        document.getElementById('results-output').innerHTML = outputHTML;
         const resultsModal = new bootstrap.Modal(document.getElementById('resultsModal'));
         resultsModal.show();
     }
