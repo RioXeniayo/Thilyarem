@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -44,7 +43,8 @@
                 <div class="col-md-8">
                     <label for="egg-type-select" class="form-label">Select Egg Type:</label>
                     <select class="form-select" id="egg-type-select">
-                        <option value="Common" selected>Common</option>
+                        <option value="Newbie" selected>Newbie</option>
+                        <option value="Common">Common</option>
                         <option value="Uncommon">Uncommon</option>
                         <option value="Rare">Rare</option>
                         <option value="Destrier">Destrier</option>
@@ -100,7 +100,6 @@ document.addEventListener('DOMContentLoaded', function() {
     const generateBtn = document.getElementById('generate-btn');
     const eggTypeSelect = document.getElementById('egg-type-select');
 
-    // Pre-sort genes by rarity for easier access
     const sortedGenes = { Markings: {}, Mutations: {}, Traits: {} };
     for (const category in sortedGenes) {
         sortedGenes[category]['Common'] = [];
@@ -119,15 +118,16 @@ document.addEventListener('DOMContentLoaded', function() {
         // 1. Determine Species
         let build = 'Thilyarem';
         if (eggType === 'Destrier') build = 'Destrier';
-        else if (eggType === 'Mystery') build = getRandom(['Thilyarem', 'Destrier']); // Cyroa disabled
+        else if (eggType === 'Mystery') build = getRandom(['Thilyarem', 'Destrier']);
         
         if (build === 'Destrier') dragon.species = { name: 'Panlongus Lykophus Imperator', build: 'Destrier' };
         else dragon.species = { name: 'Panlongus lykophus pelagius', build: 'Thilyarem' };
 
         // 2. Determine Mane
         const manePools = {
-            Common: ['Natural', 'Razor'],
-            Uncommon: ['Natural', 'Razor', 'Sphinx', 'Curly'],
+            Newbie: ['Natural', 'Razor'],
+            Common: ['Natural', 'Natural', 'Natural', 'Razor'],
+            Uncommon: ['Natural', 'Natural', 'Razor', 'Sphinx', 'Curly'],
             Rare: ['Sphinx', 'Curly', 'Long', 'Fiery', 'Barbary'],
             Destrier: ['Natural'],
             Mystery: ['Natural', 'Razor', 'Sphinx', 'Curly', 'Long', 'Fiery', 'Barbary']
@@ -136,6 +136,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
         // 3. Determine Base Color
         const colorPools = {
+            Newbie: ['Tan', 'Cream', 'Brown'],
             Common: ['Tan', 'Cream', 'Brown', 'Lilac'],
             Uncommon: ['Brown', 'Lilac', 'Green', 'Seagreen', 'Teagreen'],
             Rare: Object.keys(GENOTYPES),
@@ -146,11 +147,12 @@ document.addEventListener('DOMContentLoaded', function() {
         dragon.baseGeno = getRandom(GENOTYPES[chosenColor]);
 
         // 4. Determine Genes
-        const { geno: otherGeno, pheno } = getRandomGenes(tier);
+        const { geno: otherGeno, pheno, carried } = getRandomGenes(tier);
         dragon.genotype = `${dragon.baseGeno} ${otherGeno.join(' ')}`.trim();
         dragon.phenotype = pheno.Markings.join(', ') || 'None';
         dragon.mutations = pheno.Mutations.join(', ') || 'None';
         dragon.traits = pheno.Traits.join(', ') || 'None';
+        dragon.carried = carried.Markings.concat(carried.Mutations, carried.Traits).join(', ') || 'None';
 
         // 5. Final Formatting
         let output = `Species: ${dragon.species.name}\n`;
@@ -161,9 +163,10 @@ document.addEventListener('DOMContentLoaded', function() {
         output += `Base Color: ${dragon.baseColor}\n`;
         output += `Genotype: ${dragon.genotype}\n`;
         output += `Phenotype: ${dragon.phenotype}\n`;
+        output += `Carried: ${dragon.carried}\n`;
         output += `Mutations: ${dragon.mutations}\n`;
         output += `Traits: ${dragon.traits}\n`;
-        output += `Fertility: Fertile\n`;
+        output += `Fertility: Best\n`;
         output += `Defects: Healthy\n`;
 
         resultsOutput.textContent = output;
@@ -172,79 +175,85 @@ document.addEventListener('DOMContentLoaded', function() {
     function getRandomGenes(tier) {
         const geno = [];
         const pheno = { Markings: [], Mutations: [], Traits: [] };
+        const carried = { Markings: [], Mutations: [], Traits: [] };
         
-        // Guaranteed 3 markings
-        for (let i = 0; i < 3; i++) {
-            const allele = getRandom(sortedGenes.Markings.Common);
-            addGene(allele, 'Markings', geno, pheno);
-        }
-        // Chance for 4th marking (higher rarity chance)
-        if (roll(0.4)) {
-            const allele = getWeightedRandomGene('Markings');
-            addGene(allele, 'Markings', geno, pheno);
-        }
-        // Chance for 5th marking (higher rarity chance)
-        if (roll(0.2)) {
-            const allele = getWeightedRandomGene('Markings');
-            addGene(allele, 'Markings', geno, pheno);
-        }
-        
-        // Mutations
-        if (tier === 'Uncommon') {
-            if (roll(0.25)) { // Lowered mutation chance
-                const pool = [...sortedGenes.Mutations.Common, ...sortedGenes.Mutations.Uncommon];
-                addGene(getRandom(pool), 'Mutations', geno, pheno);
-            }
-        } else if (tier === 'Rare') {
-            if (roll(0.5)) { // Lowered mutation chance
-                const allele = getWeightedRandomGene('Mutations');
-                addGene(allele, 'Mutations', geno, pheno);
-            }
-        } else if (tier === 'Mystery') {
-            if (roll(0.2)) {
-                 const pool = [...sortedGenes.Mutations.Common, ...sortedGenes.Mutations.Uncommon, ...sortedGenes.Mutations.Rare];
-                 addGene(getRandom(pool), 'Mutations', geno, pheno);
-            }
+        let markingPool = [];
+        if (tier === 'Newbie') {
+            markingPool = [...sortedGenes.Markings.Common, ...sortedGenes.Markings.Uncommon];
+        } else {
+            markingPool = [...sortedGenes.Markings.Common, ...sortedGenes.Markings.Uncommon, ...sortedGenes.Markings.Rare];
         }
 
-        // Traits
-        if (tier === 'Common' && roll(0.15)) { // Increased trait chance
-            addGene(getRandom(sortedGenes.Traits.Uncommon), 'Traits', geno, pheno);
-        } else if (tier === 'Uncommon' && roll(0.4)) { // Increased trait chance
+        for (let i = 0; i < 3; i++) {
+            addGene(getRandom(markingPool), 'Markings', geno, pheno, carried);
+        }
+        
+        if (tier !== 'Newbie') {
+            if (roll(0.4)) addGene(getWeightedRandomGene('Markings'), 'Markings', geno, pheno, carried);
+            if (roll(0.2)) addGene(getWeightedRandomGene('Markings'), 'Markings', geno, pheno, carried);
+        }
+        
+        if (tier === 'Uncommon' && roll(0.25)) {
+            const pool = [...sortedGenes.Mutations.Common, ...sortedGenes.Mutations.Uncommon];
+            addGene(getRandom(pool), 'Mutations', geno, pheno, carried);
+        } else if (tier === 'Rare' && roll(0.5)) {
+            addGene(getWeightedRandomGene('Mutations'), 'Mutations', geno, pheno, carried);
+        } else if (tier === 'Mystery' && roll(0.2)) {
+            const pool = [...sortedGenes.Mutations.Common, ...sortedGenes.Mutations.Uncommon, ...sortedGenes.Mutations.Rare];
+            addGene(getRandom(pool), 'Mutations', geno, pheno, carried);
+        }
+
+        if ((tier === 'Common' || tier === 'Newbie') && roll(0.15)) {
+            addGene(getRandom(sortedGenes.Traits.Uncommon), 'Traits', geno, pheno, carried);
+        } else if (tier === 'Uncommon' && roll(0.4)) {
             const pool = [...sortedGenes.Traits.Uncommon, ...sortedGenes.Traits.Rare];
-            addGene(getRandom(pool), 'Traits', geno, pheno);
-        } else if (tier === 'Rare' && roll(0.75)) { // Increased trait chance
-            const allele = getWeightedRandomGene('Traits');
-            addGene(allele, 'Traits', geno, pheno);
+            addGene(getRandom(pool), 'Traits', geno, pheno, carried);
+        } else if (tier === 'Rare' && roll(0.75)) {
+            addGene(getWeightedRandomGene('Traits'), 'Traits', geno, pheno, carried);
         } else if (tier === 'Mystery' && roll(0.25)) {
             const pool = [...sortedGenes.Traits.Uncommon, ...sortedGenes.Traits.Rare];
-            addGene(getRandom(pool), 'Traits', geno, pheno);
+            addGene(getRandom(pool), 'Traits', geno, pheno, carried);
         }
 
-        return { geno, pheno };
+        return { geno, pheno, carried };
     }
 
-    function addGene(allele, category, geno, pheno) {
-        if (!allele || geno.some(g => g.includes(allele))) return; // Avoid duplicates
+    function addGene(allele, category, geno, pheno, carried) {
+        if (!allele || geno.some(g => g.toUpperCase().includes(allele.toUpperCase()))) return;
+
+        const geneInfo = GENE_LIBRARY[category][allele];
+        const isHomozygous = roll(0.5);
         
-        if (roll(0.5)) { // 50% chance to be homozygous dominant
-            geno.push(`${allele}/${allele}`);
-            pheno[category].push(GENE_LIBRARY[category][allele].name);
+        geno.push(isHomozygous ? `${allele}/${allele}` : `${allele}/n`);
+
+        let expressesPhenotypically = false;
+        if (category === 'Markings') {
+            if (geneInfo.rarity === 'Common' || geneInfo.rarity === 'Uncommon') {
+                expressesPhenotypically = true;
+            } else if (geneInfo.rarity === 'Rare' && isHomozygous) {
+                expressesPhenotypically = true;
+            }
+        } else { // Mutations and Traits
+            if (isHomozygous) {
+                expressesPhenotypically = true;
+            }
+        }
+
+        if (expressesPhenotypically) {
+            pheno[category].push(geneInfo.name);
         } else {
-            geno.push(`n${allele}`);
+            carried[category].push(geneInfo.name);
         }
     }
 
     function getWeightedRandomGene(category) {
         const rand = Math.random();
-        // Weights: 50% uncommon, 50% rare
         if (rand < 0.5 && sortedGenes[category].Uncommon.length > 0) {
             return getRandom(sortedGenes[category].Uncommon);
         } else if (sortedGenes[category].Rare.length > 0) {
             return getRandom(sortedGenes[category].Rare);
         }
-        // Fallback to uncommon if rare pool is empty
-        return getRandom(sortedGenes[category].Uncommon);
+        return getRandom(sortedGenes[category].Uncommon) || getRandom(sortedGenes[category].Common);
     }
 
     generateBtn.addEventListener('click', () => {
@@ -252,11 +261,9 @@ document.addEventListener('DOMContentLoaded', function() {
         generateDragon(selectedType);
     });
 
-    // Initial generation on page load
     generateDragon(eggTypeSelect.value);
 });
 </script>
 
 </body>
 </html>
-```
