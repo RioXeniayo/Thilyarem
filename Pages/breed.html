@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -57,25 +56,29 @@
 
     <div class="alert alert-danger error-alert" id="error-container" role="alert"></div>
 
+    <!-- Sire and Dam Forms -->
     <div class="row">
         <div class="col-lg-6">
             <div class="card">
                 <div class="card-header bg-primary text-white">Sire</div>
                 <div class="card-body" id="sire-form">
-                    </div>
+                    <!-- Sire form injected here -->
+                </div>
             </div>
         </div>
         <div class="col-lg-6">
             <div class="card">
                 <div class="card-header bg-danger text-white">Dam</div>
                 <div class="card-body" id="dam-form">
-                    </div>
+                    <!-- Dam form injected here -->
+                </div>
             </div>
         </div>
     </div>
 
     <hr>
 
+    <!-- Settings and Items -->
     <div class="card">
         <div class="card-header">Breeding Settings & Items</div>
         <div class="card-body">
@@ -145,12 +148,16 @@
         </div>
     </div>
     
+    <!-- Action Buttons -->
     <div class="text-center mt-4">
         <button id="randomize-all-btn" class="btn btn-secondary btn-lg me-2">Randomize Parents</button>
         <button id="roll-btn" class="btn btn-success btn-lg">Roll Breeding!</button>
     </div>
 
-</div> <div class="modal fade" id="resultsModal" tabindex="-1" aria-labelledby="resultsModalLabel" aria-hidden="true">
+</div> 
+
+<!-- Results Modal -->
+<div class="modal fade" id="resultsModal" tabindex="-1" aria-labelledby="resultsModalLabel" aria-hidden="true">
   <div class="modal-dialog modal-xl modal-dialog-scrollable">
     <div class="modal-content">
       <div class="modal-header">
@@ -158,7 +165,8 @@
         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
       <div class="modal-body" id="results-output">
-        </div>
+        <!-- Results will be printed here -->
+      </div>
       <div class="modal-footer">
         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
       </div>
@@ -173,6 +181,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // --- DATA DEFINITIONS ---
     const SPECIES = ['Cyroa', 'Thilyarem', 'Destrier'];
+    const ACTIVE_SPECIES = SPECIES.filter(s => s !== 'Cyroa'); // Disable Cyroa for UI
     const AGES = ['Hatchling', 'Juvenile', 'Adolescent', 'Young Adult', 'Adult', 'Elder', 'Ancient', 'Celestial'];
     const GENOTYPES = {
         'Tan': ["B+/B+ M+/M+ K+/K+", "B+/B+ M+/MB K+/K+", "B+/B+ M+/M0 K+/K+", "B+/B+ MB/MB K+/K+", "B+/B+ MB/M0 K+/K+", "B+/B+ M+/M+ K+/KB", "B+/B+ M+/MB K+/KB", "B+/B+ M+/M0 K+/KB", "B+/B+ MB/MB K+/KB", "B+/B+ MB/M0 K+/KB", "B+/B+ M+/M+ KB/KB", "B+/B+ M+/MB KB/KB", "B+/B+ M+/M0 KB/KB", "B+/B+ MB/MB KB/KB", "B+/B+ MB/M0 KB/KB", "B+/BA M+/M+ K+/K+", "B+/BA M+/MB K+/K+", "B+/BA M+/M0 K+/K+", "B+/BA MB/MB K+/K+", "B+/BA MB/M0 K+/K+", "B+/BA M+/M+ K+/KB", "B+/BA M+/MB K+/KB", "B+/BA M+/M0 K+/KB", "B+/BA MB/MB K+/KB", "B+/BA MB/M0 K+/KB", "B+/BA M+/M+ KB/KB", "B+/BA M+/MB KB/KB", "B+/BA M+/M0 KB/KB", "B+/BA MB/MB KB/KB", "B+/BA MB/M0 KB/KB", "B+/BG M+/M+ K+/K+", "B+/BG M+/MB K+/K+", "B+/BG M+/M0 K+/K+", "B+/BG MB/MB K+/K+", "B+/BG MB/M0 K+/K+", "B+/BG M+/M+ K+/KB", "B+/BG M+/MB K+/KB", "B+/BG M+/M0 K+/KB", "B+/BG MB/MB K+/KB", "B+/BG MB/M0 K+/KB", "B+/BG M+/M+ KB/KB", "B+/BG M+/MB KB/KB", "B+/BG M+/M0 KB/KB", "B+/BG MB/MB KB/KB", "B+/BG MB/M0 KB/KB", "B+/BW M+/M+ K+/K+", "B+/BW M+/MB K+/K+", "B+/BW M+/M0 K+/K+", "B+/BW MB/MB K+/K+", "B+/BW MB/M0 K+/K+", "B+/BW M+/M+ K+/KB", "B+/BW M+/MB K+/KB", "B+/BW M+/M0 K+/KB", "B+/BW MB/MB K+/KB", "B+/BW MB/M0 K+/KB", "B+/BW M+/M+ KB/KB", "B+/BW M+/MB KB/KB", "B+/BW M+/M0 KB/KB", "B+/BW MB/MB KB/KB", "B+/BW MB/M0 KB/KB"],
@@ -183,13 +192,13 @@ document.addEventListener('DOMContentLoaded', function() {
         'Cream': ["B+/B+ M0/M0 K+/K+", "B+/B+ M0/M0 K+/KB", "B+/B+ M0/M0 KB/KB", "B+/BA M0/M0 K+/K+", "B+/BA M0/M0 K+/KB", "B+/BA M0/M0 KB/KB", "B+/BG M0/M0 K+/K+", "B+/BG M0/M0 K+/KB", "B+/BG M0/M0 KB/KB", "B+/BW M0/M0 K+/K+", "B+/BW M0/M0 K+/KB", "B+/BW M0/M0 KB/KB"],
         'Lilac': ["BA/BA M0/M0 K+/K+", "BA/BA M0/M0 K+/KB", "BA/BA M0/M0 KB/KB", "BA/BG M0/M0 K+/K+", "BA/BG M0/M0 K+/KB", "BA/BG M0/M0 KB/KB", "BA/BW M0/M0 K+/K+", "BA/BW M0/M0 K+/KB", "BA/BW M0/M0 KB/KB"],
         'Seagreen': ["BG/BG MB/MB K+/K+", "BG/BG MB/MB K+/KB", "BG/BG MB/MB KB/KB", "BG/BW MB/MB K+/K+", "BG/BW MB/MB K+/KB", "BG/BW MB/MB KB/KB"],
-        'Seafoam': ["BG/BG M0/M0 K+/K+", "BG/BG M0/M0 K+/KB", "BG/BG M0/M0 KB/KB", "BG/BW M0/M0 K+/K+", "BG/BW M0/M0 K+/KB", "BG/BW M0/M0 KB/KB"],
+        'Teagreen': ["BG/BG M0/M0 K+/K+", "BG/BG M0/M0 K+/KB", "BG/BG M0/M0 KB/KB", "BG/BW M0/M0 K+/K+", "BG/BW M0/M0 K+/KB", "BG/BW M0/M0 KB/KB"],
         'Slate': ["BW/BW M+/M+ K+/K+", "BW/BW M+/MB K+/K+", "BW/BW M+/M0 K+/K+", "BW/BW MB/M0 K+/K+", "BW/BW M+/M+ K+/KB", "BW/BW M+/MB K+/KB", "BW/BW M+/M0 K+/KB", "BW/BW MB/M0 K+/KB", "BW/BW M+/M+ KB/KB", "BW/BW M+/MB KB/KB", "BW/BW M+/M0 KB/KB", "BW/BW MB/M0 KB/KB"],
         'Blue': ["BW/BW MB/MB K+/K+", "BW/BW MB/MB K+/KB", "BW/BW MB/MB KB/KB"],
     };
     const MANETYPES = ['Natural', 'Razor', 'Sphinx', 'Curly', 'Long', 'Fiery', 'Barbary'];
     const ELEMENTS = ['Fire', 'Water', 'Air', 'Earth', 'Metal', 'Wood', 'Ice', 'Lightning', 'Light', 'Shadow', 'Aether', 'Verdant', 'Unknown'];
-    const BASE_COLORS = ['Tan', 'Brown', 'Green', 'White', 'Black', 'Cream', 'Lilac', 'Seagreen', 'Seafoam', 'Slate', 'Blue'];
+    const BASE_COLORS = Object.keys(GENOTYPES);
 
     const GENE_LIBRARY = {
         Markings: { Dpl: { name: 'Dapples', rarity: 'Common' }, Bt: { name: 'Bellytone', rarity: 'Common' }, Mtl: { name: 'Mantle', rarity: 'Common' }, Clr: { name: 'Collar', rarity: 'Common' }, Ikd: { name: 'Inked', rarity: 'Common' }, Sia: { name: 'Siamese', rarity: 'Common' }, Pnt: { name: 'Points', rarity: 'Common' }, Stn: { name: 'Stained', rarity: 'Common' }, Rn: { name: 'Roan', rarity: 'Common' }, Tby: { name: 'Tabby', rarity: 'Common' }, Spt: { name: 'Spotted', rarity: 'Common' }, Apl: { name: 'Appalosa', rarity: 'Uncommon' }, Mrl: { name: 'Merle', rarity: 'Uncommon' }, Brn: { name: 'Barring', rarity: 'Uncommon' }, Dn: { name: 'Dun', rarity: 'Uncommon' }, Pyn: { name: 'Python', rarity: 'Uncommon' }, Stk: { name: 'Streaks', rarity: 'Uncommon' }, Ovr: { name: 'Overo', rarity: 'Uncommon' }, Rsc: { name: 'Rorscach', rarity: 'Uncommon' }, Pg: { name: 'Pangare', rarity: 'Uncommon' }, Sb: { name: 'Sable', rarity: 'Uncommon' }, Pb: { name: 'Piebald', rarity: 'Rare' }, Gnt: { name: 'Glint', rarity: 'Rare' }, Sf: { name: 'Snowfall', rarity: 'Rare' }, Wd: { name: 'Widow', rarity: 'Rare' }, Dmd: { name: 'Diamond', rarity: 'Rare' }, Spr: { name: 'Spider', rarity: 'Rare' }, Stm: { name: 'Spectrum', rarity: 'Rare' }, Iri: { name: 'Iridescent', rarity: 'Rare' } },
@@ -222,7 +231,7 @@ document.addEventListener('DOMContentLoaded', function() {
     function createParentForm(prefix) {
         const abilities = Object.values(GENE_LIBRARY.Abilities).map(t => t.name);
         return `
-            <div class="mb-3"><label for="${prefix}-species" class="form-label">Species:</label><select id="${prefix}-species" class="form-select">${SPECIES.map(s => `<option value="${s}">${s}</option>`).join('')}</select></div>
+            <div class="mb-3"><label for="${prefix}-species" class="form-label">Species:</label><select id="${prefix}-species" class="form-select">${ACTIVE_SPECIES.map(s => `<option value="${s}">${s}</option>`).join('')}</select></div>
             <div class="mb-3"><label for="${prefix}-age" class="form-label">Age:</label><select id="${prefix}-age" class="form-select">${AGES.map(a => `<option value="${a}">${a}</option>`).join('')}</select></div>
             <div class="mb-3"><label for="${prefix}-manetype" class="form-label">Manetype:</label><select id="${prefix}-manetype" class="form-select">${MANETYPES.map(m => `<option value="${m}">${m}</option>`).join('')}</select></div><hr>
             <h5>Genetics</h5>
@@ -256,32 +265,38 @@ document.addEventListener('DOMContentLoaded', function() {
             let allele1, allele2, key;
             if (part.includes('/')) {
                 [allele1, allele2] = part.split('/');
-                key = allele1 === 'n' ? allele2 : allele1;
+                key = allele1 === 'n' ? allele2.toUpperCase() : allele1.toUpperCase();
             } else if (part.startsWith('n')) {
                 allele1 = 'n';
                 allele2 = part.substring(1);
-                key = allele2;
+                key = allele2.toUpperCase();
             } else {
-                 const match = part.match(/([A-Z][a-z]*)([A-Z][a-z]*)/);
-                 if (match && match[1] === match[2]) {
-                     allele1 = allele2 = key = match[1];
+                 const match = part.match(/([A-Z][a-z]*)([A-Z][a-z]*)/i);
+                 if (match && match[1].toUpperCase() === match[2].toUpperCase()) {
+                     allele1 = allele2 = match[1];
+                     key = allele1.toUpperCase();
                  } else { 
-                     allele1 = allele2 = key = part;
+                     allele1 = allele2 = part;
+                     key = part.toUpperCase();
                  }
             }
-            if (library[key]) {
-                alleleMap[key] = [allele1, allele2].sort();
+            // Find the correct key in the library, case-insensitively
+            const libraryKey = Object.keys(library).find(k => k.toUpperCase() === key);
+            if (libraryKey) {
+                alleleMap[libraryKey] = [allele1, allele2].sort();
             }
         });
         return alleleMap;
     }
 
     function randomizeParent(prefix) { 
-        document.getElementById(`${prefix}-species`).value = getRandom(SPECIES);
+        // Select from active species
+        document.getElementById(`${prefix}-species`).value = getRandom(ACTIVE_SPECIES);
         document.getElementById(`${prefix}-age`).value = getRandom(AGES.slice(2)); 
         document.getElementById(`${prefix}-manetype`).value = getRandom(MANETYPES);
         document.getElementById(`${prefix}-element`).value = getRandom(ELEMENTS.slice(0, -1));
 
+        // Random base color and associated genotype
         const randomColor = getRandom(BASE_COLORS);
         document.getElementById(`${prefix}-base-color`).value = randomColor;
         updateBaseGenetics(prefix);
@@ -290,14 +305,38 @@ document.addEventListener('DOMContentLoaded', function() {
             geneticsDropdown.selectedIndex = Math.floor(Math.random() * geneticsDropdown.options.length);
         }
 
-        document.getElementById(`${prefix}-marking-genetics`).value = "Dpl/Dpl nSpt";
-        document.getElementById(`${prefix}-mutation-genetics`).value = "nVit";
-        document.getElementById(`${prefix}-trait-genetics`).value = "nHo";
+        // Generate random genes
+        const markingKeys = Object.keys(GENE_LIBRARY.Markings);
+        const mutationKeys = Object.keys(GENE_LIBRARY.Mutations);
+        const traitKeys = Object.keys(GENE_LIBRARY.Traits);
         
-        document.querySelectorAll(`#${prefix}-form .ability-checkbox`).forEach(cb => cb.checked = roll(0.2));
-        document.getElementById(`${prefix}-divine-blessing`).checked = roll(0.1);
-        document.getElementById(`${prefix}-savage-boon`).checked = roll(0.1);
-        document.getElementById(`${prefix}-prismatic-aura`).checked = roll(0.1);
+        let markingsStr = "";
+        const numMarkings = Math.floor(Math.random() * 5) + 2; // 2 to 6 markings
+        for (let i = 0; i < numMarkings; i++) {
+            const key = getRandom(markingKeys);
+            markingsStr += roll(0.5) ? `${key}/${key} ` : `n${key} `;
+        }
+
+        let mutationsStr = "";
+        const numMutations = Math.floor(Math.random() * 3); // 0 to 2 mutations
+        for (let i = 0; i < numMutations; i++) {
+            const key = getRandom(mutationKeys);
+            mutationsStr += roll(0.5) ? `${key}/${key} ` : `n${key} `;
+        }
+
+        let traitsStr = "";
+        const numTraits = Math.floor(Math.random() * 3); // 0 to 2 traits
+        for (let i = 0; i < numTraits; i++) {
+            const key = getRandom(traitKeys);
+            traitsStr += roll(0.5) ? `${key}/${key} ` : `n${key} `;
+        }
+        
+        document.getElementById(`${prefix}-marking-genetics`).value = markingsStr.trim();
+        document.getElementById(`${prefix}-mutation-genetics`).value = mutationsStr.trim();
+        document.getElementById(`${prefix}-trait-genetics`).value = traitsStr.trim();
+        
+        // Clear all ability checkboxes
+        document.querySelectorAll(`#${prefix}-form .ability-checkbox`).forEach(cb => cb.checked = false);
     }
     
     function rollBreeding() {
@@ -383,7 +422,6 @@ document.addEventListener('DOMContentLoaded', function() {
         cub.defects = defectsResult.defects;
         cub.fertility = defectsResult.isInfertile ? "Infertile" : "Fertile";
         
-        // Singular properties
         cub.sex = roll(0.5) ? 'Male' : 'Female';
         cub.species = determineSpecies(sire, dam, settings);
         cub.manetype = "Natural";
@@ -391,7 +429,6 @@ document.addEventListener('DOMContentLoaded', function() {
         cub.abilities = determineAbilities(sire, dam);
         cub.inbred = settings.isInbred ? 'Yes' : 'No';
 
-        // Base Genetics (Singular)
         const baseAlleles = {};
         ['B', 'M', 'K'].forEach(locus => {
             const sireL = sire.baseGenetics.split(' ')['BMK'.indexOf(locus)].split('/');
@@ -401,34 +438,29 @@ document.addEventListener('DOMContentLoaded', function() {
         const baseGeno = `${baseAlleles.B.join('/')} ${baseAlleles.M.join('/')} ${baseAlleles.K.join('/')}`;
         cub.baseColor = determinePhenoColor(baseGeno);
         
-        // Inherit primary genes
         const primaryMarkings = inheritGeneCategory(sire, dam, 'Markings');
         const primaryMutations = inheritGeneCategory(sire, dam, 'Mutations');
-        const primaryTraits = inheritGeneCategory(sire, dam, 'Traits'); // Traits are singular
+        const primaryTraits = inheritGeneCategory(sire, dam, 'Traits');
 
         let otherGenes = [...primaryMarkings.inherited, ...primaryMutations.inherited, ...primaryTraits.inherited];
         cub.phenotype = primaryMarkings.pheno.join(', ') || 'None';
         cub.mutations = primaryMutations.pheno.join(', ') || 'None';
         cub.traits = primaryTraits.pheno.join(', ') || 'None';
 
-        // --- CHIMERISM LOGIC ---
-        if (roll(0.01)) { // 1% chance for chimerism
+        if (roll(0.01)) {
             cub.isChimera = true;
             cub.defects.push('Chimerism');
-
             const secondaryMarkings = inheritGeneCategory(sire, dam, 'Markings');
             const secondaryMutations = inheritGeneCategory(sire, dam, 'Mutations');
-
             cub.phenotype += ` // ${secondaryMarkings.pheno.join(', ') || 'None'}`;
             cub.mutations += ` // ${secondaryMutations.pheno.join(', ') || 'None'}`;
-            
             otherGenes.push('//', ...secondaryMarkings.inherited, ...secondaryMutations.inherited);
         }
 
         let mutationChance = 0.015;
         if (settings.moonlitHerb) mutationChance += 0.10;
         if (settings.crane) mutationChance += 0.02;
-        if (roll(mutationChance) && !cub.isChimera) { // Don't add random mutation if chimera for cleaner geno
+        if (roll(mutationChance) && !cub.isChimera) {
             const randomMutationKey = getRandom(Object.keys(GENE_LIBRARY.Mutations));
             if (!otherGenes.some(m => m.includes(randomMutationKey))) {
                 otherGenes.push(`n${randomMutationKey}`);
@@ -479,20 +511,27 @@ document.addEventListener('DOMContentLoaded', function() {
 
     function determineSpecies(sire, dam, settings) { 
         const s = sire.species; const d = dam.species;
+        
+        // With Cyroa disabled, logic simplifies.
+        // If both parents are Thilyarem, the result is Thilyarem.
+        // If a Destrier is involved, the Destrier logic runs.
         let build = 'Thilyarem'; 
-        if (s === 'Cyroa' && d === 'Cyroa') build = 'Cyroa';
-        else if (s === 'Thilyarem' && d === 'Thilyarem') build = 'Thilyarem';
-        else if ((s === 'Cyroa' && d === 'Thilyarem') || (s === 'Thilyarem' && d === 'Cyroa')) { build = roll(0.5) ? 'Cyroa' : 'Thilyarem'; } 
-        else {
+        
+        if (s === 'Destrier' || d === 'Destrier') {
             let destrierChance = 0;
             if (s === 'Destrier' && d === 'Destrier') destrierChance = 0.40;
             else if (s === 'Destrier' || d === 'Destrier') destrierChance = 0.15;
+            
             if (settings.calmingBrow) destrierChance += 0.1;
             if (sire.savageBoon || dam.savageBoon) destrierChance += 0.05;
-            if (roll(destrierChance)) build = 'Destrier';
-            else build = 'Thilyarem';
+            
+            if (roll(destrierChance)) {
+                build = 'Destrier';
+            } else {
+                build = 'Thilyarem';
+            }
         }
-        if (build === 'Cyroa') return { name: 'Panlongus murepera scirto', build: 'Cyroa' };
+        
         if (build === 'Destrier') return { name: 'Panlongus Lykophus Imperator', build: 'Destrier' };
         return { name: 'Panlongus lykophus pelagius', build: 'Thilyarem' };
     }
@@ -581,4 +620,3 @@ document.addEventListener('DOMContentLoaded', function() {
 
 </body>
 </html>
-```
