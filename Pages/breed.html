@@ -174,7 +174,6 @@ document.addEventListener('DOMContentLoaded', function() {
     // --- DATA DEFINITIONS ---
     const SPECIES = ['Cyroa', 'Thilyarem', 'Destrier'];
     const AGES = ['Hatchling', 'Juvenile', 'Adolescent', 'Young Adult', 'Adult', 'Elder', 'Ancient', 'Celestial'];
-    // ... (rest of the data definitions from previous versions) ...
     const GENOTYPES = {
         'Tan': ["B+/B+ M+/M+ K+/K+", "B+/B+ M+/MB K+/K+", "B+/B+ M+/M0 K+/K+", "B+/B+ MB/MB K+/K+", "B+/B+ MB/M0 K+/K+", "B+/B+ M+/M+ K+/KB", "B+/B+ M+/MB K+/KB", "B+/B+ M+/M0 K+/KB", "B+/B+ MB/MB K+/KB", "B+/B+ MB/M0 K+/KB", "B+/B+ M+/M+ KB/KB", "B+/B+ M+/MB KB/KB", "B+/B+ M+/M0 KB/KB", "B+/B+ MB/MB KB/KB", "B+/B+ MB/M0 KB/KB", "B+/BA M+/M+ K+/K+", "B+/BA M+/MB K+/K+", "B+/BA M+/M0 K+/K+", "B+/BA MB/MB K+/K+", "B+/BA MB/M0 K+/K+", "B+/BA M+/M+ K+/KB", "B+/BA M+/MB K+/KB", "B+/BA M+/M0 K+/KB", "B+/BA MB/MB K+/KB", "B+/BA MB/M0 K+/KB", "B+/BA M+/M+ KB/KB", "B+/BA M+/MB KB/KB", "B+/BA M+/M0 KB/KB", "B+/BA MB/MB KB/KB", "B+/BA MB/M0 KB/KB", "B+/BG M+/M+ K+/K+", "B+/BG M+/MB K+/K+", "B+/BG M+/M0 K+/K+", "B+/BG MB/MB K+/K+", "B+/BG MB/M0 K+/K+", "B+/BG M+/M+ K+/KB", "B+/BG M+/MB K+/KB", "B+/BG M+/M0 K+/KB", "B+/BG MB/MB K+/KB", "B+/BG MB/M0 K+/KB", "B+/BG M+/M+ KB/KB", "B+/BG M+/MB KB/KB", "B+/BG M+/M0 KB/KB", "B+/BG MB/MB KB/KB", "B+/BG MB/M0 KB/KB", "B+/BW M+/M+ K+/K+", "B+/BW M+/MB K+/K+", "B+/BW M+/M0 K+/K+", "B+/BW MB/MB K+/K+", "B+/BW MB/M0 K+/K+", "B+/BW M+/M+ K+/KB", "B+/BW M+/MB K+/KB", "B+/BW M+/M0 K+/KB", "B+/BW MB/MB K+/KB", "B+/BW MB/M0 K+/KB", "B+/BW M+/M+ KB/KB", "B+/BW M+/MB KB/KB", "B+/BW M+/M0 KB/KB", "B+/BW MB/MB KB/KB", "B+/BW MB/M0 KB/KB"],
         'Brown': ["BA/BA M+/M+ K+/K+", "BA/BA M+/MB K+/K+", "BA/BA M+/M0 K+/K+", "BA/BA MB/MB K+/K+", "BA/BA MB/M0 K+/K+", "BA/BA M+/M+ K+/KB", "BA/BA M+/MB K+/KB", "BA/BA M+/M0 K+/KB", "BA/BA MB/MB K+/KB", "BA/BA MB/M0 K+/KB", "BA/BA M+/M+ KB/KB", "BA/BA M+/MB KB/KB", "BA/BA M+/M0 KB/KB", "BA/BA MB/MB KB/KB", "BA/BA MB/M0 KB/KB", "BA/BG M+/M+ K+/K+", "BA/BG M+/MB K+/K+", "BA/BG M+/M0 K+/K+", "BA/BG MB/MB K+/K+", "BA/BG MB/M0 K+/K+", "BA/BG M+/M+ K+/KB", "BA/BG M+/MB K+/KB", "BA/BG M+/M0 K+/KB", "BA/BG MB/MB K+/KB", "BA/BG MB/M0 K+/KB", "BA/BG M+/M+ KB/KB", "BA/BG M+/MB KB/KB", "BA/BG M+/M0 KB/KB", "BA/BG MB/MB KB/KB", "BA/BG MB/M0 KB/KB", "BA/BW M+/M+ K+/K+", "BA/BW M+/MB K+/K+", "BA/BW M+/M0 K+/K+", "BA/BW MB/MB K+/K+", "BA/BW MB/M0 K+/K+", "BA/BW M+/M+ K+/KB", "BA/BW M+/MB K+/KB", "BA/BW M+/M0 K+/KB", "BA/BW MB/MB K+/KB", "BA/BW MB/M0 K+/KB", "BA/BW M+/M+ KB/KB", "BA/BW M+/MB KB/KB", "BA/BW M+/M0 KB/KB", "BA/BW MB/MB KB/KB", "BA/BW MB/M0 KB/KB"],
@@ -242,14 +241,14 @@ document.addEventListener('DOMContentLoaded', function() {
             <div class="mb-3"><label class="form-label">Celestial Abilities:</label><div class="form-check"><input class="form-check-input" type="checkbox" id="${prefix}-divine-blessing"><label class="form-check-label" for="${prefix}-divine-blessing">Divine Blessing</label></div><div class="form-check"><input class="form-check-input" type="checkbox" id="${prefix}-savage-boon"><label class="form-check-label" for="${prefix}-savage-boon">Savage Boon</label></div><div class="form-check"><input class="form-check-input" type="checkbox" id="${prefix}-prismatic-aura"><label class="form-check-label" for="${prefix}-prismatic-aura">Prismatic Aura</label></div></div>`;
     }
 
-    function updateBaseGenetics(prefix) { /* ... same as before ... */ 
+    function updateBaseGenetics(prefix) { 
         const color = document.getElementById(`${prefix}-base-color`).value;
         const geneticsDropdown = document.getElementById(`${prefix}-base-genetics`);
         const options = GENOTYPES[color] || [];
         geneticsDropdown.innerHTML = options.map(g => `<option value="${g}">${g}</option>`).join('');
     }
     
-    function parseAlleleString(str, library) { /* ... same as before ... */ 
+    function parseAlleleString(str, library) { 
         const alleleMap = {};
         const parts = str.trim().split(/[\s,]+/);
         parts.forEach(part => {
@@ -277,7 +276,7 @@ document.addEventListener('DOMContentLoaded', function() {
         return alleleMap;
     }
 
-    function randomizeParent(prefix) { /* ... same as before ... */ 
+    function randomizeParent(prefix) { 
         document.getElementById(`${prefix}-species`).value = getRandom(SPECIES);
         document.getElementById(`${prefix}-age`).value = getRandom(AGES.slice(2)); 
         document.getElementById(`${prefix}-manetype`).value = getRandom(MANETYPES);
@@ -320,8 +319,8 @@ document.addEventListener('DOMContentLoaded', function() {
         if (sire.age === 'Adolescent' || dam.age === 'Adolescent') { minCubs = 0; maxCubs = 2; }
         else if (sire.age === 'Young Adult') { minCubs = 1; maxCubs = 3; }
         else if (sire.age === 'Elder') { minCubs = 2; maxCubs = 4; }
-        else if (sire.age === 'Ancient') { minCubs = 2; maxCubs = 3; }
-        else if (sire.age === 'Celestial') { minCubs = 2; maxCubs = 2; }
+        else if (sire.age === 'Ancient') { minCubs = 2, maxCubs = 3; }
+        else if (sire.age === 'Celestial') { minCubs = 2, maxCubs = 2; }
         
         let cubCount = Math.floor(Math.random() * (maxCubs - minCubs + 1)) + minCubs;
         if (settings.crescentHerb && roll(0.5)) cubCount++;
@@ -332,7 +331,7 @@ document.addEventListener('DOMContentLoaded', function() {
         let viableHatchlings = 0;
 
         for (let i = 1; i <= cubCount; i++) {
-            const cub = generateCub(sire, dam, settings, i);
+            const cub = generateCub(sire, dam, settings);
             if (!cub.viable) {
                 output += `================ HATCHLING #${i} ================\n`;
                 output += `Status: ${cub.reason}\n\n`;
@@ -348,7 +347,7 @@ document.addEventListener('DOMContentLoaded', function() {
         showResults(output);
     }
     
-    function generateCub(sire, dam, settings, hatchlingNum) {
+    function generateCub(sire, dam, settings) {
         const cub = { viable: true };
         
         const defectsResult = determineDefects(sire, dam, settings);
@@ -384,8 +383,10 @@ document.addEventListener('DOMContentLoaded', function() {
                 const sireHas = sireAlleles[1] !== 'n';
                 const damHas = damAlleles[1] !== 'n';
                 let passChance = 0;
-                if (sireHas && damHas) passChance = 0.50;
-                else if (sireHas || damHas) passChance = 0.25;
+                // *** DECREASED TRAIT INHERITANCE ***
+                if (sireHas && damHas) passChance = 0.40; // Decreased from 0.50
+                else if (sireHas || damHas) passChance = 0.15; // Decreased from 0.25
+                
                 if (roll(passChance)) {
                     const childAlleles = [getRandom(sireAlleles), getRandom(damAlleles)].sort();
                     if (childAlleles[1] !== 'n') {
@@ -423,12 +424,14 @@ document.addEventListener('DOMContentLoaded', function() {
         if (settings.heartyMeal) riskModifier *= 0.5;
         if (settings.dubiousFood) riskModifier *= 2.0;
 
+        // *** INCREASED DEFECT CHANCES ***
         let baseRisk = 0;
-        if(sire.age === 'Adolescent' || dam.age === 'Adolescent') baseRisk = 0.1;
-        if(settings.isInbred) {
-            if(settings.inbreedLevel === 'Slight') baseRisk += 0.05;
-            if(settings.inbreedLevel === 'Moderate') baseRisk += 0.15;
-            if(settings.inbreedLevel === 'Severe') baseRisk += 0.30;
+        if (sire.age === 'Adolescent' || dam.age === 'Adolescent') baseRisk = 0.20; // Increased from 0.1
+
+        if (settings.isInbred) {
+            if (settings.inbreedLevel === 'Slight') baseRisk += 0.10;      // Increased from 0.05
+            else if (settings.inbreedLevel === 'Moderate') baseRisk += 0.25; // Increased from 0.15
+            else if (settings.inbreedLevel === 'Severe') baseRisk += 0.50;  // Increased from 0.30
         }
         if (settings.dubiousFood) baseRisk += 0.05;
 
@@ -449,11 +452,11 @@ document.addEventListener('DOMContentLoaded', function() {
         return result;
     }
 
-    function determinePhenoColor(geno) { /* ... same as before ... */ 
+    function determinePhenoColor(geno) { 
         for (const color in GENOTYPES) { if (GENOTYPES[color].includes(geno)) return color; } return "Unknown";
     }
 
-    function determineSpecies(sire, dam, settings) { /* ... same as before ... */ 
+    function determineSpecies(sire, dam, settings) { 
         const s = sire.species; const d = dam.species;
         let build = 'Thilyarem'; 
         if (s === 'Cyroa' && d === 'Cyroa') build = 'Cyroa';
@@ -473,7 +476,7 @@ document.addEventListener('DOMContentLoaded', function() {
         return { name: 'Panlongus lykophus pelagius', build: 'Thilyarem' };
     }
     
-    function determineAbilities(sire, dam) { /* ... same as before ... */ 
+    function determineAbilities(sire, dam) { 
         const inheritedAbilities = [];
         Object.keys(GENE_LIBRARY.Abilities).forEach(key => {
             const abilityName = GENE_LIBRARY.Abilities[key].name;
@@ -487,7 +490,7 @@ document.addEventListener('DOMContentLoaded', function() {
         return inheritedAbilities;
     }
 
-    function getParentData(prefix) { /* ... same as before ... */ 
+    function getParentData(prefix) { 
         return {
             species: document.getElementById(`${prefix}-species`).value,
             age: document.getElementById(`${prefix}-age`).value,
@@ -502,7 +505,7 @@ document.addEventListener('DOMContentLoaded', function() {
         };
     }
 
-    function getSettings() { /* ... same as before ... */ 
+    function getSettings() { 
         return {
             isInbred: document.getElementById('inbred-check').checked,
             inbreedLevel: document.getElementById('inbreedingLevel').value,
@@ -516,17 +519,17 @@ document.addEventListener('DOMContentLoaded', function() {
         };
     }
 
-    function showError(message) { /* ... same as before ... */ 
+    function showError(message) { 
         const errorDiv = document.getElementById('error-container');
         errorDiv.textContent = message;
         errorDiv.style.display = 'block';
     }
 
-    function hideError() { /* ... same as before ... */ 
+    function hideError() { 
         document.getElementById('error-container').style.display = 'none';
     }
     
-    function showResults(outputText) { /* ... same as before ... */ 
+    function showResults(outputText) { 
         document.getElementById('results-output').textContent = outputText;
         const resultsModal = new bootstrap.Modal(document.getElementById('resultsModal'));
         resultsModal.show();
@@ -558,7 +561,3 @@ document.addEventListener('DOMContentLoaded', function() {
 </body>
 </html>
 ```
-</script>
-
-</body>
-</html>
