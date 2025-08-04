@@ -21,6 +21,11 @@
             <label for="egg-type">Egg Type:</label>
             <select id="egg-type" class="form-select">
                 <option value="Common">Common</option>
+                <option value="Uncommon">Uncommon</option>
+                <option value="Rare">Rare</option>
+                <option value="Destrier">Destrier</option>
+                <option value="Mystery">Mystery</option>
+                <option value="Cyroas" disabled>Cyroas (Coming Soon)</option>
             </select>
             <button id="roll-btn" class="btn btn-primary me-2">Roll</button>
             <button id="reset-btn" class="btn btn-secondary">Reset</button>
@@ -52,7 +57,7 @@
             class ErrorHandler {
                 static handle(error, context) {
                     const message = `${CONFIG.LOGGING.PREFIX} Error in ${context}: ${error.message}\nStack: ${error.stack}`;
-                    if (CONFIG.LOGGING.ENABLED) Logger.log(message);
+                    Logger.log(message);
                     document.getElementById('error-message').style.display = 'block';
                     document.getElementById('error-message').innerText = `Error: ${error.message}`;
                     return message;
@@ -61,41 +66,67 @@
 
             // Enums and Data
             const Sex = { MALE: 'Male', FEMALE: 'Female' };
-            const Breed = { THIL: 'Thilyarem' };
+            const Breed = { THIL: 'Thilyarem', DEST: 'Destrier', CYROA: 'Cyroas' };
             const ScientificNames = {
-                [Breed.THIL]: 'Panlongus lykophus pelagius'
+                [Breed.THIL]: 'Panlongus lykophus pelagius',
+                [Breed.DEST]: 'Panlongus lykophus imperator',
+                [Breed.CYROA]: 'Panlongus murepera scirto'
             };
             const Element = { 
-                FIRE: 'Fire', WATER: 'Water', AIR: 'Air', EARTH: 'Earth', METAL: 'Metal', 
-                WOOD: 'Wood', ICE: 'Ice', LIGHTNING: 'Lightning', LIGHT: 'Light', 
-                SHADOW: 'Shadow', AETHER: 'Aether', VERDANT: 'Verdant' 
+                FIRE: 'Fire', WATER: 'Water', AIR: 'Air', EARTH: 'Earth', METAL: 'Metal',
+                WOOD: 'Wood', ICE: 'Ice', LIGHTNING: 'Lightning', LIGHT: 'Light',
+                SHADOW: 'Shadow', AETHER: 'Aether', VERDANT: 'Verdant'
             };
             const GeneType = { BASE: 0, MARKING: 1, MUTATION: 2, MANE: 3, TRAIT: 4 };
 
-            const GeneMap = {
+            // GeneMap with a subset of genes
+            const GeneMap = { // Start GeneMap
                 TAN: { 
                     TEXT: 'Tan', 
                     TYPE: GeneType.BASE, 
                     RARITY: 'common', 
-                    EXPRESSED_SETS: [['B+/B+', 'M+/M+'], ['B+/B+', 'M+/M0'], ['B+/BA', 'M+/M+'], ['B+/BA', 'M+/M0']] 
+                    EXPRESSED_SETS: [ // Start EXPRESSED_SETS
+                        ['B+/B+', 'M+/M+'], 
+                        ['B+/B+', 'M+/M0'], 
+                        ['B+/BA', 'M+/M+'], 
+                        ['B+/BA', 'M+/M0']
+                    ] // End EXPRESSED_SETS
                 },
                 CREAM: { 
                     TEXT: 'Cream', 
                     TYPE: GeneType.BASE, 
                     RARITY: 'common', 
-                    EXPRESSED_SETS: [['B+/B+', 'M0/M0'], ['B+/BA', 'M0/M0']] 
+                    EXPRESSED_SETS: [ // Start EXPRESSED_SETS
+                        ['B+/B+', 'M0/M0'], 
+                        ['B+/BA', 'M0/M0']
+                    ] // End EXPRESSED_SETS
+                },
+                GREEN: { 
+                    TEXT: 'Green', 
+                    TYPE: GeneType.BASE, 
+                    RARITY: 'uncommon', 
+                    EXPRESSED_SETS: [ // Start EXPRESSED_SETS
+                        ['BG/BG', 'M+/M+'], 
+                        ['BG/BG', 'M+/M0']
+                    ] // End EXPRESSED_SETS
                 },
                 DAPPLES: { 
                     TEXT: 'Dapples', 
                     TYPE: GeneType.MARKING, 
                     RARITY: 'common', 
-                    EXPRESSED_SETS: [['Dpl/Dpl'], ['Dpl/n']] 
+                    EXPRESSED_SETS: [ // Start EXPRESSED_SETS
+                        ['Dpl/Dpl'], 
+                        ['Dpl/n']
+                    ] // End EXPRESSED_SETS
                 },
                 VITILIGO: { 
                     TEXT: 'Vitiligo', 
                     TYPE: GeneType.MUTATION, 
                     RARITY: 'common', 
-                    EXPRESSED_SETS: [['Vit/Vit'], ['Vit/n']] 
+                    EXPRESSED_SETS: [ // Start EXPRESSED_SETS
+                        ['Vit/Vit'], 
+                        ['Vit/n']
+                    ] // End EXPRESSED_SETS
                 },
                 NATURAL: { 
                     TEXT: 'Natural', 
@@ -106,58 +137,62 @@
                     TEXT: 'Horned', 
                     TYPE: GeneType.TRAIT, 
                     RARITY: 'uncommon', 
-                    EXPRESSED_SETS: [['Hr/Hr'], ['Hr/n']] 
+                    EXPRESSED_SETS: [ // Start EXPRESSED_SETS
+                        ['Hr/Hr'], 
+                        ['Hr/n']
+                    ] // End EXPRESSED_SETS
                 }
-            };
+            }; // End GeneMap
 
-            const loci = [
+            // Loci with corresponding loci
+            const loci = [ // Start loci
                 { 
                     locus: 'B', 
                     category: 'base', 
                     null_allele: 'n', 
-                    genes: [
-                        { allele: 'B+', homozygous_genotype: 'B+/B+', heterozygous_genotypes: ['B+/BA'] },
-                        { allele: 'BA', homozygous_genotype: 'BA/BA', heterozygous_genotypes: [] }
-                    ]
+                    genes: [ // Start genes
+                        { allele: 'B+', homozygous_genotype: 'B+/B+', heterozygous_genotypes: ['B+/BA', 'B+/BG'] },
+                        { allele: 'BA', homozygous_genotype: 'BA/BA', heterozygous_genotypes: [] },
+                        { allele: 'BG', homozygous_genotype: 'BG/BG', heterozygous_genotypes: [] }
+                    ] // End genes
                 },
                 { 
                     locus: 'M', 
                     category: 'base', 
                     null_allele: 'n', 
-                    genes: [
+                    genes: [ // Start genes
                         { allele: 'M+', homozygous_genotype: 'M+/M+', heterozygous_genotypes: ['M+/M0'] },
                         { allele: 'M0', homozygous_genotype: 'M0/M0', heterozygous_genotypes: [] }
-                    ]
-                },
-                { 
-                    locus: 'K', 
-                    category: 'base', 
-                    null_allele: 'n', 
-                    genes: [
-                        { allele: 'K+', homozygous_genotype: 'K+/K+', heterozygous_genotypes: [] }
-                    ]
+                    ] // End genes
                 },
                 { 
                     locus: 'Dpl', 
                     category: 'marking', 
                     null_allele: 'n', 
-                    genes: [{ allele: 'Dpl', homozygous_genotype: 'Dpl/Dpl', heterozygous_genotypes: ['Dpl/n'] }] 
+                    genes: [ // Start genes
+                        { allele: 'Dpl', homozygous_genotype: 'Dpl/Dpl', heterozygous_genotypes: ['Dpl/n'] }
+                    ] // End genes
                 },
                 { 
                     locus: 'Vit', 
                     category: 'mutation', 
                     null_allele: 'n', 
-                    genes: [{ allele: 'Vit', homozygous_genotype: 'Vit/Vit', heterozygous_genotypes: ['Vit/n'] }] 
+                    genes: [ // Start genes
+                        { allele: 'Vit', homozygous_genotype: 'Vit/Vit', heterozygous_genotypes: ['Vit/n'] }
+                    ] // End genes
                 },
                 { 
                     locus: 'Hr', 
                     category: 'trait', 
                     null_allele: 'n', 
-                    genes: [{ allele: 'Hr', homozygous_genotype: 'Hr/Hr', heterozygous_genotypes: ['Hr/n'] }] 
+                    genes: [ // Start genes
+                        { allele: 'Hr', homozygous_genotype: 'Hr/Hr', heterozygous_genotypes: ['Hr/n'] }
+                    ] // End genes
                 }
-            ];
+            ]; // End loci
 
-            const EggRules = {
+            // EggRules with all egg types
+            const EggRules = { // Start EggRules
                 Common: {
                     species: { [Breed.THIL]: 100 },
                     baseColors: ['Tan', 'Cream'],
@@ -167,8 +202,51 @@
                     mutations: { Vitiligo: 20 },
                     traits: { Horned: 10 },
                     modifiers: {}
+                },
+                Uncommon: {
+                    species: { [Breed.THIL]: 100 },
+                    baseColors: ['Green'],
+                    manes: { Natural: 100 },
+                    markings: ['Dapples'],
+                    markingCount: [1, 2],
+                    mutations: { Vitiligo: 25 },
+                    traits: { Horned: 15 },
+                    modifiers: {}
+                },
+                Rare: {
+                    species: { [Breed.THIL]: 100 },
+                    baseColors: ['Green'],
+                    manes: { Natural: 100 },
+                    markings: ['Dapples'],
+                    markingCount: [1, 3],
+                    mutations: { Vitiligo: 30 },
+                    traits: { Horned: 20 },
+                    modifiers: {}
+                },
+                Destrier: {
+                    species: { [Breed.DEST]: 100 },
+                    baseColors: ['Tan', 'Cream'],
+                    manes: { Natural: 100 },
+                    markings: ['Dapples'],
+                    markingCount: [1, 2],
+                    mutations: { Vitiligo: 25 },
+                    traits: { Horned: 15 },
+                    modifiers: {}
+                },
+                Mystery: {
+                    species: { [Breed.THIL]: 95, [Breed.DEST]: 5 },
+                    baseColors: ['Tan', 'Cream', 'Green'],
+                    manes: {
+                        [Breed.THIL]: { Natural: 100 },
+                        [Breed.DEST]: { Natural: 100 }
+                    },
+                    markings: ['Dapples'],
+                    markingCount: [1, 3],
+                    mutations: { Vitiligo: 25 },
+                    traits: { Horned: 15 },
+                    modifiers: {}
                 }
-            };
+            }; // End EggRules
 
             // Helper Classes
             class PhenotypeHelper {
@@ -190,12 +268,13 @@
                         const has = (allele) => genes.some(g => g === allele || g.includes(`/${allele}`) || g.includes(`${allele}/`));
                         
                         let baseCoat = 'Tan';
-                        if (has('B+/B+') || has('B+/BA')) {
+                        if (has('BG/BG')) {
+                            baseCoat = 'Green';
+                        } else if (has('B+/B+') || has('B+/BA')) {
                             baseCoat = has('M0/M0') ? 'Cream' : 'Tan';
                         }
 
                         let expressed = [];
-                        const carried = [];
                         for (const pheno of phenotypeData) {
                             if (pheno.TYPE !== GeneType.BASE && pheno.TYPE !== GeneType.MANE) {
                                 if (pheno.EXPRESSED_SETS?.some(set => set.every(gene => has(gene)))) {
@@ -211,7 +290,6 @@
                         if (traits.length) phenoString += ` [${traits.join(', ')}]`;
                         const mutations = expressed.filter(p => GeneMap[p.toUpperCase()]?.TYPE === GeneType.MUTATION);
                         if (mutations.length) phenoString += ` {${mutations.join(', ')}}`;
-                        if (carried.length) phenoString += ` (${carried.join(', ')})`;
 
                         this.phenotypeCache.set(cacheKey, phenoString);
                         Logger.log(`${CONFIG.LOGGING.PREFIX} Phenotype calculated: ${phenoString}`);
@@ -331,17 +409,11 @@
                         genotype.push(set);
                     });
 
-                    // Ensure K locus is always present
-                    if (!genotype.some(g => g.startsWith('K'))) {
-                        Logger.log(`${CONFIG.LOGGING.PREFIX} Adding default K locus: K+/K+`);
-                        genotype.push('K+/K+');
-                    }
-
                     Logger.log(`${CONFIG.LOGGING.PREFIX} Final genotype: ${genotype.join(' ')}`);
                     return genotype;
                 } catch (e) {
                     ErrorHandler.handle(e, 'getRandomGenotype');
-                    return ['K+/K+'];
+                    return ['B+/B+'];
                 }
             }
 
