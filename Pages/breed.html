@@ -202,7 +202,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const BASE_COLORS = Object.keys(GENOTYPES);
 
     const GENE_LIBRARY = {
-        BaseModifiers: { Vl: { name: 'Violet', rarity: 'Rare' }, Vm: { name: 'Vermillion', rarity: 'Rare' }, Jd: { name: 'Jade', rarity: 'Rare' }, Am: { name: 'Amber', rarity: 'Rare' } },
+        BaseModifiers: { Vl: { name: 'Violet', rarity: 'Rare' }, Vm: { name: 'Vermillion', rarity: 'Rare' }, Jd: { name: 'Jade', rarity: 'Rare' }, Am: { name: 'Amber', rarity: 'Rare' }, Prl: { name: 'Pearl', rarity: 'Rare' } },
         Markings: { Dpl: { name: 'Dapples', rarity: 'Common' }, Bt: { name: 'Bellytone', rarity: 'Common' }, Mtl: { name: 'Mantle', rarity: 'Common' }, Clr: { name: 'Collar', rarity: 'Common' }, Ikd: { name: 'Inked', rarity: 'Common' }, Sia: { name: 'Siamese', rarity: 'Common' }, Pnt: { name: 'Points', rarity: 'Common' }, Stn: { name: 'Stained', rarity: 'Common' }, Rn: { name: 'Roan', rarity: 'Common' }, Tby: { name: 'Tabby', rarity: 'Common' }, Spt: { name: 'Spotted', rarity: 'Common' }, Apl: { name: 'Appalosa', rarity: 'Uncommon' }, Mrl: { name: 'Merle', rarity: 'Uncommon' }, Brn: { name: 'Barring', rarity: 'Uncommon' }, Dn: { name: 'Dun', rarity: 'Uncommon' }, Pyn: { name: 'Python', rarity: 'Uncommon' }, Stk: { name: 'Streaks', rarity: 'Uncommon' }, Ovr: { name: 'Overo', rarity: 'Uncommon' }, Rsc: { name: 'Rorscach', rarity: 'Uncommon' }, Pg: { name: 'Pangare', rarity: 'Uncommon' }, Sb: { name: 'Sable', rarity: 'Uncommon' }, Pb: { name: 'Piebald', rarity: 'Rare' }, Gnt: { name: 'Glint', rarity: 'Rare' }, Sf: { name: 'Snowfall', rarity: 'Rare' }, Wd: { name: 'Widow', rarity: 'Rare' }, Dmd: { name: 'Diamond', rarity: 'Rare' }, Spr: { name: 'Spider', rarity: 'Rare' }, Stm: { name: 'Spectrum', rarity: 'Rare' }, Iri: { name: 'Iridescent', rarity: 'Rare' } },
         Mutations: { Vit: { name: 'Vitiligo', rarity: 'Common' }, Inv: { name: 'Inversa', rarity: 'Uncommon' }, Les: { name: 'Leucistic', rarity: 'Uncommon' }, Alb: { name: 'Albino', rarity: 'Uncommon' }, Axg: { name: 'Axanthic -G', rarity: 'Uncommon' }, Ery: { name: 'Erythristic', rarity: 'Rare' }, Lva: { name: 'Lavender Albino', rarity: 'Rare' }, Axm: { name: 'Axanthic-M', rarity: 'Rare' } },
         Traits: { Ho: { name: 'Horns', rarity: 'Uncommon' }, Fg: { name: 'Fangs', rarity: 'Uncommon' }, Sp: { name: 'Spines', rarity: 'Rare' } },
@@ -497,9 +497,16 @@ document.addEventListener('DOMContentLoaded', function() {
         cub.fertility = determineOffspringFertility(sire, dam, settings, defectsResult);
 
         const baseAlleles = {};
+        const sireBaseGeno = sire.primary.baseGenetics;
+        const damBaseGeno = dam.primary.baseGenetics;
+
+        if (!sireBaseGeno || sireBaseGeno.split(' ').length < 3 || !damBaseGeno || damBaseGeno.split(' ').length < 3) {
+            return { viable: false, reason: 'Parental Genetic Error' };
+        }
+
         ['B', 'M', 'K'].forEach(locus => {
-            const sireL = sire.primary.baseGenetics.split(' ')['BMK'.indexOf(locus)].split('/');
-            const damL = dam.primary.baseGenetics.split(' ')['BMK'.indexOf(locus)].split('/');
+            const sireL = sireBaseGeno.split(' ')['BMK'.indexOf(locus)].split('/');
+            const damL = damBaseGeno.split(' ')['BMK'.indexOf(locus)].split('/');
             baseAlleles[locus] = [getRandom(sireL), getRandom(damL)].sort();
         });
         const baseGeno = `${baseAlleles.B.join('/')} ${baseAlleles.M.join('/')} ${baseAlleles.K.join('/')}`;
@@ -623,8 +630,9 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     function determinePhenoColor(geno) {
+        const trimmedGeno = geno.trim();
         for (const color in GENOTYPES) { 
-            if (GENOTYPES[color].includes(geno)) return color; 
+            if (GENOTYPES[color].includes(trimmedGeno)) return color; 
         } 
         return "Unknown";
     }
@@ -702,3 +710,51 @@ document.addEventListener('DOMContentLoaded', function() {
             crane: document.getElementById('crane-companion').checked,
         };
     }
+
+    function showError(message) { 
+        const errorDiv = document.getElementById('error-container');
+        errorDiv.textContent = message;
+        errorDiv.style.display = 'block';
+    }
+
+    function hideError() { 
+        document.getElementById('error-container').style.display = 'none';
+    }
+    
+    function showResults(outputHTML) { 
+        document.getElementById('results-output').innerHTML = outputHTML;
+        const resultsModal = new bootstrap.Modal(document.getElementById('resultsModal'));
+        resultsModal.show();
+    }
+    
+    function init() {
+        document.getElementById('sire-form').innerHTML = createParentForm('sire');
+        document.getElementById('dam-form').innerHTML = createParentForm('dam');
+        randomizeParent('sire');
+        randomizeParent('dam');
+        document.getElementById('roll-btn').addEventListener('click', rollBreeding);
+        document.getElementById('randomize-all-btn').addEventListener('click', () => {
+            randomizeParent('sire');
+            randomizeParent('dam');
+        });
+        document.querySelectorAll('.base-color-selector').forEach(sel => {
+            sel.addEventListener('change', (e) => updateBaseGenetics(e.target.dataset.prefix));
+            updateBaseGenetics(sel.dataset.prefix);
+        });
+        document.querySelectorAll('.chimera-check').forEach(chk => {
+            chk.addEventListener('change', (e) => {
+                const prefix = e.target.dataset.prefix;
+                document.getElementById(`${prefix}-chimera-section`).style.display = e.target.checked ? 'block' : 'none';
+            });
+        });
+        document.getElementById('inbred-check').addEventListener('change', (e) => {
+            document.querySelector('.inbreed-details').style.display = e.target.checked ? 'block' : 'none';
+        });
+    }
+
+    init();
+});
+</script>
+
+</body>
+</html>
