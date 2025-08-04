@@ -268,18 +268,14 @@ document.addEventListener('DOMContentLoaded', function() {
             let allele1, allele2, key;
             if (part.includes('/')) {
                 [allele1, allele2] = part.split('/');
-                key = (allele1 === 'n' ? allele2 : allele1).toUpperCase();
-            } else if (part.startsWith('n')) { // Legacy support for nAllele
-                allele1 = 'n';
-                allele2 = part.substring(1);
-                key = allele2.toUpperCase();
+                key = (allele1.toLowerCase() === 'n' ? allele2 : allele1).toUpperCase();
             } else { // Assumes homozygous if no '/'
                  allele1 = allele2 = part;
                  key = part.toUpperCase();
             }
             const libraryKey = Object.keys(library).find(k => k.toUpperCase() === key);
             if (libraryKey) {
-                alleleMap[libraryKey] = [allele1, allele2].sort();
+                alleleMap[libraryKey] = [allele1, allele2];
             }
         });
         return alleleMap;
@@ -361,10 +357,10 @@ document.addEventListener('DOMContentLoaded', function() {
         
         let cubCount = (maxCubs > 0) ? Math.floor(Math.random() * (maxCubs - minCubs + 1)) + minCubs : 0;
 
-        if (settings.crescentHerb && roll(0.52)) cubCount++; // +2% item buff
+        if (settings.crescentHerb && roll(0.52)) cubCount++;
         if (settings.moonlitHerb) {
             cubCount += Math.floor(Math.random() * 3);
-            if (roll(0.02)) cubCount++; // +2% item buff
+            if (roll(0.02)) cubCount++;
         }
         if (settings.bondBreeding) cubCount++;
         
@@ -407,11 +403,11 @@ document.addEventListener('DOMContentLoaded', function() {
             const geneInfo = lib[key];
             const sireAlleles = sireGenes[key] || ['n', 'n'];
             const damAlleles = damGenes[key] || ['n', 'n'];
-            const sireHas = sireAlleles.includes(key);
-            const damHas = damAlleles.includes(key);
+            const sireHas = sireAlleles.some(a => a.toLowerCase() !== 'n');
+            const damHas = damAlleles.some(a => a.toLowerCase() !== 'n');
 
             let passChance = 0;
-            const basePass = (sireHas && damHas) ? 0.40 : 0.15;
+            const basePass = (sireHas && damHas) ? 0.35 : 0.15; // Base pass rates
             
             if (geneInfo.rarity === 'Common') passChance = basePass + 0.10;
             else if (geneInfo.rarity === 'Uncommon') passChance = basePass + 0.05;
@@ -421,21 +417,28 @@ document.addEventListener('DOMContentLoaded', function() {
             if (roll(passChance)) {
                 const childAlleles = [getRandom(sireAlleles), getRandom(damAlleles)].sort();
                 
-                if (childAlleles.includes(key)) { // If the gene is present at all
-                    const isHomozygous = childAlleles[0] === key && childAlleles[1] === key;
+                if (childAlleles.some(a => a.toLowerCase() !== 'n')) {
+                    const isHomozygous = childAlleles[0].toLowerCase() !== 'n' && childAlleles[1].toLowerCase() !== 'n';
                     
-                    // Add to genotype string
                     inherited.push(isHomozygous ? `${key}/${key}` : `${key}/n`);
 
-                    // Check for phenotype expression
-                    if (geneInfo.rarity === 'Common' || geneInfo.rarity === 'Uncommon') {
-                        pheno.push(geneInfo.name);
-                    } else if (geneInfo.rarity === 'Rare') {
-                        if (isHomozygous) {
-                            pheno.push(geneInfo.name);
-                        } else {
-                            carried.push(geneInfo.name);
+                    let expressesPhenotypically = false;
+                    if (category === 'Markings') {
+                        if (geneInfo.rarity === 'Common' || geneInfo.rarity === 'Uncommon') {
+                            expressesPhenotypically = true;
+                        } else if (geneInfo.rarity === 'Rare' && isHomozygous) {
+                            expressesPhenotypically = true;
                         }
+                    } else { // Mutations and Traits
+                        if (isHomozygous) {
+                            expressesPhenotypically = true;
+                        }
+                    }
+
+                    if (expressesPhenotypically) {
+                        pheno.push(geneInfo.name);
+                    } else {
+                        carried.push(geneInfo.name);
                     }
                 }
             }
@@ -489,7 +492,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
         let mutationChance = 0.015;
         if (settings.moonlitHerb) mutationChance += 0.10;
-        if (settings.crane) mutationChance += 0.04; // +2% buff
+        if (settings.crane) mutationChance += 0.04;
         if (roll(mutationChance) && !cub.isChimera) {
             const randomMutationKey = getRandom(Object.keys(GENE_LIBRARY.Mutations));
             if (!otherGenes.some(m => m.includes(randomMutationKey))) {
@@ -510,11 +513,11 @@ document.addEventListener('DOMContentLoaded', function() {
         if (settings.dubiousFood) riskModifier *= 2.0;
 
         let baseRisk = 0;
-        if (sire.age === 'Adolescent' || dam.age === 'Adolescent') baseRisk = 0.35; // Increased
+        if (sire.age === 'Adolescent' || dam.age === 'Adolescent') baseRisk = 0.45; // Increased
         if (settings.isInbred) {
-            if (settings.inbreedLevel === 'Slight') baseRisk += 0.25;      // Increased
-            else if (settings.inbreedLevel === 'Moderate') baseRisk += 0.55; // Increased
-            else if (settings.inbreedLevel === 'Severe') baseRisk += 0.90;  // Increased
+            if (settings.inbreedLevel === 'Slight') baseRisk += 0.35;      // Increased
+            else if (settings.inbreedLevel === 'Moderate') baseRisk += 0.65; // Increased
+            else if (settings.inbreedLevel === 'Severe') baseRisk += 0.95;  // Increased
         }
         if (settings.dubiousFood) baseRisk += 0.05;
 
@@ -556,18 +559,23 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     function determineManetype(sire, dam, settings) {
-        if (settings.questionablePotion && roll(0.25)) return getRandom(MANETYPES);
+        if (settings.questionablePotion && roll(0.27)) return getRandom(MANETYPES); // +2% buff
 
         const sireMane = sire.manetype;
         const damMane = dam.manetype;
 
+        if (sireMane === 'Natural' && damMane === 'Natural') {
+            if (roll(0.95)) return 'Natural';
+            return 'Razor';
+        }
+
         if (sireMane === damMane) {
-            if (roll(0.85)) return sireMane;
-            if (roll(0.10)) return 'Natural';
+            if (roll(0.80)) return sireMane;
+            if (roll(0.15)) return 'Natural';
             return getRandom(MANETYPES.filter(m => m !== sireMane));
         } else {
-            if (roll(0.60)) return 'Natural';
-            if (roll(0.50)) return sireMane; // 50% chance of the remaining 40%
+            if (roll(0.70)) return 'Natural'; // Increased chance for Natural
+            if (roll(0.50)) return sireMane; 
             return damMane;
         }
     }
@@ -583,7 +591,7 @@ document.addEventListener('DOMContentLoaded', function() {
             let destrierChance = 0;
             if (s === 'Destrier' && d === 'Destrier') destrierChance = 0.40;
             else if (s === 'Destrier' || d === 'Destrier') destrierChance = 0.15;
-            if (settings.calmingBrow) destrierChance += 0.12; // +2% item buff
+            if (settings.calmingBrow) destrierChance += 0.12;
             if (sire.savageBoon || dam.savageBoon) destrierChance += 0.05;
             if (roll(destrierChance)) { build = 'Destrier'; }
         }
@@ -598,8 +606,8 @@ document.addEventListener('DOMContentLoaded', function() {
             const sireHas = sire.abilities.includes(abilityName);
             const damHas = dam.abilities.includes(abilityName);
             let passChance = 0;
-            if (sireHas && damHas) passChance = 0.25; // Decreased
-            else if (sireHas || damHas) passChance = 0.10; // Decreased
+            if (sireHas && damHas) passChance = 0.20; // Decreased
+            else if (sireHas || damHas) passChance = 0.08; // Decreased
             if(roll(passChance)) inheritedAbilities.push(abilityName);
         });
         return inheritedAbilities;
