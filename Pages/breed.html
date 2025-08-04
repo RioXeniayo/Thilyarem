@@ -1,4 +1,12 @@
+Of course\! That's a great clarification for chimerism, making it a more specific and interesting genetic anomaly. I've made the adjustment.
 
+The chimerism logic has been moved *inside* the single cub generation process. Now, when a chimera occurs, it will only generate a second set of markings and inherited mutations, which will be displayed with a `//` separator. All other aspects of the cub (species, build, base color, traits, etc.) will remain singular.
+
+This should be the final, perfected version based on all of our refinements. Here is the complete code:
+
+-----
+
+```html
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -233,7 +241,7 @@ document.addEventListener('DOMContentLoaded', function() {
             <div class="mb-3"><label for="${prefix}-marking-genetics" class="form-label">Marking Genetics:</label><textarea id="${prefix}-marking-genetics" class="form-control" rows="2" placeholder="e.g., Dpl/Dpl nSpt..."></textarea></div>
             <div class="mb-3"><label for="${prefix}-mutation-genetics" class="form-label">Mutation Genetics:</label><textarea id="${prefix}-mutation-genetics" class="form-control" rows="2" placeholder="e.g., nVit..."></textarea></div>
             <div class="mb-3"><label for="${prefix}-trait-genetics" class="form-label">Trait Genetics (Physical):</label><textarea id="${prefix}-trait-genetics" class="form-control" rows="2" placeholder="e.g., Ho/nHo Fg/Fg..."></textarea></div>
-            <div class="form-check mb-3"><input class="form-check-input chimera-check" type="checkbox" id="${prefix}-chimera-check" data-prefix="${prefix}"><label class="form-check-label" for="${prefix}-chimera-check">Chimerism</label></div>
+            <div class="form-check mb-3"><input class="form-check-input chimera-check" type="checkbox" id="${prefix}-chimera-check" data-prefix="${prefix}" disabled><label class="form-check-label" for="${prefix}-chimera-check">Chimerism (Handled by random roll)</label></div>
             <div class="chimera-section" id="${prefix}-chimera-section"></div><hr>
             <h5>Element & Abilities</h5>
             <div class="mb-3"><label for="${prefix}-element" class="form-label">Inborn Element:</label><select id="${prefix}-element" class="form-select">${ELEMENTS.slice(0,-1).map(e => `<option value="${e}">${e}</option>`).join('')}</select></div>
@@ -339,6 +347,7 @@ document.addEventListener('DOMContentLoaded', function() {
             }
             viableHatchlings++;
             output += `================ HATCHLING #${viableHatchlings} ================\n`;
+            if (cub.isChimera) output += `** Chimeric Markings/Mutations **\n`;
             output += `Species: ${cub.species.name}\nBuild: ${cub.species.build}\nSex: ${cub.sex}\nManetype: ${cub.manetype}\nElement: ${cub.element}\n`;
             output += `Base Color: ${cub.baseColor}\nGenotype: ${cub.genotype}\nPhenotype: ${cub.phenotype}\n`;
             output += `Mutations: ${cub.mutations}\nTraits: ${cub.traits}\nAbilities: ${cub.abilities.join(', ') || 'None'}\n`;
@@ -347,20 +356,50 @@ document.addEventListener('DOMContentLoaded', function() {
         showResults(output);
     }
     
+    const inheritGeneCategory = (sire, dam, category) => {
+        const inherited = [];
+        const pheno = [];
+        const lib = GENE_LIBRARY[category];
+        const sireGenes = sire[category.toLowerCase()];
+        const damGenes = dam[category.toLowerCase()];
+        const allGeneKeys = [...new Set([...Object.keys(sireGenes), ...Object.keys(damGenes)])];
+        
+        allGeneKeys.forEach(key => {
+            const sireAlleles = sireGenes[key] || ['n', 'n'];
+            const damAlleles = damGenes[key] || ['n', 'n'];
+            const sireHas = sireAlleles[1] !== 'n';
+            const damHas = damAlleles[1] !== 'n';
+            let passChance = 0;
+            if (sireHas && damHas) passChance = 0.40;
+            else if (sireHas || damHas) passChance = 0.15;
+            
+            if (roll(passChance)) {
+                const childAlleles = [getRandom(sireAlleles), getRandom(damAlleles)].sort();
+                if (childAlleles[1] !== 'n') {
+                    inherited.push(childAlleles[0] === 'n' ? `n${key}` : `${key}/${key}`);
+                    if (childAlleles.includes(key)) { pheno.push(lib[key].name); }
+                }
+            }
+        });
+        return { inherited, pheno };
+    };
+
     function generateCub(sire, dam, settings) {
-        const cub = { viable: true };
-        
+        const cub = { viable: true, isChimera: false };
         const defectsResult = determineDefects(sire, dam, settings);
-        if (defectsResult.reason) return defectsResult; // Not viable
-        
+        if (defectsResult.reason) return defectsResult;
         cub.defects = defectsResult.defects;
         cub.fertility = defectsResult.isInfertile ? "Infertile" : "Fertile";
         
+        // Singular properties
         cub.sex = roll(0.5) ? 'Male' : 'Female';
         cub.species = determineSpecies(sire, dam, settings);
-        cub.manetype = "Natural"; // Simplified
+        cub.manetype = "Natural";
         cub.element = roll(0.5) ? sire.element : dam.element;
-        
+        cub.abilities = determineAbilities(sire, dam);
+        cub.inbred = settings.isInbred ? 'Yes' : 'No';
+
+        // Base Genetics (Singular)
         const baseAlleles = {};
         ['B', 'M', 'K'].forEach(locus => {
             const sireL = sire.baseGenetics.split(' ')['BMK'.indexOf(locus)].split('/');
@@ -370,50 +409,42 @@ document.addEventListener('DOMContentLoaded', function() {
         const baseGeno = `${baseAlleles.B.join('/')} ${baseAlleles.M.join('/')} ${baseAlleles.K.join('/')}`;
         cub.baseColor = determinePhenoColor(baseGeno);
         
-        const inherited = { Markings: [], Mutations: [], Traits: [] };
-        const pheno = { Markings: [], Mutations: [], Traits: [] };
-        ['Markings', 'Mutations', 'Traits'].forEach(category => {
-            const lib = GENE_LIBRARY[category];
-            const sireGenes = sire[category.toLowerCase()];
-            const damGenes = dam[category.toLowerCase()];
-            const allGeneKeys = [...new Set([...Object.keys(sireGenes), ...Object.keys(damGenes)])];
-            allGeneKeys.forEach(key => {
-                const sireAlleles = sireGenes[key] || ['n', 'n'];
-                const damAlleles = damGenes[key] || ['n', 'n'];
-                const sireHas = sireAlleles[1] !== 'n';
-                const damHas = damAlleles[1] !== 'n';
-                let passChance = 0;
-                // *** DECREASED TRAIT INHERITANCE ***
-                if (sireHas && damHas) passChance = 0.40; // Decreased from 0.50
-                else if (sireHas || damHas) passChance = 0.15; // Decreased from 0.25
-                
-                if (roll(passChance)) {
-                    const childAlleles = [getRandom(sireAlleles), getRandom(damAlleles)].sort();
-                    if (childAlleles[1] !== 'n') {
-                        inherited[category].push(childAlleles[0] === 'n' ? `n${key}` : `${key}/${key}`);
-                        if (childAlleles.includes(key)) { pheno[category].push(lib[key].name); }
-                    }
-                }
-            });
-        });
-        
+        // Inherit primary genes
+        const primaryMarkings = inheritGeneCategory(sire, dam, 'Markings');
+        const primaryMutations = inheritGeneCategory(sire, dam, 'Mutations');
+        const primaryTraits = inheritGeneCategory(sire, dam, 'Traits'); // Traits are singular
+
+        let otherGenes = [...primaryMarkings.inherited, ...primaryMutations.inherited, ...primaryTraits.inherited];
+        cub.phenotype = primaryMarkings.pheno.join(', ') || 'None';
+        cub.mutations = primaryMutations.pheno.join(', ') || 'None';
+        cub.traits = primaryTraits.pheno.join(', ') || 'None';
+
+        // --- CHIMERISM LOGIC ---
+        if (roll(0.01)) { // 1% chance for chimerism
+            cub.isChimera = true;
+            cub.defects.push('Chimerism');
+
+            const secondaryMarkings = inheritGeneCategory(sire, dam, 'Markings');
+            const secondaryMutations = inheritGeneCategory(sire, dam, 'Mutations');
+
+            cub.phenotype += ` // ${secondaryMarkings.pheno.join(', ') || 'None'}`;
+            cub.mutations += ` // ${secondaryMutations.pheno.join(', ') || 'None'}`;
+            
+            otherGenes.push('//', ...secondaryMarkings.inherited, ...secondaryMutations.inherited);
+        }
+
         let mutationChance = 0.015;
         if (settings.moonlitHerb) mutationChance += 0.10;
         if (settings.crane) mutationChance += 0.02;
-        if (roll(mutationChance)) {
+        if (roll(mutationChance) && !cub.isChimera) { // Don't add random mutation if chimera for cleaner geno
             const randomMutationKey = getRandom(Object.keys(GENE_LIBRARY.Mutations));
-            if (!inherited.Mutations.some(m => m.includes(randomMutationKey))) {
-                inherited.Mutations.push(`n${randomMutationKey}`);
+            if (!otherGenes.some(m => m.includes(randomMutationKey))) {
+                otherGenes.push(`n${randomMutationKey}`);
             }
         }
         
-        const otherGenes = [...inherited.Markings, ...inherited.Mutations, ...inherited.Traits].join(' ');
-        cub.genotype = baseGeno + (otherGenes ? ` ${otherGenes}` : '');
-        cub.phenotype = pheno.Markings.join(', ') || 'None';
-        cub.mutations = pheno.Mutations.join(', ') || 'None';
-        cub.traits = pheno.Traits.join(', ') || 'None';
-        cub.abilities = determineAbilities(sire, dam);
-        cub.inbred = settings.isInbred ? 'Yes' : 'No';
+        const otherGenesString = otherGenes.join(' ');
+        cub.genotype = baseGeno + (otherGenesString ? ` ${otherGenesString}` : '');
         
         return cub;
     }
@@ -424,18 +455,16 @@ document.addEventListener('DOMContentLoaded', function() {
         if (settings.heartyMeal) riskModifier *= 0.5;
         if (settings.dubiousFood) riskModifier *= 2.0;
 
-        // *** INCREASED DEFECT CHANCES ***
         let baseRisk = 0;
-        if (sire.age === 'Adolescent' || dam.age === 'Adolescent') baseRisk = 0.20; // Increased from 0.1
-
+        if (sire.age === 'Adolescent' || dam.age === 'Adolescent') baseRisk = 0.20;
         if (settings.isInbred) {
-            if (settings.inbreedLevel === 'Slight') baseRisk += 0.10;      // Increased from 0.05
-            else if (settings.inbreedLevel === 'Moderate') baseRisk += 0.25; // Increased from 0.15
-            else if (settings.inbreedLevel === 'Severe') baseRisk += 0.50;  // Increased from 0.30
+            if (settings.inbreedLevel === 'Slight') baseRisk += 0.10;
+            else if (settings.inbreedLevel === 'Moderate') baseRisk += 0.25;
+            else if (settings.inbreedLevel === 'Severe') baseRisk += 0.50;
         }
         if (settings.dubiousFood) baseRisk += 0.05;
 
-        if (roll(baseRisk)) { // If the base risk roll succeeds, check for specific defects
+        if (roll(baseRisk)) {
             for (const defect in DEFECTS) {
                 const data = DEFECTS[defect];
                 const isApplicable = !settings.isInbred || data.levels[settings.inbreedLevel];
