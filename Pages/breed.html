@@ -245,8 +245,12 @@ document.addEventListener('DOMContentLoaded', function() {
             <div class="mb-3"><label for="${prefix}-marking-genetics" class="form-label">Marking Genetics:</label><textarea id="${prefix}-marking-genetics" class="form-control" rows="2" placeholder="e.g., Dpl/Dpl Spt/n..."></textarea></div>
             <div class="mb-3"><label for="${prefix}-mutation-genetics" class="form-label">Mutation Genetics:</label><textarea id="${prefix}-mutation-genetics" class="form-control" rows="2" placeholder="e.g., Vit/n..."></textarea></div>
             <div class="mb-3"><label for="${prefix}-trait-genetics" class="form-label">Trait Genetics (Physical):</label><textarea id="${prefix}-trait-genetics" class="form-control" rows="2" placeholder="e.g., Ho/n Fg/Fg..."></textarea></div>
-            <div class="form-check mb-3"><input class="form-check-input chimera-check" type="checkbox" id="${prefix}-chimera-check" data-prefix="${prefix}" disabled><label class="form-check-label" for="${prefix}-chimera-check">Chimerism (Handled by random roll)</label></div>
-            <div class="chimera-section" id="${prefix}-chimera-section"></div><hr>
+            <div class="form-check mb-3"><input class="form-check-input chimera-check" type="checkbox" id="${prefix}-chimera-check" data-prefix="${prefix}"><label class="form-check-label" for="${prefix}-chimera-check">Chimerism</label></div>
+            <div class="chimera-section" id="${prefix}-chimera-section">
+                 <h6>Chimera Genetics (Markings & Mutations Only)</h6>
+                 <div class="mb-3"><label for="${prefix}-chimera-marking-genetics" class="form-label">Marking Genetics:</label><textarea id="${prefix}-chimera-marking-genetics" class="form-control" rows="2" placeholder="e.g., Dpl/Dpl Spt/n..."></textarea></div>
+                 <div class="mb-3"><label for="${prefix}-chimera-mutation-genetics" class="form-label">Mutation Genetics:</label><textarea id="${prefix}-chimera-mutation-genetics" class="form-control" rows="2" placeholder="e.g., Vit/n..."></textarea></div>
+            </div><hr>
             <h5>Element & Abilities</h5>
             <div class="mb-3"><label for="${prefix}-element" class="form-label">Inborn Element:</label><select id="${prefix}-element" class="form-select">${ELEMENTS.slice(0,-1).map(e => `<option value="${e}">${e}</option>`).join('')}</select></div>
             <div class="mb-3"><label class="form-label">Abilities:</label><div class="row">${abilities.map(ability => `<div class="col-6 col-sm-4"><div class="form-check"><input class="form-check-input ability-checkbox" type="checkbox" value="${ability}" id="${prefix}-ability-${ability.replace(/ /g, '_')}"><label class="form-check-label" for="${prefix}-ability-${ability.replace(/ /g, '_')}">${ability}</label></div></div>`).join('')}</div></div>
@@ -269,7 +273,7 @@ document.addEventListener('DOMContentLoaded', function() {
             if (part.includes('/')) {
                 [allele1, allele2] = part.split('/');
                 key = (allele1.toLowerCase() === 'n' ? allele2 : allele1).toUpperCase();
-            } else { // Assumes homozygous if no '/'
+            } else { 
                  allele1 = allele2 = part;
                  key = part.toUpperCase();
             }
@@ -326,6 +330,28 @@ document.addEventListener('DOMContentLoaded', function() {
         document.getElementById(`${prefix}-trait-genetics`).value = traitsStr.trim();
         
         document.querySelectorAll(`#${prefix}-form .ability-checkbox`).forEach(cb => cb.checked = false);
+        
+        // Handle random chimerism
+        const chimeraCheck = document.getElementById(`${prefix}-chimera-check`);
+        chimeraCheck.checked = roll(0.05); // 5% chance of being a chimera
+        document.getElementById(`${prefix}-chimera-section`).style.display = chimeraCheck.checked ? 'block' : 'none';
+        if(chimeraCheck.checked) {
+            let chimeraMarkingsStr = "";
+            const numChimeraMarkings = Math.floor(Math.random() * 5) + 2;
+            for (let i = 0; i < numChimeraMarkings; i++) {
+                const key = getRandom(markingKeys);
+                chimeraMarkingsStr += roll(0.5) ? `${key}/${key} ` : `${key}/n `;
+            }
+            document.getElementById(`${prefix}-chimera-marking-genetics`).value = chimeraMarkingsStr.trim();
+
+            let chimeraMutationsStr = "";
+            const numChimeraMutations = Math.floor(Math.random() * 3);
+             for (let i = 0; i < numChimeraMutations; i++) {
+                const key = getRandom(mutationKeys);
+                chimeraMutationsStr += roll(0.5) ? `${key}/${key} ` : `${key}/n `;
+            }
+            document.getElementById(`${prefix}-chimera-mutation-genetics`).value = chimeraMutationsStr.trim();
+        }
     }
     
     function rollBreeding() {
@@ -390,13 +416,11 @@ document.addEventListener('DOMContentLoaded', function() {
         showResults(outputHTML);
     }
     
-    const inheritGeneCategory = (sire, dam, category, settings) => {
+    const inheritGeneCategory = (sireGenes, damGenes, category, settings) => {
         const inherited = [];
         const pheno = [];
         const carried = [];
         const lib = GENE_LIBRARY[category];
-        const sireGenes = sire[category.toLowerCase()];
-        const damGenes = dam[category.toLowerCase()];
         const allGeneKeys = [...new Set([...Object.keys(sireGenes), ...Object.keys(damGenes)])];
         
         allGeneKeys.forEach(key => {
@@ -407,7 +431,7 @@ document.addEventListener('DOMContentLoaded', function() {
             const damHas = damAlleles.some(a => a.toLowerCase() !== 'n');
 
             let passChance = 0;
-            const basePass = (sireHas && damHas) ? 0.35 : 0.15; // Base pass rates
+            const basePass = (sireHas && damHas) ? 0.35 : 0.15;
             
             if (geneInfo.rarity === 'Common') passChance = basePass + 0.10;
             else if (geneInfo.rarity === 'Uncommon') passChance = basePass + 0.05;
@@ -470,9 +494,14 @@ document.addEventListener('DOMContentLoaded', function() {
         const baseGeno = `${baseAlleles.B.join('/')} ${baseAlleles.M.join('/')} ${baseAlleles.K.join('/')}`;
         cub.baseColor = determinePhenoColor(baseGeno);
         
-        const primaryMarkings = inheritGeneCategory(sire, dam, 'Markings', settings);
-        const primaryMutations = inheritGeneCategory(sire, dam, 'Mutations', settings);
-        const primaryTraits = inheritGeneCategory(sire, dam, 'Traits', settings);
+        const sireMarkingGenes = sire.isChimera && roll(0.5) ? sire.chimera.markings : sire.primary.markings;
+        const damMarkingGenes = dam.isChimera && roll(0.5) ? dam.chimera.markings : dam.primary.markings;
+        const sireMutationGenes = sire.isChimera && roll(0.5) ? sire.chimera.mutations : sire.primary.mutations;
+        const damMutationGenes = dam.isChimera && roll(0.5) ? dam.chimera.mutations : dam.primary.mutations;
+
+        const primaryMarkings = inheritGeneCategory(sireMarkingGenes, damMarkingGenes, 'Markings', settings);
+        const primaryMutations = inheritGeneCategory(sireMutationGenes, damMutationGenes, 'Mutations', settings);
+        const primaryTraits = inheritGeneCategory(sire.primary.traits, dam.primary.traits, 'Traits', settings);
 
         let otherGenes = [...primaryMarkings.inherited, ...primaryMutations.inherited, ...primaryTraits.inherited];
         cub.phenotype = primaryMarkings.pheno.join(', ') || 'None';
@@ -483,8 +512,8 @@ document.addEventListener('DOMContentLoaded', function() {
         if (roll(0.01)) {
             cub.isChimera = true;
             if(!cub.defects.includes('Chimerism')) cub.defects.push('Chimerism');
-            const secondaryMarkings = inheritGeneCategory(sire, dam, 'Markings', settings);
-            const secondaryMutations = inheritGeneCategory(sire, dam, 'Mutations', settings);
+            const secondaryMarkings = inheritGeneCategory(sireMarkingGenes, damMarkingGenes, 'Markings', settings);
+            const secondaryMutations = inheritGeneCategory(sireMutationGenes, damMutationGenes, 'Mutations', settings);
             cub.phenotype += ` // ${secondaryMarkings.pheno.join(', ') || 'None'}`;
             cub.mutations += ` // ${secondaryMutations.pheno.join(', ') || 'None'}`;
             otherGenes.push('//', ...secondaryMarkings.inherited, ...secondaryMutations.inherited);
@@ -513,11 +542,11 @@ document.addEventListener('DOMContentLoaded', function() {
         if (settings.dubiousFood) riskModifier *= 2.0;
 
         let baseRisk = 0;
-        if (sire.age === 'Adolescent' || dam.age === 'Adolescent') baseRisk = 0.45; // Increased
+        if (sire.age === 'Adolescent' || dam.age === 'Adolescent') baseRisk = 0.45;
         if (settings.isInbred) {
-            if (settings.inbreedLevel === 'Slight') baseRisk += 0.35;      // Increased
-            else if (settings.inbreedLevel === 'Moderate') baseRisk += 0.65; // Increased
-            else if (settings.inbreedLevel === 'Severe') baseRisk += 0.95;  // Increased
+            if (settings.inbreedLevel === 'Slight') baseRisk += 0.35;
+            else if (settings.inbreedLevel === 'Moderate') baseRisk += 0.65;
+            else if (settings.inbreedLevel === 'Severe') baseRisk += 0.95;
         }
         if (settings.dubiousFood) baseRisk += 0.05;
 
@@ -559,7 +588,7 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     function determineManetype(sire, dam, settings) {
-        if (settings.questionablePotion && roll(0.27)) return getRandom(MANETYPES); // +2% buff
+        if (settings.questionablePotion && roll(0.27)) return getRandom(MANETYPES);
 
         const sireMane = sire.manetype;
         const damMane = dam.manetype;
@@ -574,7 +603,7 @@ document.addEventListener('DOMContentLoaded', function() {
             if (roll(0.15)) return 'Natural';
             return getRandom(MANETYPES.filter(m => m !== sireMane));
         } else {
-            if (roll(0.70)) return 'Natural'; // Increased chance for Natural
+            if (roll(0.70)) return 'Natural';
             if (roll(0.50)) return sireMane; 
             return damMane;
         }
@@ -606,27 +635,40 @@ document.addEventListener('DOMContentLoaded', function() {
             const sireHas = sire.abilities.includes(abilityName);
             const damHas = dam.abilities.includes(abilityName);
             let passChance = 0;
-            if (sireHas && damHas) passChance = 0.20; // Decreased
-            else if (sireHas || damHas) passChance = 0.08; // Decreased
+            if (sireHas && damHas) passChance = 0.20;
+            else if (sireHas || damHas) passChance = 0.08;
             if(roll(passChance)) inheritedAbilities.push(abilityName);
         });
         return inheritedAbilities;
     }
 
     function getParentData(prefix) { 
-        return {
-            species: document.getElementById(`${prefix}-species`).value,
-            age: document.getElementById(`${prefix}-age`).value,
-            manetype: document.getElementById(`${prefix}-manetype`).value,
-            fertility: document.getElementById(`${prefix}-fertility`).value,
-            element: document.getElementById(`${prefix}-element`).value,
-            baseGenetics: document.getElementById(`${prefix}-base-genetics`).value,
-            markings: parseAlleleString(document.getElementById(`${prefix}-marking-genetics`).value, GENE_LIBRARY.Markings),
-            mutations: parseAlleleString(document.getElementById(`${prefix}-mutation-genetics`).value, GENE_LIBRARY.Mutations),
-            traits: parseAlleleString(document.getElementById(`${prefix}-trait-genetics`).value, GENE_LIBRARY.Traits),
-            abilities: Array.from(document.querySelectorAll(`#${prefix}-form .ability-checkbox:checked`)).map(cb => cb.value),
-            savageBoon: document.getElementById(`${prefix}-savage-boon`).checked,
+        const isChimera = document.getElementById(`${prefix}-chimera-check`).checked;
+        const data = {
+            isChimera: isChimera,
+            primary: {},
+            chimera: {}
         };
+
+        data.species = document.getElementById(`${prefix}-species`).value;
+        data.age = document.getElementById(`${prefix}-age`).value;
+        data.manetype = document.getElementById(`${prefix}-manetype`).value;
+        data.fertility = document.getElementById(`${prefix}-fertility`).value;
+        data.element = document.getElementById(`${prefix}-element`).value;
+        data.savageBoon = document.getElementById(`${prefix}-savage-boon`).checked;
+        data.abilities = Array.from(document.querySelectorAll(`#${prefix}-form .ability-checkbox:checked`)).map(cb => cb.value);
+        
+        data.primary.baseGenetics = document.getElementById(`${prefix}-base-genetics`).value;
+        data.primary.markings = parseAlleleString(document.getElementById(`${prefix}-marking-genetics`).value, GENE_LIBRARY.Markings);
+        data.primary.mutations = parseAlleleString(document.getElementById(`${prefix}-mutation-genetics`).value, GENE_LIBRARY.Mutations);
+        data.primary.traits = parseAlleleString(document.getElementById(`${prefix}-trait-genetics`).value, GENE_LIBRARY.Traits);
+
+        if(isChimera) {
+            data.chimera.markings = parseAlleleString(document.getElementById(`${prefix}-chimera-marking-genetics`).value, GENE_LIBRARY.Markings);
+            data.chimera.mutations = parseAlleleString(document.getElementById(`${prefix}-chimera-mutation-genetics`).value, GENE_LIBRARY.Mutations);
+        }
+
+        return data;
     }
 
     function getSettings() { 
@@ -673,6 +715,12 @@ document.addEventListener('DOMContentLoaded', function() {
         document.querySelectorAll('.base-color-selector').forEach(sel => {
             sel.addEventListener('change', (e) => updateBaseGenetics(e.target.dataset.prefix));
             updateBaseGenetics(sel.dataset.prefix);
+        });
+        document.querySelectorAll('.chimera-check').forEach(chk => {
+            chk.addEventListener('change', (e) => {
+                const prefix = e.target.dataset.prefix;
+                document.getElementById(`${prefix}-chimera-section`).style.display = e.target.checked ? 'block' : 'none';
+            });
         });
         document.getElementById('inbred-check').addEventListener('change', (e) => {
             document.querySelector('.inbreed-details').style.display = e.target.checked ? 'block' : 'none';
