@@ -249,7 +249,12 @@ document.addEventListener('DOMContentLoaded', function() {
             <div class="mb-3"><label for="${prefix}-trait-genetics" class="form-label">Trait Genetics (Physical):</label><textarea id="${prefix}-trait-genetics" class="form-control" rows="2" placeholder="e.g., Ho/n Fg/Fg..."></textarea></div>
             <div class="form-check mb-3"><input class="form-check-input chimera-check" type="checkbox" id="${prefix}-chimera-check" data-prefix="${prefix}"><label class="form-check-label" for="${prefix}-chimera-check">Chimerism</label></div>
             <div class="chimera-section" id="${prefix}-chimera-section">
-                 <h6>Chimera Genetics (Markings & Mutations Only)</h6>
+                 <h6>Chimera Genetics</h6>
+                 <div class="row">
+                    <div class="col-md-6 mb-3"><label for="${prefix}-chimera-base-color" class="form-label">Base Color (Phenotype):</label><select id="${prefix}-chimera-base-color" class="form-select base-color-selector" data-prefix="${prefix}-chimera">${BASE_COLORS.map(c => `<option value="${c}">${c}</option>`).join('')}</select></div>
+                    <div class="col-md-6 mb-3"><label for="${prefix}-chimera-base-genetics" class="form-label">Base Genetics (Genotype):</label><select id="${prefix}-chimera-base-genetics" class="form-select"></select></div>
+                 </div>
+                 <div class="mb-3"><label for="${prefix}-chimera-base-modifier-genetics" class="form-label">Base Modifier Genetics:</label><textarea id="${prefix}-chimera-base-modifier-genetics" class="form-control" rows="1" placeholder="e.g., Vl/n..."></textarea></div>
                  <div class="mb-3"><label for="${prefix}-chimera-marking-genetics" class="form-label">Marking Genetics:</label><textarea id="${prefix}-chimera-marking-genetics" class="form-control" rows="2" placeholder="e.g., Dpl/Dpl Spt/n..."></textarea></div>
                  <div class="mb-3"><label for="${prefix}-chimera-mutation-genetics" class="form-label">Mutation Genetics:</label><textarea id="${prefix}-chimera-mutation-genetics" class="form-control" rows="2" placeholder="e.g., Vit/n..."></textarea></div>
             </div><hr>
@@ -347,6 +352,22 @@ document.addEventListener('DOMContentLoaded', function() {
         chimeraCheck.checked = roll(0.05); // 5% chance of being a chimera
         document.getElementById(`${prefix}-chimera-section`).style.display = chimeraCheck.checked ? 'block' : 'none';
         if(chimeraCheck.checked) {
+            const randomChimeraColor = getRandom(BASE_COLORS);
+            document.getElementById(`${prefix}-chimera-base-color`).value = randomChimeraColor;
+            updateBaseGenetics(`${prefix}-chimera`);
+            const chimeraGeneticsDropdown = document.getElementById(`${prefix}-chimera-base-genetics`);
+            if (chimeraGeneticsDropdown.options.length > 0) {
+                chimeraGeneticsDropdown.selectedIndex = Math.floor(Math.random() * chimeraGeneticsDropdown.options.length);
+            }
+
+            let chimeraModifiersStr = "";
+            const numChimeraModifiers = Math.floor(Math.random() * 2);
+            for (let i = 0; i < numChimeraModifiers; i++) {
+                const key = getRandom(baseModifierKeys);
+                chimeraModifiersStr += roll(0.5) ? `${key}/${key} ` : `${key}/n `;
+            }
+            document.getElementById(`${prefix}-chimera-base-modifier-genetics`).value = chimeraModifiersStr.trim();
+
             let chimeraMarkingsStr = "";
             const numChimeraMarkings = Math.floor(Math.random() * 5) + 2;
             for (let i = 0; i < numChimeraMarkings; i++) {
@@ -408,7 +429,7 @@ document.addEventListener('DOMContentLoaded', function() {
             const cub = generateCub(sire, dam, settings);
             
             let cubHTML = "";
-            if (cub.isChimera) cubHTML += `** Chimeric Markings/Mutations **\n`;
+            if (cub.isChimera) cubHTML += `** Chimeric **\n`;
             cubHTML += `Species: ${cub.species.name}\nBuild: ${cub.species.build}\nSex: ${cub.sex}\nManetype: ${cub.manetype}\nElement: ${cub.element}\n`;
             cubHTML += `Base Color: ${cub.baseColor}\nBase Modifiers: ${cub.baseModifiersPheno}\nGenotype: ${cub.genotype}\nPhenotype: ${cub.phenotype}\n`;
             cubHTML += `Carried: ${cub.carried}\n`;
@@ -460,9 +481,9 @@ document.addEventListener('DOMContentLoaded', function() {
                     let expressesPhenotypically = false;
                     if (category === 'Markings') {
                         if (geneInfo.rarity === 'Common' || geneInfo.rarity === 'Uncommon') {
-                            expressesPhenotypically = true; // Expresses if het or hom
+                            expressesPhenotypically = true;
                         } else if (geneInfo.rarity === 'Rare' && isHomozygous) {
-                            expressesPhenotypically = true; // Only expresses if hom
+                            expressesPhenotypically = true;
                         }
                     } else { // Mutations, Traits, and Base Modifiers
                         if (isHomozygous) {
@@ -496,14 +517,14 @@ document.addEventListener('DOMContentLoaded', function() {
         cub.inbred = settings.isInbred ? 'Yes' : 'No';
         cub.fertility = determineOffspringFertility(sire, dam, settings, defectsResult);
 
-        const baseAlleles = {};
-        const sireBaseGeno = sire.primary.baseGenetics;
-        const damBaseGeno = dam.primary.baseGenetics;
+        const sireBaseGeno = sire.isChimera && roll(0.5) ? sire.chimera.baseGenetics : sire.primary.baseGenetics;
+        const damBaseGeno = dam.isChimera && roll(0.5) ? dam.chimera.baseGenetics : dam.primary.baseGenetics;
 
         if (!sireBaseGeno || sireBaseGeno.split(' ').length < 3 || !damBaseGeno || damBaseGeno.split(' ').length < 3) {
             return { viable: false, reason: 'Parental Genetic Error' };
         }
 
+        const baseAlleles = {};
         ['B', 'M', 'K'].forEach(locus => {
             const sireL = sireBaseGeno.split(' ')['BMK'.indexOf(locus)].split('/');
             const damL = damBaseGeno.split(' ')['BMK'.indexOf(locus)].split('/');
@@ -516,8 +537,10 @@ document.addEventListener('DOMContentLoaded', function() {
         const damMarkingGenes = dam.isChimera && roll(0.5) ? dam.chimera.markings : dam.primary.markings;
         const sireMutationGenes = sire.isChimera && roll(0.5) ? sire.chimera.mutations : sire.primary.mutations;
         const damMutationGenes = dam.isChimera && roll(0.5) ? dam.chimera.mutations : dam.primary.mutations;
+        const sireBaseModifierGenes = sire.isChimera && roll(0.5) ? sire.chimera.baseModifiers : sire.primary.baseModifiers;
+        const damBaseModifierGenes = dam.isChimera && roll(0.5) ? dam.chimera.baseModifiers : dam.primary.baseModifiers;
 
-        const primaryBaseModifiers = inheritGeneCategory(sire.primary.baseModifiers, dam.primary.baseModifiers, 'BaseModifiers', settings);
+        const primaryBaseModifiers = inheritGeneCategory(sireBaseModifierGenes, damBaseModifierGenes, 'BaseModifiers', settings);
         const primaryMarkings = inheritGeneCategory(sireMarkingGenes, damMarkingGenes, 'Markings', settings);
         const primaryMutations = inheritGeneCategory(sireMutationGenes, damMutationGenes, 'Mutations', settings);
         const primaryTraits = inheritGeneCategory(sire.primary.traits, dam.primary.traits, 'Traits', settings);
@@ -689,6 +712,8 @@ document.addEventListener('DOMContentLoaded', function() {
         data.primary.traits = parseAlleleString(document.getElementById(`${prefix}-trait-genetics`).value, GENE_LIBRARY.Traits);
 
         if(isChimera) {
+            data.chimera.baseGenetics = document.getElementById(`${prefix}-chimera-base-genetics`).value;
+            data.chimera.baseModifiers = parseAlleleString(document.getElementById(`${prefix}-chimera-base-modifier-genetics`).value, GENE_LIBRARY.BaseModifiers);
             data.chimera.markings = parseAlleleString(document.getElementById(`${prefix}-chimera-marking-genetics`).value, GENE_LIBRARY.Markings);
             data.chimera.mutations = parseAlleleString(document.getElementById(`${prefix}-chimera-mutation-genetics`).value, GENE_LIBRARY.Mutations);
         }
