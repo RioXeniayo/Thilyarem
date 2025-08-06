@@ -54,6 +54,19 @@
                         <!-- Manetypes populated by JS -->
                     </select>
                 </div>
+                 <div class="col-md-6 mb-3">
+                    <label for="age-select" class="form-label">Age:</label>
+                    <select class="form-select" id="age-select">
+                        <!-- Ages populated by JS -->
+                    </select>
+                </div>
+                 <div class="col-md-6 mb-3">
+                    <label for="sex-select" class="form-label">Sex:</label>
+                    <select class="form-select" id="sex-select">
+                        <option value="Male">Male</option>
+                        <option value="Female">Female</option>
+                    </select>
+                </div>
             </div>
             <div class="mb-3">
                 <label for="genotype-input" class="form-label">Old Genotype:</label>
@@ -68,20 +81,20 @@
                 <div class="col-md-6">
                     <h6>Old Mutations</h6>
                     <div class="form-check">
-                        <input class="form-check-input" type="checkbox" value="Heterochromia" id="old-mut-heterochromia">
-                        <label class="form-check-label" for="old-mut-heterochromia">Heterochromia (will be removed)</label>
-                    </div>
-                    <div class="form-check">
-                        <input class="form-check-input" type="checkbox" value="Partial" id="old-mut-partial">
+                        <input class="form-check-input old-mutation-checkbox" type="checkbox" value="Partial" id="old-mut-partial">
                         <label class="form-check-label" for="old-mut-partial">Partial Albinism / Melanism</label>
                     </div>
                     <div class="form-check">
-                        <input class="form-check-input" type="checkbox" value="Albinism" id="old-mut-albinism">
+                        <input class="form-check-input old-mutation-checkbox" type="checkbox" value="Albinism" id="old-mut-albinism">
                         <label class="form-check-label" for="old-mut-albinism">Albinism</label>
                     </div>
                     <div class="form-check">
-                        <input class="form-check-input" type="checkbox" value="Inversa" id="old-mut-inversa">
+                        <input class="form-check-input old-mutation-checkbox" type="checkbox" value="Inversa" id="old-mut-inversa">
                         <label class="form-check-label" for="old-mut-inversa">Inversa</label>
+                    </div>
+                     <div class="form-check">
+                        <input class="form-check-input old-mutation-checkbox" type="checkbox" value="Melanism" id="old-mut-melanism">
+                        <label class="form-check-label" for="old-mut-melanism">Melanism</label>
                     </div>
                 </div>
                 <div class="col-md-6">
@@ -134,22 +147,21 @@ document.addEventListener('DOMContentLoaded', function() {
         Abilities: { Unbent: { name: 'Unbent'}, Cunning: { name: 'Cunning'}, Strike: { name: 'Strike'}, Bold: { name: 'Bold'}, Swift: { name: 'Swift'}, Skillful_Hunter: { name: 'Skillful Hunter'}, Completionist: { name: 'Completionist'}, Ocean_Champion: { name: 'Ocean Champion'}, Fish_Wrangler: { name: 'Fish Wrangler'}, Charismatic: { name: 'Charismatic'}, Shaman: { name: 'Shaman'}, Foraging_Maestro: { name: 'Foraging Maestro'} }
     };
     const MANETYPES = ['Natural', 'Razor', 'Sphinx', 'Curly', 'Long', 'Fiery', 'Barbary'];
+    const AGES = ['Hatchling', 'Juvenile', 'Adolescent', 'Young Adult', 'Adult', 'Elder', 'Ancient', 'Celestial'];
 
     const CONVERSION_MAP = {
         // Base Colors
-        'tan': 'Tan', 'tt': 'Tan', 'ntt': 'Tan', 'tt': 'Tan',
+        'tan': 'Tan', 'tt': 'Tan', 'ntt': 'Tan',
         'brown': 'Brown', 'aa': 'Brown', 'naa': 'Brown', 'na': 'Brown',
-        'seagreen': 'Seagreen', 'sg': 'Seagreen', 'nsg': 'Seagreen',
+        'seagreen': 'Seagreen', 'sg': 'Seagreen', 'nsg': 'Seagreen', 'ns': 'Seagreen',
         'blue': 'Blue', 'bb': 'Blue', 'nbb': 'Blue', 'nb': 'Blue',
         'white': 'White', 'ww': 'White', 'nww': 'White', 'nw': 'White',
         'black': 'Black', 'ee': 'Black', 'nee': 'Black', 'ne': 'Black',
         // Base Modifiers
         'amber': { key: 'Am', lib: 'BaseModifiers' },
-        'forest green': { key: 'Jd', lib: 'BaseModifiers' },
-        'jade': { key: 'Jd', lib: 'BaseModifiers' },
+        'forest green': { key: 'Jd', lib: 'BaseModifiers' }, 'jade': { key: 'Jd', lib: 'BaseModifiers' },
         'violet': { key: 'Vl', lib: 'BaseModifiers' },
-        'red': { key: 'Vm', lib: 'BaseModifiers' },
-        'vermillion': { key: 'Vm', lib: 'BaseModifiers' },
+        'red': { key: 'Vm', lib: 'BaseModifiers' }, 'vermillion': { key: 'Vm', lib: 'BaseModifiers' },
         'cream': { key: 'Prl', lib: 'BaseModifiers' }, 'ncr': { key: 'Prl', lib: 'BaseModifiers' }, 'crcr': { key: 'Prl', lib: 'BaseModifiers' },
         // Markings
         'roan': { key: 'Rn', lib: 'Markings' }, 'nrn': { key: 'Rn', lib: 'Markings' }, 'rnrn': { key: 'Rn', lib: 'Markings' },
@@ -175,7 +187,7 @@ document.addEventListener('DOMContentLoaded', function() {
         // Mutations
         'graying': { key: 'Axg', lib: 'Mutations' }, 'ngr': { key: 'Axg', lib: 'Mutations' }, 'grgr': { key: 'Axg', lib: 'Mutations' }, 'axanthic-g': { key: 'Axg', lib: 'Mutations' },
         'vitiligo': { key: 'Vit', lib: 'Mutations' }, 'nvit': { key: 'Vit', lib: 'Mutations' }, 'vitvit': { key: 'Vit', lib: 'Mutations' },
-        'partial melanism': { key: 'Ovr', lib: 'Markings' }, 'partial albinism': { key: 'Ovr', lib: 'Markings' }, 'overo': { key: 'Ovr', lib: 'Markings' },
+        'partial': { key: 'Ovr', lib: 'Markings' }, 'overo': { key: 'Ovr', lib: 'Markings' },
         'inversa': { key: 'Inv', lib: 'Mutations' },
         'albinism': { key: 'Alb', lib: 'Mutations' },
         'melanism': { key: 'Axm', lib: 'Mutations' }, 'axanthic-m': { key: 'Axm', lib: 'Mutations' },
@@ -192,6 +204,9 @@ document.addEventListener('DOMContentLoaded', function() {
         const manetypeSelect = document.getElementById('manetype-select');
         manetypeSelect.innerHTML = MANETYPES.map(m => `<option value="${m}">${m}</option>`).join('');
         
+        const ageSelect = document.getElementById('age-select');
+        ageSelect.innerHTML = AGES.map(a => `<option value="${a}">${a}</option>`).join('');
+
         const abilitiesContainer = document.getElementById('abilities-container');
         abilitiesContainer.innerHTML = Object.values(GENE_LIBRARY.Abilities).map(ability => `
             <div class="col-6 col-sm-4">
@@ -208,6 +223,8 @@ document.addEventListener('DOMContentLoaded', function() {
     function convertGeno() {
         const build = document.getElementById('build-select').value;
         const manetype = document.getElementById('manetype-select').value;
+        const age = document.getElementById('age-select').value;
+        const sex = document.getElementById('sex-select').value;
         const oldGeno = document.getElementById('genotype-input').value;
         const oldPheno = document.getElementById('phenotype-input').value;
         const fullInputString = `${oldGeno} ${oldPheno}`.toLowerCase().replace(/,/g, ' ');
@@ -223,7 +240,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 if (typeof mapping === 'string') { // It's a base color
                     baseColor = mapping;
                 } else { // It's a gene
-                    const isHomozygous = token.endsWith(token.slice(-2).toLowerCase()) && token.length > 3 && token !== 'inversa';
+                    const isHomozygous = token.endsWith(token.slice(-2).toLowerCase()) && token.length > 3 && !['inversa', 'partial'].includes(token);
                     if (!foundGenes.has(mapping.key)) {
                         foundGenes.set(mapping.key, { isHomozygous: isHomozygous, lib: mapping.lib });
                     } else if (isHomozygous) {
@@ -234,7 +251,7 @@ document.addEventListener('DOMContentLoaded', function() {
         });
 
         // Process checkboxes for mutations
-        document.querySelectorAll('#old-mut-partial, #old-mut-albinism, #old-mut-inversa').forEach(cb => {
+        document.querySelectorAll('.old-mutation-checkbox').forEach(cb => {
             if (cb.checked) {
                 const mapping = CONVERSION_MAP[cb.value.toLowerCase()];
                 if (mapping && !foundGenes.has(mapping.key)) {
@@ -252,7 +269,6 @@ document.addEventListener('DOMContentLoaded', function() {
             const geneInfo = GENE_LIBRARY[data.lib][key];
             let isHomozygous = data.isHomozygous;
 
-            // Force hom for rare genes, mutations, traits, and all base modifiers
             if (geneInfo.rarity === 'Rare' || data.lib !== 'Markings') {
                 isHomozygous = true;
             }
@@ -281,8 +297,10 @@ document.addEventListener('DOMContentLoaded', function() {
         const finalDragon = {};
         finalDragon.build = build;
         finalDragon.manetype = manetype;
+        finalDragon.age = age;
+        finalDragon.sex = sex;
         finalDragon.baseColor = baseColor;
-        finalDragon.baseGeno = getRandom(GENOTYPES[baseColor] || []);
+        finalDragon.baseGeno = getRandom(GENOTYPES[baseColor] || ["Unknown Genotype"]);
         finalDragon.genotype = `${finalDragon.baseGeno} ${newGenoParts.join(' ')}`.trim();
         finalDragon.phenotype = pheno.Markings.join(', ') || 'None';
         finalDragon.baseModifiers = pheno.BaseModifiers.join(', ') || 'None';
@@ -292,22 +310,23 @@ document.addEventListener('DOMContentLoaded', function() {
         finalDragon.abilities = Array.from(document.querySelectorAll('.ability-checkbox:checked')).map(cb => cb.value);
 
         // Format for display
-        let output = `Species: ${build === 'Destrier' ? 'Panlongus Lykophus Imperator' : 'Panlongus lykophus pelagius'}\n`;
-        output += `Build: ${finalDragon.build}\n`;
-        output += `Sex: Unknown\n`;
-        output += `Manetype: ${finalDragon.manetype}\n`;
-        output += `Base Color: ${finalDragon.baseColor}\n`;
-        output += `Base Modifiers: ${finalDragon.baseModifiers}\n`;
-        output += `Genotype: ${finalDragon.genotype}\n`;
-        output += `Phenotype: ${finalDragon.phenotype}\n`;
-        output += `Carried: ${finalDragon.carried}\n`;
-        output += `Mutations: ${finalDragon.mutations}\n`;
-        output += `Traits: ${finalDragon.traits}\n`;
-        output += `Abilities: ${finalDragon.abilities.join(', ') || 'None'}\n`;
-        output += `Fertility: Good\n`;
-        output += `Defects: Healthy\n`;
+        let output = `<strong>Species:</strong> ${build === 'Destrier' ? 'Panlongus Lykophus Imperator' : 'Panlongus lykophus pelagius'}\n`;
+        output += `<strong>Build:</strong> ${finalDragon.build}\n`;
+        output += `<strong>Age:</strong> ${finalDragon.age}\n`;
+        output += `<strong>Sex:</strong> ${finalDragon.sex}\n`;
+        output += `<strong>Manetype:</strong> ${finalDragon.manetype}\n`;
+        output += `<strong>Base Color:</strong> ${finalDragon.baseColor}\n`;
+        output += `<strong>Base Modifiers:</strong> ${finalDragon.baseModifiers}\n`;
+        output += `<strong>Genotype:</strong> ${finalDragon.genotype}\n`;
+        output += `<strong>Phenotype:</strong> ${finalDragon.phenotype}\n`;
+        output += `<strong>Carried:</strong> ${finalDragon.carried}\n`;
+        output += `<strong>Mutations:</strong> ${finalDragon.mutations}\n`;
+        output += `<strong>Traits:</strong> ${finalDragon.traits}\n`;
+        output += `<strong>Abilities:</strong> ${finalDragon.abilities.join(', ') || 'None'}\n`;
+        output += `<strong>Fertility:</strong> Good\n`;
+        output += `<strong>Defects:</strong> Healthy\n`;
 
-        resultsOutput.textContent = output;
+        resultsOutput.innerHTML = output;
     }
 
     init();
