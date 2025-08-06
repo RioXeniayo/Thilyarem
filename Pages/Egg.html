@@ -88,6 +88,7 @@ document.addEventListener('DOMContentLoaded', function() {
         'Blue': ["BW/BW MB/MB K+/K+", "BW/BW MB/MB K+/KB", "BW/BW MB/MB KB/KB"],
     };
     const GENE_LIBRARY = {
+        BaseModifiers: { Vl: { name: 'Violet', rarity: 'Rare' }, Vm: { name: 'Vermillion', rarity: 'Rare' }, Jd: { name: 'Jade', rarity: 'Rare' }, Am: { name: 'Amber', rarity: 'Rare' }, Prl: { name: 'Pearl', rarity: 'Rare' } },
         Markings: { Dpl: { name: 'Dapples', rarity: 'Common' }, Bt: { name: 'Bellytone', rarity: 'Common' }, Mtl: { name: 'Mantle', rarity: 'Common' }, Clr: { name: 'Collar', rarity: 'Common' }, Ikd: { name: 'Inked', rarity: 'Common' }, Sia: { name: 'Siamese', rarity: 'Common' }, Pnt: { name: 'Points', rarity: 'Common' }, Stn: { name: 'Stained', rarity: 'Common' }, Rn: { name: 'Roan', rarity: 'Common' }, Tby: { name: 'Tabby', rarity: 'Common' }, Spt: { name: 'Spotted', rarity: 'Common' }, Apl: { name: 'Appalosa', rarity: 'Uncommon' }, Mrl: { name: 'Merle', rarity: 'Uncommon' }, Brn: { name: 'Barring', rarity: 'Uncommon' }, Dn: { name: 'Dun', rarity: 'Uncommon' }, Pyn: { name: 'Python', rarity: 'Uncommon' }, Stk: { name: 'Streaks', rarity: 'Uncommon' }, Ovr: { name: 'Overo', rarity: 'Uncommon' }, Rsc: { name: 'Rorscach', rarity: 'Uncommon' }, Pg: { name: 'Pangare', rarity: 'Uncommon' }, Sb: { name: 'Sable', rarity: 'Uncommon' }, Pb: { name: 'Piebald', rarity: 'Rare' }, Gnt: { name: 'Glint', rarity: 'Rare' }, Sf: { name: 'Snowfall', rarity: 'Rare' }, Wd: { name: 'Widow', rarity: 'Rare' }, Dmd: { name: 'Diamond', rarity: 'Rare' }, Spr: { name: 'Spider', rarity: 'Rare' }, Stm: { name: 'Spectrum', rarity: 'Rare' }, Iri: { name: 'Iridescent', rarity: 'Rare' } },
         Mutations: { Vit: { name: 'Vitiligo', rarity: 'Common' }, Inv: { name: 'Inversa', rarity: 'Uncommon' }, Les: { name: 'Leucistic', rarity: 'Uncommon' }, Alb: { name: 'Albino', rarity: 'Uncommon' }, Axg: { name: 'Axanthic -G', rarity: 'Uncommon' }, Ery: { name: 'Erythristic', rarity: 'Rare' }, Lva: { name: 'Lavender Albino', rarity: 'Rare' }, Axm: { name: 'Axanthic-M', rarity: 'Rare' } },
         Traits: { Ho: { name: 'Horns', rarity: 'Uncommon' }, Fg: { name: 'Fangs', rarity: 'Uncommon' }, Sp: { name: 'Spines', rarity: 'Rare' } },
@@ -100,7 +101,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const generateBtn = document.getElementById('generate-btn');
     const eggTypeSelect = document.getElementById('egg-type-select');
 
-    const sortedGenes = { Markings: {}, Mutations: {}, Traits: {} };
+    const sortedGenes = { BaseModifiers: {}, Markings: {}, Mutations: {}, Traits: {} };
     for (const category in sortedGenes) {
         sortedGenes[category]['Common'] = [];
         sortedGenes[category]['Uncommon'] = [];
@@ -150,9 +151,10 @@ document.addEventListener('DOMContentLoaded', function() {
         const { geno: otherGeno, pheno, carried } = getRandomGenes(tier);
         dragon.genotype = `${dragon.baseGeno} ${otherGeno.join(' ')}`.trim();
         dragon.phenotype = pheno.Markings.join(', ') || 'None';
+        dragon.baseModifiers = pheno.BaseModifiers.join(', ') || 'None';
         dragon.mutations = pheno.Mutations.join(', ') || 'None';
         dragon.traits = pheno.Traits.join(', ') || 'None';
-        dragon.carried = carried.Markings.concat(carried.Mutations, carried.Traits).join(', ') || 'None';
+        dragon.carried = [...carried.BaseModifiers, ...carried.Markings, ...carried.Mutations, ...carried.Traits].join(', ') || 'None';
 
         // 5. Final Formatting
         let output = `Species: ${dragon.species.name}\n`;
@@ -161,6 +163,7 @@ document.addEventListener('DOMContentLoaded', function() {
         output += `Sex: ${roll(0.5) ? 'Male' : 'Female'}\n`;
         output += `Manetype: ${dragon.manetype}\n`;
         output += `Base Color: ${dragon.baseColor}\n`;
+        output += `Base Modifiers: ${dragon.baseModifiers}\n`;
         output += `Genotype: ${dragon.genotype}\n`;
         output += `Phenotype: ${dragon.phenotype}\n`;
         output += `Carried: ${dragon.carried}\n`;
@@ -174,8 +177,8 @@ document.addEventListener('DOMContentLoaded', function() {
 
     function getRandomGenes(tier) {
         const geno = [];
-        const pheno = { Markings: [], Mutations: [], Traits: [] };
-        const carried = { Markings: [], Mutations: [], Traits: [] };
+        const pheno = { BaseModifiers: [], Markings: [], Mutations: [], Traits: [] };
+        const carried = { BaseModifiers: [], Markings: [], Mutations: [], Traits: [] };
         
         let markingPool = [];
         if (tier === 'Newbie') {
@@ -227,10 +230,16 @@ document.addEventListener('DOMContentLoaded', function() {
         geno.push(isHomozygous ? `${allele}/${allele}` : `${allele}/n`);
 
         let expressesPhenotypically = false;
-        if (geneInfo.rarity === 'Common' || geneInfo.rarity === 'Uncommon') {
-            expressesPhenotypically = true;
-        } else if (geneInfo.rarity === 'Rare' && isHomozygous) {
-            expressesPhenotypically = true;
+        if (category === 'Markings') {
+            if (geneInfo.rarity === 'Common' || geneInfo.rarity === 'Uncommon') {
+                expressesPhenotypically = true;
+            } else if (geneInfo.rarity === 'Rare' && isHomozygous) {
+                expressesPhenotypically = true;
+            }
+        } else { // Mutations, Traits, and Base Modifiers
+            if (isHomozygous) {
+                expressesPhenotypically = true;
+            }
         }
 
         if (expressesPhenotypically) {
