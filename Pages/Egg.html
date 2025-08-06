@@ -157,22 +157,22 @@ document.addEventListener('DOMContentLoaded', function() {
         dragon.carried = [...carried.BaseModifiers, ...carried.Markings, ...carried.Mutations, ...carried.Traits].join(', ') || 'None';
 
         // 5. Final Formatting
-        let output = `Species: ${dragon.species.name}\n`;
-        output += `Build: ${dragon.species.build}\n`;
-        output += `Age: Hatchling\n`;
-        output += `Sex: ${roll(0.5) ? 'Male' : 'Female'}\n`;
-        output += `Manetype: ${dragon.manetype}\n`;
-        output += `Base Color: ${dragon.baseColor}\n`;
-        output += `Base Modifiers: ${dragon.baseModifiers}\n`;
-        output += `Genotype: ${dragon.genotype}\n`;
-        output += `Phenotype: ${dragon.phenotype}\n`;
-        output += `Carried: ${dragon.carried}\n`;
-        output += `Mutations: ${dragon.mutations}\n`;
-        output += `Traits: ${dragon.traits}\n`;
-        output += `Fertility: Best\n`;
-        output += `Defects: Healthy\n`;
+        let output = `<strong>Species:</strong> ${dragon.species.name}\n`;
+        output += `<strong>Build:</strong> ${dragon.species.build}\n`;
+        output += `<strong>Age:</strong> Hatchling\n`;
+        output += `<strong>Sex:</strong> ${roll(0.5) ? 'Male' : 'Female'}\n`;
+        output += `<strong>Manetype:</strong> ${dragon.manetype}\n`;
+        output += `<strong>Base Color:</strong> ${dragon.baseColor}\n`;
+        output += `<strong>Base Modifiers:</strong> ${dragon.baseModifiers}\n`;
+        output += `<strong>Genotype:</strong> ${dragon.genotype}\n`;
+        output += `<strong>Phenotype:</strong> ${dragon.phenotype}\n`;
+        output += `<strong>Carried:</strong> ${dragon.carried}\n`;
+        output += `<strong>Mutations:</strong> ${dragon.mutations}\n`;
+        output += `<strong>Traits:</strong> ${dragon.traits}\n`;
+        output += `<strong>Fertility:</strong> Best\n`;
+        output += `<strong>Defects:</strong> Healthy\n`;
 
-        resultsOutput.textContent = output;
+        resultsOutput.innerHTML = output;
     }
 
     function getRandomGenes(tier) {
@@ -230,16 +230,10 @@ document.addEventListener('DOMContentLoaded', function() {
         geno.push(isHomozygous ? `${allele}/${allele}` : `${allele}/n`);
 
         let expressesPhenotypically = false;
-        if (category === 'Markings') {
-            if (geneInfo.rarity === 'Common' || geneInfo.rarity === 'Uncommon') {
-                expressesPhenotypically = true;
-            } else if (geneInfo.rarity === 'Rare' && isHomozygous) {
-                expressesPhenotypically = true;
-            }
-        } else { // Mutations, Traits, and Base Modifiers
-            if (isHomozygous) {
-                expressesPhenotypically = true;
-            }
+        if (geneInfo.rarity === 'Common' || geneInfo.rarity === 'Uncommon') {
+            expressesPhenotypically = true;
+        } else if (geneInfo.rarity === 'Rare' && isHomozygous) {
+            expressesPhenotypically = true;
         }
 
         if (expressesPhenotypically) {
